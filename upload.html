@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add Your Records (sample upload): Our LGCY</title>
+<meta name="description" content="Sample upload screen for the Our LGCY demo preview. Each person submits their own records; the engine sorts it out. Demo only, nothing is uploaded.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="index.html">Our <span>LGCY</span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" data-nav-toggle>Menu</button>
+    <nav class="main-nav" id="main-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html" aria-current="page">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="demo-banner" role="note">
+  <div class="wrap">
+    <strong>Demo preview.</strong>
+    <span>This upload screen is a mock. Files you drop here never leave your device, and nothing is stored.</span>
+  </div>
+</div>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Add your records</p>
+      <h1>Each person submits their own. The engine does the rest.</h1>
+      <p class="lede">Nobody in this family has to organize anything. Sign in with your invite, drop what you have in whatever shape it exists, fill in your own short profile, and stop. Sorting, matching, and placing people on the tree is the engine's job, not yours.</p>
+    </div>
+
+    <div class="two-col" style="margin-top:20px">
+      <div>
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-describedby="dz-help">
+          <p class="big">Drop your records here</p>
+          <p id="dz-help">Photos, scans, PDFs, a GEDCOM export from your own tree, even a voice note telling a story.<br>Or tap to choose files from this device.</p>
+          <p><span class="btn btn-pine">Choose files</span></p>
+          <input type="file" id="file-input" multiple hidden aria-label="Choose files to preview">
+          <ul class="file-list" id="file-list" aria-live="polite"></ul>
+          <p id="dz-status" style="margin:0"></p>
+        </div>
+        <p style="margin-top:16px"><strong>The daylight rule:</strong> a straight phone photo in good light beats a perfect scan that never happens. If a photo has names written on the back, photograph the back too. Funeral programs are gold: one page can carry parents, siblings, a church, and a burial place all at once.</p>
+        <p><strong>Already public? Skip it.</strong> The Dawes Rolls, the census, and the Indian Census Rolls live inside Our LGCY as the reference base. Nobody should ever upload what the archive already holds.</p>
+      </div>
+
+      <div>
+        <h2 style="margin-bottom:14px">What happens next</h2>
+        <ol class="steps">
+          <li>
+            <h3>It lands untouched</h3>
+            <p>Your uploads are stored exactly as you sent them, tagged with your name. Originals are never edited and never deleted.</p>
+          </li>
+          <li>
+            <h3>The engine reads and sorts</h3>
+            <p>Documents are read for names, dates, places, parents, spouses, churches, and cemeteries. A GEDCOM export becomes people and families in one pass. Your facts are checked against the reference corpus and against what your cousins have already sent.</p>
+          </li>
+          <li>
+            <h3>Matches get proposed, not forced</h3>
+            <p>When five cousins upload the same uncle under three spellings, the engine proposes one person, with the evidence shown. Sure matches merge. Borderline ones wait for a human, and conflicting facts are kept side by side, never overwritten.</p>
+          </li>
+          <li>
+            <h3>You get the payoff</h3>
+            <p>A message in plain words: "Your upload placed you here. We matched three records to your grandmother. One question only you can answer." Answer it, and the tree grows again.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <section class="section" style="padding-bottom:56px">
+      <div class="section-head">
+        <p class="eyebrow">Your five minute profile</p>
+        <h2>Just you, as you know yourself</h2>
+        <p>You only speak for your own household. Your full name and maiden name, your birth date and place, your parents' names, your partner, your children, and the towns your people lived in before. Approximate is fine. Maiden names matter most of all: they are how the women's lines connect, and they are the first thing families lose.</p>
+      </div>
+      <p><a class="btn btn-pine" href="reference.html">Not sure you belong to this tree? Ask the Reference Center</a></p>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+      </ul>
+    </nav>
+    <p>Our LGCY is a private family project. This public preview shows the experience with a fictional sample family only.</p>
+    <p class="fine">Prepared by Twistor Holdings LLC<br>
+    Preview with a fictional sample family. No real family data.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference Center, is this my family member?: Our LGCY</title>
+<meta name="description" content="Sample Reference Center for the Our LGCY demo preview. Ask whether a person belongs to the family; the archive checks one way. Demo only.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="index.html">Our <span>LGCY</span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" data-nav-toggle>Menu</button>
+    <nav class="main-nav" id="main-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html" aria-current="page">Reference Center</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="demo-banner" role="note">
+  <div class="wrap">
+    <strong>Demo preview.</strong>
+    <span>This form is a mock. Submitting it in the preview stores nothing and sends nothing.</span>
+  </div>
+</div>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Reference Center</p>
+      <h1>Is this my family member?</h1>
+      <p class="lede">Maybe a cousin told you a name. Maybe you found a record, a photo, or a funeral program and something in it feels like yours. Ask here. You tell us what you know, and the archive checks it against everything the family and the public record already hold.</p>
+    </div>
+
+    <div class="layout-rail" style="margin-top:14px">
+      <form class="claim" id="claim-form" novalidate>
+        <div class="field">
+          <label for="f-name">Your name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Your full name">
+        </div>
+        <div class="field">
+          <label for="f-looking">Who are you asking about?</label>
+          <p class="hint">The person you believe connects you to this family, or the person in the record you found.</p>
+          <input id="f-looking" name="looking" type="text" placeholder="Name as you know it, maiden name too if you have it">
+        </div>
+        <div class="field">
+          <label for="f-kin">Your parents and grandparents, as you know them</label>
+          <p class="hint">Names, towns, rough years. Partial is fine. The engine works with what memory honestly holds.</p>
+          <textarea id="f-kin" name="kin" placeholder="For example: my grandmother was born near (town) around 1910, her mother was called..."></textarea>
+        </div>
+        <div class="field">
+          <label for="f-hold">Anything you hold</label>
+          <p class="hint">A photo, a program, a name in a family Bible, a story an elder told you. Describe it here; in the full app you can attach it.</p>
+          <textarea id="f-hold" name="hold" placeholder="Describe what you have, in your own words"></textarea>
+        </div>
+        <button class="btn btn-pine" type="submit">Send it to the archive</button>
+        <div class="form-note" id="claim-note" role="status">
+          <strong>Sample receipt.</strong> In the full app, your claim would now go to the engine for its one way check, and the branch captain for that line would see the evidence packet. In this preview, nothing was sent and nothing was stored.
+        </div>
+      </form>
+
+      <div>
+        <div class="rail-box">
+          <h3>How the check works</h3>
+          <ul>
+            <li><strong>Slot matching:</strong> is there a place in the known tree where this person fits, an unnamed child, a line that stops where yours begins?</li>
+            <li><strong>Fact matching:</strong> do your facts meet facts a stranger could not guess, a maiden name, a burial place, a household from a census page?</li>
+            <li><strong>Perspective matching:</strong> has a family member already mentioned you, "my cousin in Tulsa," even if nobody entered you formally?</li>
+            <li><strong>Questions, when it is close:</strong> the archive may ask about things that live in family memory. It scores your answers silently.</li>
+          </ul>
+        </div>
+        <div class="rail-box">
+          <h3>The one way promise</h3>
+          <p>The check runs one way: your facts against the archive, scored in silence. The archive never reveals its side to an unverified asker, and living people's information is never used as an answer key and never shown to prove a claim.</p>
+          <p style="margin-bottom:0">If the match is verified, the archive adds you to the tree, merges what you sent into your person page, and tells you exactly where you attach. If it is probable, a branch captain makes the family call. If there is no match yet, your claim stays on file, because a future upload may be the missing piece.</p>
+        </div>
+        <div class="rail-box">
+          <h3>Checking a record instead?</h3>
+          <p style="margin-bottom:0">Members can also run it in reverse: "Is the man in this 1930 census household my great grandfather?" The engine weighs age math, town, household members, occupation, and neighbors, and answers with the evidence for and against. <a href="case.html">See that weighing at work in a Connection Case.</a></p>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin:6px 0 52px">Every addition the archive makes is logged with the evidence that justified it, and a captain can undo any of it. The tree stays honest because its work stays visible.</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+      </ul>
+    </nav>
+    <p>Our LGCY is a private family project. This public preview shows the experience with a fictional sample family only.</p>
+    <p class="fine">Prepared by Twistor Holdings LLC<br>
+    Preview with a fictional sample family. No real family data.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

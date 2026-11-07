@@ -1,0 +1,530 @@
+/* Our LGCY demo preview. One shared stylesheet, no build step, no external assets.
+   Palette (Sofia): collard green, sorghum gold, iron skillet, warm paper.
+   Flat color only. No gradients, no glass, no shadows doing decoration. */
+
+:root {
+  --paper: #faf6ec;
+  --paper-deep: #f1e9d6;
+  --ink: #1d2320;
+  --ink-soft: #454e47;
+  --pine: #1e3a2b;
+  --pine-deep: #142a1f;
+  --pine-soft: #2c5240;
+  --gold: #b9872c;
+  --gold-deep: #7d5a13;
+  --oxblood: #7c2d26;
+  --line: #d9cfb8;
+  --line-dark: #3c5a49;
+  --card: #fffdf7;
+  --radius: 10px;
+  --maxw: 1140px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, .display {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  line-height: 1.15;
+  color: var(--pine-deep);
+  margin: 0 0 0.5em;
+}
+
+h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); font-weight: 700; }
+h2 { font-size: clamp(1.55rem, 3.4vw, 2.2rem); font-weight: 700; }
+h3 { font-size: 1.22rem; font-weight: 700; }
+p { margin: 0 0 1em; }
+a { color: var(--pine-soft); text-underline-offset: 3px; }
+a:hover { color: var(--oxblood); }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--pine-deep);
+  color: #fff;
+  padding: 12px 18px;
+  z-index: 60;
+}
+.skip-link:focus { left: 12px; top: 12px; color: #fff; }
+
+/* ---------- Header ---------- */
+
+.site-header {
+  background: var(--pine-deep);
+  color: #f4efe2;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 4px solid var(--gold);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 68px;
+}
+.wordmark {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.wordmark span { color: var(--gold); }
+.wordmark:hover { color: #fff; }
+.main-nav ul {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.main-nav a {
+  display: block;
+  color: #e9e2cf;
+  text-decoration: none;
+  padding: 12px 13px;
+  font-size: 0.98rem;
+  border-radius: 6px;
+}
+.main-nav a:hover { background: var(--pine-soft); color: #fff; }
+.main-nav a[aria-current="page"] {
+  background: var(--pine-soft);
+  color: #fff;
+  box-shadow: inset 0 -3px 0 var(--gold);
+}
+.nav-toggle {
+  display: none;
+  background: var(--pine-soft);
+  color: #fff;
+  border: 1px solid var(--line-dark);
+  border-radius: 8px;
+  min-height: 46px;
+  min-width: 46px;
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* ---------- Demo banner ---------- */
+
+.demo-banner {
+  background: var(--oxblood);
+  color: #fdf3ec;
+  font-size: 0.97rem;
+}
+.demo-banner .wrap {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.demo-banner strong { letter-spacing: 0.02em; }
+
+/* ---------- Hero / landing ---------- */
+
+.hero {
+  background: var(--pine);
+  color: #f2ecdb;
+  padding: 56px 0 64px;
+}
+.hero h1 { color: #fff; }
+.hero .lede {
+  font-size: 1.22rem;
+  max-width: 34em;
+  color: #e7dfc8;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 44px;
+  align-items: center;
+}
+.hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
+.btn {
+  display: inline-block;
+  min-height: 48px;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.btn-gold { background: var(--gold); color: #221a05; }
+.btn-gold:hover { background: #cfa244; color: #221a05; }
+.btn-ghost { border-color: #cdbd8f; color: #f2ecdb; background: transparent; }
+.btn-ghost:hover { border-color: #fff; color: #fff; }
+.btn-pine { background: var(--pine); color: #fff; }
+.btn-pine:hover { background: var(--pine-soft); color: #fff; }
+.tree-figure {
+  background: var(--pine-deep);
+  border: 1px solid var(--line-dark);
+  border-radius: var(--radius);
+  padding: 18px 14px 10px;
+}
+.tree-figure figcaption {
+  color: #cfc5a4;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 8px 6px 6px;
+}
+.tree-figure svg { width: 100%; height: auto; display: block; }
+
+/* ---------- Sections ---------- */
+
+.section { padding: 58px 0; }
+.section.alt { background: var(--paper-deep); }
+.section-head { max-width: 46em; margin-bottom: 30px; }
+.eyebrow {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: 10px;
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+.three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+.feature h3 { margin-bottom: 8px; }
+.feature p { color: var(--ink-soft); }
+.feature .glyph {
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 1.9rem;
+  color: var(--oxblood);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.preview-list { list-style: none; margin: 0; padding: 0; }
+.preview-list li {
+  border-top: 1px solid var(--line);
+  padding: 20px 4px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 24px;
+  align-items: baseline;
+}
+.preview-list li:last-child { border-bottom: 1px solid var(--line); }
+.preview-list h3 { margin: 0 0 4px; }
+.preview-list p { margin: 0; color: var(--ink-soft); max-width: 44em; }
+.preview-list .go {
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+blockquote.voice {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  line-height: 1.4;
+  color: var(--pine-deep);
+}
+blockquote.voice footer {
+  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-top: 14px;
+}
+
+/* ---------- Source chips ---------- */
+
+.src {
+  display: inline-block;
+  border: 1.5px solid var(--gold-deep);
+  color: var(--gold-deep);
+  background: #fbf3dd;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+.src.record { border-color: var(--pine-soft); color: var(--pine); background: #e9f0e8; }
+.src.family { border-color: var(--oxblood); color: var(--oxblood); background: #f9ece8; }
+
+/* ---------- Person page ---------- */
+
+.page-head { padding: 46px 0 8px; }
+.page-head .lede { font-size: 1.15rem; color: var(--ink-soft); max-width: 46em; }
+.person-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: 38px 0 6px;
+}
+.portrait {
+  width: 148px;
+  height: 178px;
+  border-radius: 8px;
+  background: var(--pine);
+  color: #efe7d0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  border: 3px solid var(--gold);
+}
+.portrait .initials {
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+.portrait .note { font-size: 0.72rem; margin-top: 10px; color: #cfc5a4; }
+.person-meta { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 10px; }
+.person-meta div { min-width: 150px; }
+.person-meta dt { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-deep); }
+.person-meta dd { margin: 2px 0 0; }
+
+.layout-rail {
+  display: grid;
+  grid-template-columns: 1.9fr 1fr;
+  gap: 44px;
+  align-items: start;
+}
+.rail-box {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.rail-box h3 { margin-bottom: 10px; }
+.rail-box ul { margin: 0; padding-left: 20px; }
+.rail-box li { margin-bottom: 7px; }
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  display: grid;
+  grid-template-columns: 92px 22px 1fr;
+  gap: 0 10px;
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+}
+.timeline li:first-child { border-top: none; }
+.timeline .yr { font-weight: 700; color: var(--pine); text-align: right; }
+.timeline .dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--pine);
+  margin: 7px auto 0;
+}
+.timeline .what p { margin: 0 0 4px; }
+.timeline .what .src { margin-top: 2px; }
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.99rem;
+}
+table.data caption { text-align: left; font-weight: 700; padding-bottom: 8px; color: var(--pine-deep); }
+table.data th, table.data td {
+  text-align: left;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+}
+table.data thead th { border-top: none; border-bottom: 2px solid var(--pine); color: var(--pine-deep); font-size: 0.86rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.table-scroll { overflow-x: auto; }
+
+/* ---------- Connection case ---------- */
+
+.state-tag {
+  display: inline-block;
+  border: 2px solid var(--gold-deep);
+  color: var(--gold-deep);
+  background: #fbf3dd;
+  border-radius: 4px;
+  padding: 4px 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.case-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+  align-items: start;
+}
+.record-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 6px solid var(--pine);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+.record-card.native { border-top-color: var(--oxblood); }
+.record-card h3 { margin-bottom: 2px; }
+.record-card .sub { color: var(--ink-soft); font-size: 0.94rem; margin-bottom: 14px; }
+.check-list { list-style: none; margin: 0; padding: 0; }
+.check-list li { padding: 11px 0 11px 34px; position: relative; border-top: 1px solid var(--line); }
+.check-list li:first-child { border-top: none; }
+.check-list .mark {
+  position: absolute; left: 2px; top: 11px;
+  font-weight: 700; color: var(--pine-soft);
+}
+.check-list .mark.warn { color: var(--oxblood); }
+.signal-num {
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 2rem; color: var(--pine-deep);
+}
+
+/* ---------- Forms and upload ---------- */
+
+.dropzone {
+  border: 3px dashed var(--pine-soft);
+  border-radius: var(--radius);
+  background: var(--card);
+  padding: 42px 26px;
+  text-align: center;
+  cursor: pointer;
+}
+.dropzone.drag { background: #eef2e4; border-color: var(--gold-deep); }
+.dropzone p { margin-bottom: 6px; }
+.dropzone .big {
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 1.5rem; color: var(--pine-deep);
+}
+.file-list { list-style: none; margin: 18px 0 0; padding: 0; text-align: left; }
+.file-list li {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 0.97rem;
+}
+.steps { counter-reset: step; list-style: none; margin: 0; padding: 0; }
+.steps li {
+  padding: 18px 0 18px 62px;
+  position: relative;
+  border-top: 1px solid var(--line);
+}
+.steps li:first-child { border-top: none; }
+.steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute; left: 0; top: 14px;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--pine);
+  color: #fff;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 1.25rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.steps h3 { margin-bottom: 4px; }
+.steps p { margin: 0; color: var(--ink-soft); }
+
+form.claim {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px;
+}
+.field { margin-bottom: 20px; }
+.field label { display: block; font-weight: 700; margin-bottom: 6px; }
+.field .hint { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 6px; }
+.field input, .field textarea, .field select {
+  width: 100%;
+  font: inherit;
+  padding: 12px 14px;
+  border: 1.5px solid #a99e80;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  min-height: 48px;
+}
+.field textarea { min-height: 110px; }
+.form-note {
+  display: none;
+  border: 2px solid var(--pine-soft);
+  background: #e9f0e8;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-top: 20px;
+}
+.form-note.show { display: block; }
+
+/* ---------- Footer ---------- */
+
+.site-footer {
+  background: var(--pine-deep);
+  color: #d9d2ba;
+  padding: 40px 0 46px;
+  margin-top: 0;
+  font-size: 0.97rem;
+}
+.site-footer .fine { color: #a79d7e; font-size: 0.88rem; }
+.site-footer nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 0; margin: 0 0 18px; }
+.site-footer a { color: #efe8d2; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .hero-grid, .two-col, .layout-rail, .case-grid { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+  .person-head { grid-template-columns: 1fr; }
+  .portrait { width: 128px; height: 154px; }
+  .preview-list li { grid-template-columns: 1fr; }
+  .preview-list .go { margin-top: 4px; }
+}
+
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  .nav-toggle { display: block; }
+  .main-nav { display: none; width: 100%; }
+  .main-nav.open { display: block; }
+  .header-inner { flex-wrap: wrap; padding: 10px 0 14px; }
+  .main-nav ul { flex-direction: column; gap: 2px; }
+  .main-nav a { padding: 13px 12px; }
+  .section { padding: 42px 0; }
+  .hero { padding: 40px 0 46px; }
+  .timeline li { grid-template-columns: 64px 18px 1fr; }
+  .steps li { padding-left: 56px; }
+  form.claim { padding: 20px 16px; }
+  .demo-banner .wrap { flex-direction: column; gap: 2px; }
+}
