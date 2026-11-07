@@ -247,11 +247,19 @@ Home-page findings and what changed because of them:
 
 - Low contrast, headline and subline (detector paired the ink text
   with the body background): resolved for real against the actual
-  backdrop. The oak's headline zone measures dark (mean luminance
-  0.082, Pillow sample), so the headline and subline are now cream
-  (#f8f3e3, about 12:1 against the canopy's darker quartile), the
-  same treatment the era tags already used. The finding cleared on
-  re-run.
+  backdrop. The oak's headline zone measures dark, so the headline
+  and subline are now cream (#f8f3e3, the same treatment the era
+  tags already used) and the finding cleared on re-run. Method note,
+  added at Rosa's re-gate request (TW-1010 v3 fix pass): the mean
+  luminance figure quoted in the first draft of this note (0.082,
+  Pillow sample) was taken without recording the crop coordinates
+  or sampling method, and Rosa's coarse re-sample read 0.323, so
+  the figure is withdrawn as unrecorded-method and not reproducible
+  as stated. The cream outcome does not rest on it: it rests on
+  the CSS value itself (#f8f3e3 over the dark canopy zone), the
+  detector's low-contrast advisory on the original ink pairing,
+  and the screenshots at 1440 and 375, where the headline reads
+  clearly against the canopy.
 - Low contrast advisory, rust #b3541e at 4.46:1 and 4.3:1: rust
   darkened to #a84c16 (measured 5.05:1 on the pill, 5.56:1 on card
   cream). Advisory cleared on re-run.
@@ -356,3 +364,42 @@ republished in this public repo.
   rebuild).
 - The zoom control and minimap from the photo are dropped by the v3
   ruling, recorded in the table above for Rosa's verdict.
+
+## V3 fix pass (Rosa re-gate notes, Nov 7)
+
+Rosa's v3 re-gate returned APPROVE WITH NOTES (1 Major, 4 Minors).
+This pass fixes all five; structure and earlier verdicts unchanged.
+
+- MAJOR, license attribution on site: a credits line now sits in the
+  home footer fine print naming the Angel Oak photograph (Tmquinn2,
+  CC BY-SA 3.0, Wikimedia Commons), the Eastern Screech Owl
+  recording (XC75829, Jonathon Jongsma, CC BY-SA 3.0, xeno-canto),
+  and all five animal photographs with authors and licenses,
+  pointing to the full credits in the repo README. The credited
+  assets appear only on the home page (zero assets/ references in
+  the four sub pages), so the line lives there only. Footer legal
+  lines are outside the prose budget; the 24 word prose count is
+  unchanged (recounted this pass).
+- MINOR, tap targets: .relatives buttons now carry
+  display: inline-flex with min-height: 46px (was about 20px of
+  content height). Visual treatment unchanged; the hit area grew.
+- MINOR, dragonfly counter: the fired counter now advances only
+  when showDragonfly() actually starts a crossing (it returns
+  whether it started). A threshold crossed while a flight is busy
+  stays unspent and retries on the next scroll event; the counter
+  can never be spent silently. SCROLLS_PER_DRAGONFLY stays 15.
+- MINOR, reduced motion consistency: performWoodpecker and
+  performDeer now take the same gentleFade fallback under
+  prefers-reduced-motion that squirrel and jay already had, instead
+  of returning with zero feedback.
+- MINOR, documentation: the headline zone luminance figure is
+  amended in the gate section above (unrecorded method, withdrawn;
+  the cream outcome rests on the CSS value, the detector advisory,
+  and the screenshots).
+- Gate floor re-run this pass (Impeccable detector): 18 counted
+  findings plus 1 advisory repo wide, identical in kind to the
+  post-fix population documented above. The home page carries only
+  the known specificity-blind hover pairing (browser verified at
+  about 11:1 in the v3 pass); the rest are the pre-existing v1 sub
+  page items owned by the sub page polish ticket. This pass
+  introduced zero new findings.

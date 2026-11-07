@@ -264,7 +264,8 @@
   document.body.appendChild(dragonflyEl);
 
   function showDragonfly() {
-    if (REDUCED || dragonflyBusy) return;
+    if (REDUCED) return false;
+    if (dragonflyBusy) return false;
     dragonflyBusy = true;
     var vh = window.innerHeight;
     var startY = vh * (0.16 + Math.random() * 0.2);
@@ -300,14 +301,20 @@
     anim.onfinish = function () {
       dragonflyBusy = false;
     };
+    return true;
   }
 
   function maybeDragonfly() {
     var unit = window.innerHeight || 800;
     var units = Math.floor(scrollTravelPx / unit);
     if (units - dragonflyUnitsFired >= SCROLLS_PER_DRAGONFLY) {
-      dragonflyUnitsFired = units;
-      showDragonfly();
+      /* The fired counter advances only when a crossing actually
+         starts. If the dragonfly is mid-flight (busy) or motion is
+         reduced, the earned threshold stays unspent and the next
+         scroll event retries it. */
+      if (showDragonfly()) {
+        dragonflyUnitsFired = units;
+      }
     }
   }
 
@@ -559,7 +566,11 @@
   }
 
   function performWoodpecker(el) {
-    if (el.dataset.busy || REDUCED) return;
+    if (el.dataset.busy) return;
+    if (REDUCED) {
+      gentleFade(el);
+      return;
+    }
     markBusy(el, 1400);
     el.classList.add("pecking");
     window.setTimeout(function () {
@@ -604,7 +615,11 @@
   }
 
   function performDeer(el) {
-    if (el.dataset.busy || REDUCED) return;
+    if (el.dataset.busy) return;
+    if (REDUCED) {
+      gentleFade(el);
+      return;
+    }
     markBusy(el, 2500);
     el.classList.add("alert");
     window.setTimeout(function () {
