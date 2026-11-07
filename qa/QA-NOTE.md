@@ -131,3 +131,228 @@ Re-verified for the redesign:
 - Screenshots: still not capturable in this sandbox (no Chromium), same
   limitation as v1. Structural verification stands in; the live URL
   visual pass belongs to Rosa's re-gate.
+
+## V3 addendum (Nov 7, 2026, Direction v3: infinite scroll, interactive animals, dragonfly; frontend gate run in full)
+
+The home page was rebuilt a third time, to Justynn's Nov 7 15:23 MST
+direction (futuristic without the AI glow, an infinite scroll journey
+through the tree over a photographic oak), the 15:28 MST amendment
+(the animals are interactive), the 15:35 MST scope addition (rare
+dragonflies), and the 15:38 MST directive (run the full frontend
+gate: Impeccable, unslop, replica). This addendum supersedes the v2
+home description; the four sub pages are unchanged and the v1 Rosa
+verdict still covers them.
+
+### What the home page is now
+
+- A fixed photographic oak (Angel Oak, self-hosted, credits in the
+  README) fills the viewport for the whole descent; a scroll engine
+  parallaxes it gently from canopy toward the base as the page
+  descends (14vh of travel across the full scroll).
+- The journey opens at the root: headline "Every branch. Your story.",
+  subline "Scroll to explore your lineage", the Shote root plaque
+  (c. 1810, sample), then six generation sections (1830S founding
+  couple, 1860S branch heads, 1890S, 1930S, 1960S, TODAY) carrying 70
+  sample people in four branch clusters per generation. Cards and
+  white hairline connectors reveal with motion as each generation
+  arrives (lines draw, cards settle, stagger capped per cluster).
+- Frosted cream cards: sepia initial medallion, name, birth year,
+  "+N relatives" button opening the same branch collection panel as
+  v2 (plus a new whole-family collection on the root plaque). Focus
+  card: Jordan Shote, dark outline plus gold inner ring, "Born 1972 ·
+  Denver, CO", "View story" to person.html.
+- Era rail, left edge: fixed progress spine, markers 1810 / 1830 /
+  1860 / 1890 / 1930 / 1960 / 1990 / TODAY, gold fill by transform
+  scaleY, the current era lit as you pass it.
+- Control pill, bottom center: "Follow my line" (browser-verified:
+  lights exactly the 7 line cards plus the root plaque, dims the rest
+  to 0.3 opacity, smooth-scrolls to the focus card; second click
+  releases) and an icon-only sound toggle for the animal audio.
+- Upload panel at the base, same on-device mock and same words as v2.
+
+### Photo elements: kept, adapted, dropped
+
+| # | Photo element | Call | Why |
+|---|---|---|---|
+| 1 | Photographic oak, full bleed | KEPT | The living backdrop; a real Angel Oak photograph, self-hosted |
+| 2 | Person cards on the bark | KEPT | Frosted per v3 (subtle translucency, no glow, no heavy shadow) |
+| 3 | White elbow connectors | KEPT | Hairlines now draw in as each generation reveals |
+| 4 | Portrait medallions | KEPT, diverged by standing rule | Sepia initials, never fake faces |
+| 5 | Focus card with View story | KEPT | Jordan Shote, gen 5, Moses line |
+| 6 | Era rail, left edge | ADAPTED | Became the scroll progress spine, 1810 to TODAY |
+| 7 | Headline and subline | KEPT | The photo's own words; headline set cream (see replica note 4: the oak's canopy measures dark) |
+| 8 | Zoom pill | DROPPED | V3 ruling: scroll is the navigation; "Follow my line" survives inside the pill |
+| 9 | Minimap | DROPPED | Its wayfinding job moved to the era rail spine; stated per the v3 brief's instruction to make the call |
+| 10 | Top bar furniture | KEPT | Wordmark, Explore, Stories (to person.html), search icon (decorative, labeled as not wired), member medallion |
+
+### The animals: hiding places, triggers, behavior, sound
+
+Resident animals are photographic insets, feather-masked and toned
+into the oak, no labels anywhere. Each is a real button: hover
+(desktop), tap, and keyboard focus all fire the same performance;
+named functions in app.js (performOwl, performSquirrel,
+performWoodpecker, performJay, performDeer, dropAcorns) so the wiring
+is inspectable. Animals return to rest after each performance.
+
+| Animal | Hiding place | Behavior | Sound |
+|---|---|---|---|
+| Blue jay | Opening section, top right canopy (on phones: mid right, clear of the headline) | Flies an arc to a second perch 250px left (WAAPI, wings flutter via the photo's flutter cycle); next trigger flies it back | Silent |
+| Woodpecker | Gen 2 (1860S) perch band, top right | Pecking burst: rapid head-tap rotation, about 1.2s | Silent (animation is the requirement; no tap audio sourced) |
+| Owl | Gen 3 (1890S) perch band, top left, in its hollow | Hoots (real audio) plus a head-turn tilt, 1.6s; one acorn shakes loose nearby | assets/sounds/owl-hoot.mp3, CC BY-SA 3.0 (see README) |
+| Squirrel | Gen 4 (1930S) perch band, top right, on its limb | Runs 185px along the branch (tail-up scamper cycle), drops one acorn on arrival; next trigger runs it back | Silent |
+| Deer | Base section, bottom right edge, tucked half out of frame | Alert: lifts, ears-up posture read via a small rise and two steps, settles after about 2.3s | Silent |
+| Acorns | Four clusters: opening canopy, gen 2 band left, gen 3 band right, gen 4 band center | 3 to 5 drawn acorns fall with accelerating ease, one small bounce, fade; cluster trigger is direct; owl and squirrel shake one loose | Silent |
+
+Sound rules honored: audio plays only on a user gesture (hover counts
+on desktop; browsers that block hover audio fire it on tap/click
+instead, the play() rejection is swallowed by design), the pill's
+speaker toggle mutes all animal audio, and no other sound exists on
+the page. The hoot excerpt is the loudest sustained call in its
+source recording, chosen by per-second energy analysis; it was not
+auditioned (no audio playback path in the sandbox) and is labeled an
+eastern screech owl's call, which is a descending whinny, true to the
+species in the photograph.
+
+Dragonfly (rare by design law, Nov 7 15:35): SCROLLS_PER_DRAGONFLY =
+15, a named constant in app.js. One scroll unit = one viewport height
+of accumulated travel in either direction (descent and return both
+count), so a determined scroller earns a crossing after about two
+full descents of this demo; the math is identical for the first
+appearance and every later one, no special cases. The crossing: one
+drawn dragonfly (inline SVG, natural green body, translucent wings)
+drifts across the viewport over about 9.5 seconds and is gone. Not
+interactive, never labeled, pointer-events none. Under
+prefers-reduced-motion it is skipped entirely.
+
+Reduced motion overall: parallax off, reveals shown settled, animal
+runs and flights become a gentle fade (the owl still hoots; sound is
+not motion), acorns fade in place, line-mode scroll is instant.
+
+### Prose count
+
+Same exclusions Rosa used (nav labels, node and card labels, buttons,
+banner, footer legal excluded). Headline "Every branch. Your story."
+4 words; subline "Scroll to explore your lineage" 5; uploads "Add
+your records" 3 plus "Drop photos and papers here. In this preview,
+nothing leaves your device." 12. **Total: 24 words**, still well
+under one paragraph. (The collection panel heading and count line
+appear only on interaction and were excluded the same way in v2.)
+
+### Frontend gate (Impeccable, unslop, replica), run in house order
+
+**1. Impeccable.** The detector ran in this sandbox:
+`npx impeccable detect .` (exit clean run, full output reviewed).
+Repo-wide: 20 counted findings plus 3 advisories on the first run.
+Home-page findings and what changed because of them:
+
+- Low contrast, headline and subline (detector paired the ink text
+  with the body background): resolved for real against the actual
+  backdrop. The oak's headline zone measures dark (mean luminance
+  0.082, Pillow sample), so the headline and subline are now cream
+  (#f8f3e3, about 12:1 against the canopy's darker quartile), the
+  same treatment the era tags already used. The finding cleared on
+  re-run.
+- Low contrast advisory, rust #b3541e at 4.46:1 and 4.3:1: rust
+  darkened to #a84c16 (measured 5.05:1 on the pill, 5.56:1 on card
+  cream). Advisory cleared on re-run.
+- Hover contrast 1.6:1 on every page (global `a:hover` oxblood over
+  pine-deep in dark header and footer): fixed with scoped overrides,
+  dark surfaces now hover gold #f3d98b. The static detector still
+  prints the pairing because it does not evaluate specificity;
+  browser-verified instead: Playwright hover on a footer link
+  computes rgb(243, 217, 139), about 11:1. Addressed, with proof.
+- Cream palette and eyebrow chips did NOT fire on the new home page
+  (the bark backdrop replaced the cream page). They fire on the four
+  sub pages, along with border-accent-on-rounded (case page),
+  skipped headings (case, reference), and a tiny-text advisory
+  (person page): all pre-existing v1 items under Rosa's v1 APPROVE,
+  documented here as addressed-by-record and left untouched inside a
+  home-page ticket; they belong to a sub-page polish ticket.
+
+Manual 15-tell audit of the home page: no purple or blue gradients
+(the only gradients in the file are alpha masks feathering the
+animal photographs), no gradient text, no icon-in-rounded-square, no
+cards in cards, no decorative side stripes (the rail carries data),
+no hero stats, no numbered sequences, no generic copy, zero dashes
+(byte scan below). Kept-on-purpose, each directed: the pill (the
+photo's own control, functional), frosted cards (v3 spec, legibility
+over a photograph), repeated kin cards (a pedigree is repetition by
+content), cream card color (the photo's cards; oak palette), parallax
+and reveal animation (the v3 experience itself, purpose-built and
+reduced-motion safe).
+
+**2. Unslop redline pass** (polish mode; audit against the vendored
+signs list, group by group). Signs found and killed: animating
+height on the rail fill (now transform scaleY); headline weight and
+family off the photo's voice (now the grotesque stack at 800, a brand
+heading per the wrapper's standing note). Confirmed absent: emoji
+anywhere, glows, gradient washes, pill badges, hype copy, greeting
+headlines, trailing periods on buttons, mixed number formats (one
+year format throughout), transition-all, hover scaling, bouncy
+easings, off-column icons (two line icons, one style). Kept-on-purpose
+with reasons: uppercase tracked era and branch labels (Direction v3
+explicitly asks for crisp small caps, and they are wayfinding, not
+decoration); parallax (the product is a scroll journey);
+frosted cards (see above). Nine passes walked in order: spacing (fan
+geometry put on one system: 20px gaps, perch bands sized per
+animal), color (rust darkened, headline cream, hover gold), icons
+(no change), copy (no change; the words are Justynn's and the
+photo's), type (headline stack), layout (perch bands, breakpoints),
+details (focus ring, plaque ring), visuals (deer mirrored so its head
+stays in frame), motion (stagger cap, scaleY fill).
+
+**3. Replica scored rebuild vs the reference photo**, level
+structure. Full record in `qa-replica/tw1010-v3/score-history.md`.
+The compare tool cannot score a photograph reference (its match axis
+returns null and the reporter crashes; root cause read in the
+vendored source, error preserved there), so the axes were scored
+manually from the tool's own clone capture and fresh screenshots,
+labeled as the manual equivalent. Round 1: layout 78, style 82,
+pixels 63, motion 70 (structure gates NOT met: missing couple in
+capture, fan wrapping, critter overlaps, serif headline). Fixes
+applied in points order. Round 2: layout 93, style 91, pixels 74,
+motion 90. **Structure gates PASS** (layout 90+, motion 85+).
+Screenshots at 1440 and 375 ship in `qa-replica/tw1010-v3/`; the
+reference photo is the founder's personal file and is not
+republished in this public repo.
+
+### Verified checks (v3)
+
+- Local static server: all five pages, styles.css, app.js, the oak,
+  all five animal images, and the hoot returned HTTP 200 (14 of 14).
+- Structure counts in the served page: 70 person cards, 5 critters,
+  4 acorn clusters, 8 era rail markers, 1 focus card.
+- app.js passes node --check. The journey generator passes
+  `python3 -m ruff check` and `python3 -m ruff format --check`
+  (clean output, both), and regenerates the fragment it ships.
+- Playwright Chromium smoke tests (real browser, this sandbox):
+  Follow my line lights exactly 7 cards, dims a non-line card to
+  0.3 opacity; a relatives button opens the panel with the right
+  branch title; the owl trigger enters its busy state; footer hover
+  computes to the gold fix (above).
+- Byte scan for U+2014, U+2013, U+2212, U+2010 across index.html,
+  styles.css, app.js, README.md, this note, and the generator: zero.
+- External asset scan across all five pages, CSS, and JS: zero
+  http or https references. License URLs live only in the README and
+  this note, as attribution records.
+- Footer contract and sample labeling unchanged on all five pages.
+- Asset weights: oak 979 KB; animals 37 to 114 KB each; hoot 39 KB.
+
+### Limitations, stated plainly
+
+- The oak is ONE photograph on a fixed layer with 14vh of parallax
+  travel, not a per-generation illustrated tree; the descent reads
+  canopy to base by crop travel, not by new artwork per era.
+- Animal performances move the photographs as wholes (tilts, runs,
+  an arc flight with a flutter cycle). They are tasteful
+  approximations on still photos, not skeletal animation; the deer's
+  alert is a rise and two steps, not an ear rig.
+- The hoot excerpt was placed by energy analysis, not auditioned.
+- The replica scores are a labeled manual equivalent; the tool's
+  compare cannot score image references (see the gate section).
+- Follow my line lights cards and dims the rest; the CSS connectors
+  dim as a field rather than tracing only the lit path (connectors
+  are pseudo-elements and cannot be lit per branch without an SVG
+  rebuild).
+- The zoom control and minimap from the photo are dropped by the v3
+  ruling, recorded in the table above for Rosa's verdict.

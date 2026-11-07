@@ -12,6 +12,7 @@
   --pine-soft: #2c5240;
   --gold: #b9872c;
   --gold-deep: #7d5a13;
+  --rust: #a84c16;
   --oxblood: #7c2d26;
   --line: #d9cfb8;
   --line-dark: #3c5a49;
@@ -165,62 +166,7 @@ a:hover { color: var(--oxblood); }
 .btn-pine { background: var(--pine); color: #fff; }
 .btn-pine:hover { background: var(--pine-soft); color: #fff; }
 
-/* ---------- Home: the mother tree ---------- */
-
-.site-header.slim .header-inner { min-height: 56px; }
-.site-header.slim .wordmark { font-size: 1.3rem; }
-.site-header.slim .main-nav a { padding: 9px 11px; font-size: 0.93rem; }
-
-.tree-stage { background: var(--pine-deep); color: #f2ecdb; padding: 24px 0 0; }
-.one-line {
-  color: #fff;
-  text-align: center;
-  font-size: clamp(1.5rem, 3.4vw, 2.3rem);
-  margin: 4px 24px 8px;
-}
-.tree-scroll { overflow-x: auto; overflow-y: hidden; padding: 4px 0 0; }
-#mother-tree {
-  display: block;
-  width: 100%;
-  min-width: 1180px;
-  max-width: 1800px;
-  height: auto;
-  margin: 0 auto;
-}
-#mother-tree text { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
-#mother-tree .tn { fill: #f2ecdb; text-anchor: middle; }
-#mother-tree .ty { fill: #a79d7e; text-anchor: middle; font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif; }
-#mother-tree .ti { fill: #142a1f; text-anchor: middle; font-weight: 700; }
-#mother-tree .gen { fill: #8a8062; font-size: 13px; letter-spacing: 0.18em; font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif; }
-#mother-tree .root-t { fill: #221a05; text-anchor: middle; }
-.branch-chip { cursor: pointer; }
-.branch-chip .chip-bg { fill: var(--paper); stroke-width: 2.5; }
-.branch-chip:hover .chip-bg, .branch-chip:focus .chip-bg { fill: #f3e9cf; stroke-width: 4.5; }
-.branch-chip:focus { outline: none; }
-.branch-chip .chip-t {
-  fill: #1d2320;
-  font-size: 16.5px;
-  font-weight: 700;
-  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
-}
-
-.soil { border-top: 3px solid var(--gold); padding: 22px 24px 32px; }
-.dropzone.home-drop {
-  max-width: 760px;
-  margin: 0 auto;
-  background: var(--pine);
-  border-color: var(--gold);
-  color: #f2ecdb;
-  padding: 26px 22px;
-}
-.dropzone.home-drop .big { color: #fff; font-size: 1.35rem; }
-.dropzone.home-drop p { color: #e7dfc8; }
-.dropzone.home-drop.drag { background: var(--pine-soft); }
-.dropzone.home-drop .file-list li {
-  background: var(--pine-deep);
-  border-color: var(--line-dark);
-  color: #f2ecdb;
-}
+/* ---------- Home v3: the scroll journey (styles at the end) ---------- */
 
 /* ---------- Branch collection panel ---------- */
 
@@ -539,8 +485,6 @@ form.claim {
   .main-nav ul { flex-direction: column; gap: 2px; }
   .main-nav a { padding: 13px 12px; }
   .section { padding: 42px 0; }
-  .one-line { margin: 4px 16px 6px; }
-  .soil { padding: 18px 14px 26px; }
   .collection-panel {
     bottom: 0;
     width: 100vw;
@@ -554,4 +498,400 @@ form.claim {
   .steps li { padding-left: 56px; }
   form.claim { padding: 20px 16px; }
   .demo-banner .wrap { flex-direction: column; gap: 2px; }
+}
+
+/* ================================================================
+   HOME V3: INFINITE SCROLL THROUGH THE TREE (TW-1010)
+   Futuristic without the AI glow: hairlines, frosted cards, exact
+   spacing, motion and parallax. Palette from the oak itself.
+   ================================================================ */
+
+:root { --line-warm: #fffaf0; --card: rgba(255, 253, 247, 0.87); --bark: #22180e; }
+
+html, body.home { overflow-x: hidden; overflow-x: clip; }
+body.home { background: var(--bark); }
+body.home .site-footer { position: relative; z-index: 2; }
+
+.oak-bg {
+  position: fixed;
+  left: 0; right: 0; top: -16vh;
+  height: 132vh;
+  background: url("assets/oak-tree.jpg") center top / cover no-repeat;
+  z-index: 0;
+  will-change: transform;
+}
+
+/* Light header (furniture only, as in the reference photo) */
+.site-header.light {
+  background: rgba(250, 246, 236, 0.94);
+  backdrop-filter: blur(8px);
+  color: var(--ink);
+  border-bottom: 1px solid rgba(70, 54, 28, 0.28);
+}
+.site-header.light .wordmark { color: var(--pine-deep); }
+.site-header.light .wordmark span { color: var(--gold-deep); }
+.site-header.light .main-nav a { color: #33413a; }
+.site-header.light .main-nav a:hover { background: rgba(20, 42, 31, 0.08); }
+.site-header.light .main-nav a[aria-current="page"] {
+  background: transparent;
+  color: var(--pine-deep);
+  box-shadow: inset 0 -3px 0 var(--rust);
+}
+.main-nav.always { display: block; }
+.header-tools { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  background: none; border: none; cursor: pointer;
+  min-width: 46px; min-height: 46px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink); border-radius: 50%; padding: 0;
+}
+.icon-btn:hover { background: rgba(20, 42, 31, 0.08); }
+.icon-btn svg { width: 22px; height: 22px; }
+.member-medal {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #d9c193; border: 2px solid #a97e2f; color: #4a3517;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+/* Era rail: the scroll progress spine on the left edge */
+.era-rail {
+  position: fixed; left: 0; top: 50%; transform: translateY(-50%);
+  height: min(74vh, 660px); width: 58px; z-index: 40;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding-left: 17px; pointer-events: none;
+}
+.rail-line {
+  position: absolute; left: 22px; top: 8px; bottom: 8px; width: 1.5px;
+  background: rgba(255, 250, 240, 0.38);
+}
+.rail-fill {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  background: var(--gold); display: block;
+  transform: scaleY(0); transform-origin: center top;
+}
+.rail-mark {
+  position: relative; font-size: 10.5px; letter-spacing: 0.12em; font-weight: 600;
+  color: rgba(255, 250, 240, 0.78); padding-left: 13px; line-height: 1;
+  text-shadow: 0 1px 2px rgba(20, 14, 4, 0.6);
+}
+.rail-mark::before {
+  content: ""; position: absolute; left: 1.5px; top: 50%;
+  width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; background: #cdc39f;
+}
+.rail-mark.active { color: #f3d98b; }
+.rail-mark.active::before { background: var(--gold); width: 9px; height: 9px; margin-top: -4.5px; left: 0.5px; }
+
+/* Journey sections */
+.journey { position: relative; z-index: 1; }
+.gen { position: relative; padding: 9vh 24px 7vh 84px; }
+.gen .fan, .gen .couple { max-width: 1560px; margin-left: auto; margin-right: auto; }
+
+.opening { min-height: 94vh; padding-top: 4.5vh; }
+.headline { position: relative; z-index: 2; margin-left: 10px; }
+.headline h1 {
+  color: #f8f3e3; font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif; font-weight: 800;
+  line-height: 1.02; letter-spacing: -0.01em; margin: 0;
+  text-shadow: 0 1px 3px rgba(20, 14, 4, 0.5);
+}
+.subline {
+  color: rgba(248, 243, 227, 0.88); font-size: clamp(1rem, 1.6vw, 1.2rem);
+  margin: 12px 0 0; font-weight: 500; text-shadow: 0 1px 3px rgba(20, 14, 4, 0.5);
+}
+
+.root-plaque {
+  display: block; margin: 11vh auto 0; width: min(430px, 86%);
+  padding: 20px 26px; text-align: center; cursor: pointer;
+  background: rgba(28, 20, 10, 0.88); backdrop-filter: blur(4px);
+  border: 1px solid rgba(201, 164, 92, 0.75); border-radius: 12px;
+  color: #f2e7c8; font: inherit;
+}
+.root-plaque:hover { border-color: #e9c979; }
+.rp-name { display: block; font-size: 1.28rem; letter-spacing: 0.18em; font-weight: 700; color: #e9c979; }
+.rp-sub { display: block; margin-top: 4px; font-size: 0.98rem; color: #efe7d0; }
+.rp-tag { display: block; margin-top: 6px; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: #b8a888; }
+
+.gen-drop {
+  display: block; width: 1.5px; height: 12vh; min-height: 54px;
+  margin: 20px auto 0; background: var(--line-warm); position: relative;
+  filter: drop-shadow(0 1px 1px rgba(30, 20, 8, 0.45));
+}
+.gen-drop::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; margin-left: -4px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--bark); border: 1.5px solid var(--line-warm);
+}
+
+.era-tag {
+  max-width: 1560px; margin: 0 auto 4px; display: flex; align-items: center; gap: 12px;
+  font-size: 12px; letter-spacing: 0.22em; font-weight: 700; color: #f5efdd;
+  text-shadow: 0 1px 2px rgba(20, 14, 4, 0.55);
+}
+.era-tag::after { content: ""; flex: 1; height: 1px; background: rgba(255, 250, 240, 0.35); }
+
+/* Fan connectors: a drop from the parent generation, a bus, drops
+   into each branch cluster, and a spine behind each cluster's cards. */
+.fan { position: relative; padding-top: 44px; }
+.fan::after {
+  content: ""; position: absolute; top: 0; left: 50%; width: 1.5px; height: 44px;
+  background: var(--line-warm); filter: drop-shadow(0 1px 1px rgba(30, 20, 8, 0.45));
+}
+.fan::before {
+  content: ""; position: absolute; top: 44px; left: 12.5%; right: 12.5%; height: 1.5px;
+  background: var(--line-warm); filter: drop-shadow(0 1px 1px rgba(30, 20, 8, 0.45));
+}
+.clusters { display: flex; gap: 20px; flex-wrap: wrap; }
+.cluster { flex: 1 1 204px; position: relative; padding-top: 34px; }
+.cluster::before {
+  content: ""; position: absolute; top: 0; left: 50%; width: 1.5px; height: 34px;
+  background: var(--line-warm); filter: drop-shadow(0 1px 1px rgba(30, 20, 8, 0.45));
+}
+.cluster::after {
+  content: ""; position: absolute; top: 66px; bottom: 24px; left: 50%; width: 1.5px;
+  background: rgba(255, 250, 240, 0.5);
+}
+.cluster-name {
+  margin: 0 0 8px; text-align: center; font-size: 11.5px; letter-spacing: 0.2em;
+  font-weight: 700; text-transform: uppercase; color: #f5efdd;
+  text-shadow: 0 1px 2px rgba(20, 14, 4, 0.55); position: relative; z-index: 1;
+}
+body.js .fan::before { transform: scaleX(0); transform-origin: left center; transition: transform 1s ease 0.15s, opacity 0.5s ease; }
+body.js .fan::after, body.js .cluster::before { transform: scaleY(0); transform-origin: center top; transition: transform 0.7s ease, opacity 0.5s ease; }
+body.js .gen.in .fan::before { transform: scaleX(1); }
+body.js .gen.in .fan::after, body.js .gen.in .cluster::before { transform: scaleY(1); }
+
+.couple { display: flex; justify-content: center; align-items: center; position: relative; }
+.couple-link { width: 64px; height: 1.5px; background: var(--line-warm); flex: 0 0 auto; filter: drop-shadow(0 1px 1px rgba(30, 20, 8, 0.45)); }
+.couple .pcard { margin: 0; }
+
+/* Person cards on the bark */
+.pcard {
+  position: relative; z-index: 1; display: flex; gap: 13px; align-items: center;
+  width: 100%; max-width: 330px; margin-left: auto; margin-right: auto;
+  background: var(--card); backdrop-filter: blur(7px) saturate(0.92);
+  border: 1px solid rgba(70, 54, 28, 0.38); border-radius: 14px;
+  padding: 11px 15px 11px 11px; color: var(--ink);
+  box-shadow: 0 1px 3px rgba(26, 18, 7, 0.2); cursor: pointer;
+}
+.cluster-name + .pcard { margin-top: 2px; }
+.pcard + .pcard { margin-top: 16px; }
+body.js .gen .pcard {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.7s ease var(--d, 0s), transform 0.7s cubic-bezier(0.22, 0.8, 0.3, 1) var(--d, 0s), border-color 0.3s ease, box-shadow 0.3s ease, filter 0.4s ease;
+}
+body.js .gen.in .pcard { opacity: 1; transform: none; }
+.medal {
+  flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%;
+  background: #d9c193; border: 2px solid #a97e2f; color: #4a3517;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-weight: 700; font-size: 1.05rem;
+}
+.pcard-body { min-width: 0; }
+.pname { display: block; font-weight: 700; font-size: 1.06rem; line-height: 1.2; color: #1d2320; }
+.pmeta { display: block; color: #5d5540; font-size: 0.9rem; margin-top: 1px; }
+.relatives {
+  background: none; border: none; padding: 2px 0 0; margin: 0; font: inherit;
+  font-size: 0.88rem; color: var(--gold-deep); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(125, 90, 19, 0.5);
+}
+.relatives:hover { color: var(--oxblood); }
+#gen-4 .medal { width: 47px; height: 47px; }
+#gen-5 .medal { width: 45px; height: 45px; font-size: 0.98rem; }
+#gen-6 .medal { width: 41px; height: 41px; font-size: 0.9rem; }
+#gen-6 .pcard { padding: 9px 12px 9px 9px; }
+#gen-6 .pname { font-size: 0.97rem; }
+.pcard.focus {
+  border: 2px solid #1d2320; background: rgba(255, 253, 247, 0.95); cursor: default;
+  box-shadow: 0 0 0 1px rgba(185, 135, 44, 0.55), 0 1px 3px rgba(26, 18, 7, 0.2);
+}
+.pcard.focus .medal { width: 58px; height: 58px; font-size: 1.15rem; }
+.view-story { color: var(--rust); font-weight: 600; font-size: 0.95rem; }
+
+/* Follow my line mode */
+.journey.line-on .pcard:not(.in-line) { opacity: 0.3; filter: saturate(0.5); }
+.journey.line-on .fan::before, .journey.line-on .fan::after,
+.journey.line-on .cluster::before, .journey.line-on .cluster::after,
+.journey.line-on .couple-link, .journey.line-on .gen-drop { opacity: 0.25; }
+.pcard.in-line { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(185, 135, 44, 0.55), 0 1px 3px rgba(26, 18, 7, 0.2); }
+
+/* Follow pill, bottom center */
+.follow-pill {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 45;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255, 253, 247, 0.93); backdrop-filter: blur(8px);
+  border: 1px solid rgba(70, 54, 28, 0.4); border-radius: 999px;
+  padding: 6px 8px 6px 14px; box-shadow: 0 2px 10px rgba(26, 18, 7, 0.22);
+  max-width: calc(100vw - 20px);
+}
+.follow-btn {
+  background: none; border: none; font: inherit; font-weight: 600;
+  color: var(--rust); cursor: pointer; min-height: 46px; padding: 8px 10px; white-space: nowrap;
+}
+.follow-btn[aria-pressed="true"] { color: var(--pine-deep); text-decoration: underline; text-underline-offset: 4px; }
+.pill-div { width: 1px; height: 26px; background: rgba(70, 54, 28, 0.35); }
+
+/* Critters: photographic insets feathered into the oak */
+.critter {
+  position: absolute; z-index: 3; background: none; border: none; padding: 0;
+  cursor: pointer; border-radius: 46% 54% 52% 48% / 44% 46% 54% 56%;
+}
+.critter img {
+  display: block; width: 100%; height: auto; border-radius: inherit;
+  -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 56%, transparent 78%);
+  mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 56%, transparent 78%);
+  filter: sepia(0.28) saturate(0.62) brightness(0.94) contrast(0.96);
+}
+.critter:focus-visible, .acorns:focus-visible, .relatives:focus-visible,
+.follow-btn:focus-visible, .icon-btn:focus-visible, .root-plaque:focus-visible {
+  outline: 3px solid var(--gold); outline-offset: 3px;
+}
+.critter-jay { width: 128px; top: 6%; right: 5%; --fly-x: -250px; --fly-y: 30px; }
+.critter-woodpecker { width: 118px; top: 16px; right: 3%; }
+.critter-owl { width: 118px; top: 22px; left: 3%; }
+.critter-squirrel { width: 150px; top: 20px; right: 3%; --run-x: -185px; transition: transform 1s cubic-bezier(0.3, 0.7, 0.3, 1); }
+.critter-squirrel.at-b { transform: translateX(var(--run-x)); }
+.critter-deer { width: 238px; right: -34px; bottom: 2%; }
+/* Perch bands: clearings above the fan where the animals live */
+#gen-2 .fan { margin-top: 92px; }
+#gen-3 .fan { margin-top: 140px; }
+#gen-4 .fan { margin-top: 126px; }
+
+/* Animal performances (transforms on the photograph; no glow) */
+.critter-owl.hooting img { animation: owl-turn 1.6s ease-in-out; transform-origin: 50% 88%; }
+@keyframes owl-turn {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-4.5deg); }
+  60% { transform: rotate(3deg); }
+}
+.critter-woodpecker.pecking img { animation: peck 0.16s ease-in-out 6 alternate; transform-origin: 30% 92%; }
+@keyframes peck { from { transform: rotate(0deg); } to { transform: rotate(-5deg) translateY(1px); } }
+.critter-squirrel.running img { animation: scamper 0.16s linear 6 alternate; }
+@keyframes scamper { from { transform: translateY(0) rotate(-1deg); } to { transform: translateY(-4px) rotate(1.5deg); } }
+.critter-jay.flying img { animation: flutter 0.15s ease-in-out 8 alternate; }
+@keyframes flutter { from { transform: scaleY(1) rotate(0deg); } to { transform: scaleY(0.93) rotate(-2.5deg); } }
+.critter-deer.alert img { animation: deer-alert 2.3s ease-in-out; }
+@keyframes deer-alert {
+  0% { transform: none; }
+  18% { transform: translateY(-5px); }
+  30% { transform: translateY(-5px) translateX(3px); }
+  55% { transform: translateY(-3px) translateX(12px); }
+  75% { transform: translateY(-4px) translateX(14px); }
+  100% { transform: none; }
+}
+
+/* Acorn clusters and falling acorns */
+.acorns {
+  position: absolute; z-index: 3; background: none; border: none; padding: 8px;
+  cursor: pointer; display: flex; gap: 2px; min-width: 46px; min-height: 46px;
+  align-items: flex-start; justify-content: center;
+}
+.acorns svg { width: 21px; height: 25px; filter: drop-shadow(0 1px 1px rgba(30, 20, 8, 0.4)); }
+.acorns svg:nth-child(2) { transform: translateY(5px) rotate(14deg); }
+.acorns svg:nth-child(3) { transform: translateY(2px) rotate(-10deg); }
+.acorns-a { top: 12%; left: 53%; }
+.acorns-b { top: 18px; left: 6%; }
+.acorns-c { top: 30px; right: 8%; }
+.acorns-d { top: 16px; left: 34%; }
+.acorn-fall { position: fixed; z-index: 90; pointer-events: none; width: 19px; height: 23px; }
+.acorn-fall svg { width: 100%; height: 100%; display: block; }
+
+/* Base: deer, upload panel, room for the pill */
+.base { padding-bottom: 17vh; }
+.dropzone.home-drop {
+  max-width: 620px; margin: 5vh auto 0; position: relative; z-index: 2;
+  background: rgba(255, 253, 247, 0.91); backdrop-filter: blur(7px);
+  border-color: rgba(70, 54, 28, 0.55); color: var(--ink);
+}
+.dropzone.home-drop .big { color: var(--pine-deep); }
+.dropzone.home-drop p { color: var(--ink-soft); }
+.dropzone.home-drop.drag { background: #f3ecd9; }
+.dropzone.home-drop .file-list li { background: var(--paper); color: var(--ink); }
+
+/* ---------- Journey responsive ---------- */
+@media (max-width: 1100px) {
+  .critter-owl { left: 0.5%; }
+  .critter-deer { width: 205px; }
+}
+@media (max-width: 900px) {
+  .critter-jay { width: 108px; --fly-x: -165px; --fly-y: 20px; }
+  .critter-squirrel { width: 142px; --run-x: -120px; }
+  .critter-owl { width: 118px; }
+  .critter-woodpecker { width: 100px; }
+  .critter-deer { width: 185px; }
+  .acorns-a { left: auto; right: 32%; }
+}
+@media (max-width: 720px) {
+  .main-nav.always ul { flex-direction: row; gap: 2px; }
+  .gen { padding: 8vh 14px 6vh 56px; }
+  .era-rail { width: 44px; padding-left: 11px; }
+  .rail-line { left: 15.5px; }
+  .rail-mark { font-size: 9.5px; padding-left: 11px; }
+  .cluster { flex-basis: 100%; }
+  .fan::before { left: 50%; right: auto; width: 0; }
+  .headline { margin-left: 2px; }
+  .root-plaque { margin-top: 8vh; }
+  .pcard { padding: 9px 12px 9px 9px; gap: 10px; }
+  .medal { width: 45px; height: 45px; font-size: 0.95rem; }
+  .follow-pill { bottom: 12px; padding-left: 10px; }
+  .critter-deer { width: 168px; bottom: 1%; }
+  .critter-owl { top: 10%; }
+  .dropzone.home-drop { margin-top: 3vh; }
+}
+
+/* Reduced motion: still the animals, the reveals, and the parallax */
+@media (prefers-reduced-motion: reduce) {
+  body.js .gen .pcard { opacity: 1; transform: none; transition: none; }
+  body.js .fan::before, body.js .fan::after, body.js .cluster::before { transform: none; transition: none; }
+  .critter, .critter img, .acorns svg { animation: none !important; transition: none !important; }
+  .follow-pill, .pcard { transition: none; }
+}
+
+/* The dragonfly: a rare crossing, drawn not photographed, untouchable */
+.dragonfly {
+  position: fixed; left: 0; z-index: 35; width: 74px; height: 48px;
+  pointer-events: none; opacity: 0;
+}
+.dragonfly svg { width: 100%; height: 100%; display: block; }
+.root-plaque.in-line { border-color: #e9c979; box-shadow: 0 0 0 2px rgba(185, 135, 44, 0.55); }
+.journey.line-on .root-plaque:not(.in-line) { opacity: 0.35; }
+
+/* Gate fix (Impeccable, TW-1010): the global link hover (oxblood) is
+   unreadable on the dark header and footer; dark surfaces hover gold. */
+.site-footer a:hover,
+.site-header:not(.light) a:hover { color: #f3d98b; }
+
+/* Replica round 1 fixes (TW-1010): two by two fan at mid widths,
+   perch bands sized down on phones */
+@media (max-width: 1020px) {
+  .cluster { flex-basis: 42%; }
+  .fan::before { display: none; }
+}
+@media (max-width: 720px) {
+  .cluster { flex-basis: 100%; }
+  #gen-2 .fan { margin-top: 76px; }
+  #gen-3 .fan { margin-top: 112px; }
+  #gen-4 .fan { margin-top: 104px; }
+  .critter-woodpecker { top: 8px; }
+  .critter-owl { width: 104px; top: 14px; }
+  .critter-squirrel { width: 128px; top: 12px; }
+}
+
+/* Screenshot round fixes (TW-1010): the demo banner must paint above
+   the fixed oak layer; the phone header stays on one row; the jay
+   moves out of the headline on small screens */
+body.home .demo-banner { position: relative; z-index: 2; }
+@media (max-width: 720px) {
+  .site-header.light .header-inner { flex-wrap: nowrap; gap: 6px; padding: 0 10px; min-height: 58px; }
+  .site-header.light .wordmark { font-size: 1.18rem; }
+  .site-header.light .main-nav a { padding: 8px 6px; font-size: 0.92rem; }
+  .header-tools .icon-btn { display: none; }
+  .member-medal { width: 34px; height: 34px; }
+  .headline h1 { font-size: 2.25rem; }
+  .critter-jay { top: 35%; right: 3%; width: 96px; --fly-x: -120px; --fly-y: 16px; }
+}
+
+@media (max-width: 720px) {
+  .acorns-a { display: none; }
 }
