@@ -14,6 +14,15 @@
     });
   }
 
+  // Home page: start the tree scrolled to the trunk on narrow screens
+  var scroller = document.querySelector(".tree-scroll");
+  if (scroller) {
+    scroller.scrollLeft = Math.max(
+      0,
+      (scroller.scrollWidth - scroller.clientWidth) / 2
+    );
+  }
+
   // Upload mock: list chosen or dropped file names, upload nothing
   var dz = document.getElementById("dropzone");
   var input = document.getElementById("file-input");
@@ -29,9 +38,7 @@
       list.appendChild(li);
     });
     if (status) {
-      status.textContent =
-        files.length +
-        " file(s) ready in the preview. In the full app, the engine would now read, sort, and match them.";
+      status.textContent = files.length + " file(s) held here. Nothing sent (demo).";
     }
   }
 
@@ -62,6 +69,113 @@
     });
     dz.addEventListener("drop", function (e) {
       if (e.dataTransfer) showFiles(e.dataTransfer.files);
+    });
+  }
+
+  // Home page: branch collection panel (sample data, shown on chip tap)
+  var BRANCHES = {
+    ruth: {
+      title: "Ruth Shote branch",
+      count: 14,
+      records: [
+        ["Dawes enrollment card", "1902", "Public record (sample)"],
+        ["Census household page", "1900", "Public record (sample)"],
+        ["Baptism record", "1888", "Church record (sample)"],
+        ["Family photograph", "c. 1911", "Family supplied (sample)"],
+        ["Funeral program", "1944", "Family supplied (sample)"],
+        ["Marriage license", "1893", "Public record (sample)"]
+      ]
+    },
+    henry: {
+      title: "Henry Shote branch",
+      count: 11,
+      records: [
+        ["Land allotment jacket", "1903", "Public record (sample)"],
+        ["Census household page", "1910", "Public record (sample)"],
+        ["Draft registration card", "1917", "Public record (sample)"],
+        ["Obituary clipping", "1957", "Newspaper (sample)"],
+        ["Family photograph", "c. 1926", "Family supplied (sample)"]
+      ]
+    },
+    della: {
+      title: "Della Shote branch",
+      count: 9,
+      records: [
+        ["Indian census roll entry", "1896", "Public record (sample)"],
+        ["Marriage record", "1889", "Church record (sample)"],
+        ["Family Bible page", "n.d.", "Family supplied (sample)"],
+        ["Census household page", "1920", "Public record (sample)"],
+        ["Oral history audio", "2024", "Family supplied (sample)"]
+      ]
+    },
+    moses: {
+      title: "Moses Shote branch",
+      count: 12,
+      records: [
+        ["Freedman's Bank register", "1871", "Public record (sample)"],
+        ["Census household page", "1880", "Public record (sample)"],
+        ["Lodge membership notice", "1908", "Newspaper (sample)"],
+        ["Death certificate", "1939", "Public record (sample)"],
+        ["Family photograph", "c. 1902", "Family supplied (sample)"],
+        ["Church anniversary program", "1963", "Family supplied (sample)"]
+      ]
+    }
+  };
+
+  var panel = document.getElementById("collection-panel");
+  var cpTitle = document.getElementById("cp-title");
+  var cpCount = document.getElementById("cp-count");
+  var cpList = document.getElementById("cp-list");
+  var cpClose = document.getElementById("cp-close");
+  var lastChip = null;
+
+  function openBranch(id, chip) {
+    var data = BRANCHES[id];
+    if (!data || !panel) return;
+    lastChip = chip || null;
+    cpTitle.textContent = data.title;
+    cpCount.textContent =
+      data.count + " records in this branch collection (sample).";
+    cpList.innerHTML = "";
+    data.records.forEach(function (rec) {
+      var li = document.createElement("li");
+      var name = document.createElement("span");
+      name.textContent = rec[0];
+      var meta = document.createElement("span");
+      meta.className = "meta";
+      meta.textContent = rec[1] + " \u00B7 " + rec[2];
+      li.appendChild(name);
+      li.appendChild(meta);
+      cpList.appendChild(li);
+    });
+    panel.hidden = false;
+    if (cpClose) cpClose.focus();
+  }
+
+  function closeBranch() {
+    if (!panel) return;
+    panel.hidden = true;
+    if (lastChip) lastChip.focus();
+  }
+
+  if (panel) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll("[data-branch]"),
+      function (chip) {
+        chip.addEventListener("click", function () {
+          openBranch(chip.getAttribute("data-branch"), chip);
+        });
+        chip.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openBranch(chip.getAttribute("data-branch"), chip);
+          }
+        });
+      }
+    );
+    if (cpClose) cpClose.addEventListener("click", closeBranch);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !panel.hidden) closeBranch();
     });
   }
 
