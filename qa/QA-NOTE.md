@@ -403,3 +403,234 @@ This pass fixes all five; structure and earlier verdicts unchanged.
   about 11:1 in the v3 pass); the rest are the pre-existing v1 sub
   page items owned by the sub page polish ticket. This pass
   introduced zero new findings.
+
+## V4 slice 1 (TW-1012, Nov 7): tiering probe, WebGL layer, the real deer
+
+### What this slice is
+
+The first v4 slice, built on Diego's recommended stack from
+V4-HUNT.md: vanilla three.js layered under the hand-built site,
+Lenis as the scroll fabric, maath damping for the procedural layer.
+No framework migration. GSAP was not implanted (custom Webflow
+license; pattern only). theatre.js was not needed this slice, so
+none of it is in the repo. The DOM journey stays authoritative:
+the WebGL canvas enhances only the base of the tree (section
+gen-7), and v3 remains the permanent floor everywhere else.
+
+### The tiering probe, design and thresholds as shipped
+
+File: gl/scene.js. Boot order is fail closed at every stage.
+
+1. Pre-checks (any failure is Tier C, the plain v3 page): no
+   WebGL2 context; software renderer (the unmasked renderer string
+   matching SwiftShader, llvmpipe, software, or basic render);
+   fewer than 2 hardware threads when the browser exposes the
+   count; deviceMemory under 1 GB when exposed; a save-data
+   connection flag.
+2. The scene builds and the deer loads under a 12 second timeout.
+   Any exception, load error, or a lost WebGL context tears the
+   layer down to Tier C.
+3. The live probe renders the real scene, deer included, for 120
+   measured frames after 15 warmup frames, at pixel ratio
+   min(devicePixelRatio, 1.5), with the canvas still invisible.
+   Tier A when the p95 frame time is at most 22 ms. Tier B when at
+   most 34 ms. Anything slower tears down with reason
+   probe-too-slow.
+4. A runtime governor keeps the earned tier honest: 150 frame
+   windows; an average over 21 ms steps the pixel ratio down
+   (1.5, then 1.25, then 1.0); an average over 30 ms at the floor
+   twice in a row tears down to Tier C.
+5. QA overrides exist for review only: ?gl=force-a, ?gl=force-b,
+   ?gl=off. Production traffic with no parameter always runs the
+   full pre-check and probe.
+
+The resulting tier and reason are written to
+document.documentElement.dataset (glTier, glReason) and the full
+state to window.__lgcyGL, so a reviewer can read the verdict off
+any live page.
+
+### Frame-time numbers in this sandbox, with the limits stated
+
+This sandbox renders WebGL only through SwiftShader, a CPU
+software rasterizer, which the pre-check itself classifies as
+Tier C. Measured on the forced QA path at 1440 by 900, base
+section in view, 300 requestAnimationFrame deltas: Tier A path
+averaged 114 ms per frame (p50 100 ms, p95 183 ms); Tier B path
+averaged 118 ms (p50 117 ms, p95 183 ms). Those numbers measure a
+software rasterizer on a shared sandbox CPU compositing a very
+large photographic page. They are not a device GPU verdict, they
+are not close to the probe thresholds, and that is the point of
+the design: hardware this slow never earns the layer in
+production because the probe refuses it. The real-device check is
+the founder's phone; no phone numbers exist yet and none are
+claimed here.
+
+### The deer, real
+
+Source and license: Ultimate Animated Animal Pack by Quaternius.
+The pack page (quaternius.com/packs/ultimateanimatedanimals.html)
+states License CC0 and links the CC0 deed, and states the assets
+are free to use in personal and commercial projects. Verified
+first-hand this pass. The full provenance chain, including the
+documented repack mirror used when the pack's Google Drive folder
+refused this sandbox with a sharing quota error, the SHA-256 that
+matches the mirror's own attribution byte for byte, and the
+in-house meshopt re-optimization (1,951,720 bytes to 449,116,
+re-audited identical), is in the README under "WebGL deer and
+library credits". CC0 needs no attribution; the credit runs anyway,
+in the README and in the home page footer line.
+
+Model audit, from the shipped file: 13 animation clips (Attack
+Headbutt, Attack Kick, Death, Eating, Gallop, Gallop Jump, Idle,
+Idle 2, Idle Headlow, Idle Hit React 1, Idle Hit React 2, Jump to
+Idle, Walk), 46 joints, 2,098 triangles, 7 flat materials, no
+textures.
+
+Clips actually wired this slice: Idle, Idle Headlow, and Eating
+carry the body. The graze loop dwells in Eating and Idle Headlow
+(5 to 9.5 second bouts, crossfades 0.5 to 0.7 seconds) with an
+occasional short Idle between bouts. Alert switches to Idle. The
+other 10 clips ship inside the file unwired; locomotion is a
+later slice, stated plainly rather than implied.
+
+Procedural layer, applied after the animation mixer every frame
+by premultiplying the clip's bone quaternions: a saccade-spring
+gaze on the head (maath dampE, smoothTime 0.16; graze targets
+retarget every 2.5 to 6 seconds with a slight downward pitch
+bias; the neck takes 35 percent of the gaze), ear flicks as
+damped springs (semi-implicit Euler, stiffness 120, damping
+ratio 0.55, random impulses per ear), breathing on the torso
+(0.24 Hz with a 0.37 Hz harmonic), and a two-frequency tail sway.
+Alert program: gaze sweeps to one side at t 0, the other at
+t 0.75 s, settles near center at t 1.5 s, ends at t 2.6 s; ears
+perk with the same spring. Trigger contract matches v3: the
+deer's own button (hover, tap, keyboard focus) fires app.js,
+which adds its alert class; a MutationObserver mirrors that into
+the WebGL alert. Arrival at the base alerts once per 20 seconds.
+Reduced motion: the deer holds the Idle clip, breathing at half
+amplitude, no gaze sweeps, no ear springs, no tail, no Lenis,
+no camera sway.
+
+Placement is measured, not eyeballed: a state.deerRect() debug
+hook projects the deer's bounding box into canvas pixels. At
+1440 wide the deer spans x 984 to 1417, y 126 to 439 of a 505 px
+tall canvas. At 375 wide it spans x 195 to 409, y 134 to 338 of
+374 px. On narrow canvases the deer stands smaller (1.45 m
+against 1.75 m), lower, and the canvas joins the critter stacking
+layer (z-index 3 under a 720 px media query) so the animal is
+not hidden behind the dropzone card; the deer button remains the
+topmost target in DOM order.
+
+### Style collision, the honest verdict
+
+The Quaternius deer is a flat-shaded, low-poly, texture-free
+model. The v3 world is a photograph. Blending gets the two to
+coexist; it does not make them the same medium, and this note
+does not pretend otherwise.
+
+What was tried, in order: (1) a full ground disc across the base.
+It read as a brown stage floor with a visible rim arc and fought
+the photograph across the whole frame. Rejected. (2) The same
+disc with a vertical fade. Perspective compresses the fade band
+into a hard line near the horizon. Rejected. (3) The shipped
+composition: a small dell, a local pool of mottled earth 2.6 m
+across with a speckle-broken rim, seated under the deer at the
+frame's darkest corner, with a blob contact shadow, a darker
+earth patch under the hooves, three small flat-shaded bushes at
+its back rim, leaf litter, and one fallen log, all lit warm and
+low to match the photograph's dusk side.
+
+Verdict: at 1440 the deer reads as a deliberate, storybook figure
+standing in shade at the roots; the join is visible if you look
+for it (the dell's rim, the model's flat facets against bark
+detail) and quiet if you do not. At 375 the deer stands over the
+dropzone card's lower corner, the same grammar as the v3 photo
+critter, with one dell bush overlapping the card beside it; the
+dell pools at its feet and no longer smears the card. This is a
+stylized animal in a photographic world, present on purpose. If
+the founder wants the deer to disappear into the photograph, no
+lighting trick in this slice does that: slice 2 should build our
+own deer mesh in Blender on the Quaternius clip timings, with
+fur-tone materials art-directed against the Angel Oak photograph
+(Diego's fallback in V4-HUNT.md). Recommendation stands either
+way; the current deer is honest, charming, and fully alive, and
+v3 remains one probe verdict away for any device that cannot
+run it well.
+
+### Verification run this pass (headless Chromium, local server)
+
+- Natural load, no parameters: Tier C, reason software-renderer,
+  no canvas in the DOM, photograph deer image opacity 1. The v3
+  floor is byte-for-byte the experience.
+- ?gl=off: Tier C, reason qa-override-off, no canvas.
+- WebGL2 context nulled by an init script: Tier C, reason
+  no-webgl2, page height normal.
+- Tier A forced: all six procedural bones resolve in the live
+  scene (head, neck, earL, earR, torso, tail). Note for the next
+  slice: three.js sanitizes node names on load, so the GLB's
+  "Ear1.L" arrives as "Ear1L"; both spellings are in the lookup.
+- Alert: manual state.alert() produced the sweep (screenshot:
+  head turned, ears rotated, distinct from the base frame);
+  arrival at the base also alerts (alertCount increments).
+- Gaze: state.setGaze at yaw minus 0.55 and plus 0.55 produced
+  opposed head turns, screenshots both ways.
+- Follow my line with Lenis running: journey gains line-on,
+  the Jordan card gains focus and in-line (8 in-line elements,
+  the seven line cards plus the root plaque, matching v3), and
+  the card lands in the viewport. Lenis does not fight
+  scrollIntoView.
+- Reduced motion emulated: Tier A path holds the calm Idle pose,
+  Lenis is null, screenshot shows the neutral stance.
+- node --check passes on gl/scene.js. app.js is untouched, so
+  the dragonfly law (SCROLLS_PER_DRAGONFLY = 15) and every v3
+  animal behavior are exactly as gated. Zero em or en dashes in
+  the new and changed files (byte scan). No external references:
+  every script and model path is relative to this repo. Visible
+  prose is unchanged (the only copy touched is the footer credit
+  line, which is outside the 24 word prose budget).
+
+### Frontend gates, in house order
+
+- Impeccable (detector, live CLI this pass): 18 counted findings
+  plus 1 advisory, repo wide. That is the identical population
+  recorded at the v3 fix pass; zero findings in gl/ or in the new
+  CSS block; the index.html item is the known pre-existing hover
+  pairing from v3. This slice introduced zero new findings.
+- Unslop (signs audit on the new layer): no gradients, no glows,
+  no emoji, no badges, no tracked micro-labels, no off-grid
+  spacing, no hype copy in the new footer sentence. Two
+  kept-on-purpose notes: the Tier A camera sway is motion with a
+  job (a living scene, per the v4 brief), is very small (plus or
+  minus 0.05 world units), and is off under reduced motion; the
+  photographic blend is governed by the style collision verdict
+  above, not hidden.
+- Replica: the vendored scorer cannot score a photographic
+  reference (documented at v3) and a live WebGL layer has no
+  static reference to match; the screenshot set below is the
+  comparison evidence, as at v3.
+
+### Screenshots (qa/v4-slice1/)
+
+- base-1440.jpg: the base at desktop width, deer in its dell.
+- alert-1440.jpg: mid alert sweep, head turned, ears rotated.
+- gaze-left-1440.jpg and gaze-right-1440.jpg: opposed saccade
+  targets, yaw minus 0.55 and plus 0.55.
+- base-375.jpg: phone width, deer over the card's lower corner,
+  dell pooled at its feet.
+- reduced-1440.jpg: reduced motion, calm Idle, no Lenis.
+
+### What could not run, named
+
+- The pack's Google Drive folder refused this sandbox (sharing
+  quota error on every file, two attempts). The deer was sourced
+  through the documented, hash-verified repack mirror instead;
+  the chain is in the README.
+- No real-device frame times exist. The sandbox has no GPU
+  renderer at all (SwiftShader only), so the probe's production
+  path, a hardware renderer passing or failing on its merits,
+  has not been observed yet. First founder phone load is the
+  test; the dataset attributes on the live page will say what
+  the phone decided.
+- Safari was not exercised in this sandbox. The layer is plain
+  ES modules plus WebGL2, both standard there, but unproven
+  here and stated as such.

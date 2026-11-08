@@ -88,6 +88,39 @@ design; the circles never carry fake faces.
 Animal photographs are toned and feather-masked in CSS to blend into
 the oak; the animals are Easter eggs and carry no labels in the UI.
 
+## WebGL deer and library credits (v4 slice 1)
+
+The deer at the base of the tree is a real animated 3D model on
+devices that earn it (see `qa/QA-NOTE.md` for the tiering probe);
+everywhere else the photograph deer above remains.
+
+- Deer model (`gl/deer.glb`): white-tailed deer from the Ultimate
+  Animated Animal Pack by Quaternius.
+  Pack page: https://quaternius.com/packs/ultimateanimatedanimals.html
+  The pack page states "License CC0" and links the CC0 deed; it also
+  states the assets are "free to use in personal and commercial
+  projects". License: https://creativecommons.org/publicdomain/zero/1.0/
+  CC0 requires no attribution; this credit is house provenance law.
+  Provenance chain: the pack is distributed through a Google Drive
+  folder (folder ID 1uJ3N5HfB7jKTseJUNQr3N4YaN0UuEtHk). This file came
+  from a documented repack of that folder's glTF deer (Drive file ID
+  1iGpXKrqYGyZCPGHPPSuDAoKnOXLhXJ0q) in the GitHub repo
+  RRG314/WorldExplorer3D, `app/assets/models/animals/white-tailed-deer-v1.glb`,
+  whose own ATTRIBUTION.md describes the repack (glTF-Transform:
+  geometry, materials, skinning, and all animation clips retained;
+  the source was texture-free). The downloaded repack's SHA-256,
+  75d88a0aa2f0569f8fbde28e4f8b0746b0adcab03018bac88e9326071dcdd1d6,
+  matches the hash recorded in that attribution, byte for byte.
+  In-house step: the file was re-optimized with glTF-Transform and
+  meshoptimizer (dedup, weld, resample, prune, quantize, meshopt
+  compression), 1,951,720 bytes to 449,116 bytes, then re-audited:
+  13 animation clips, 46 joints, 2,098 triangles, 7 materials, the
+  same inventory as the source. Shipped SHA-256:
+  e905cb4deaaacda83456ae457962ff822e8463d1e5028f2fe6d3a741e09e8adf.
+- three.js 0.170.0 (MIT), Lenis 1.1.18 (MIT), maath 0.10.8 easing
+  (MIT): vendored under `gl/vendor/` with their license files. No
+  code loads from a CDN; every path is relative to this repo.
+
 ## Design notes
 
 Desktop first, with a full responsive mobile view (the scroll journey

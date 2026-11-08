@@ -152,10 +152,19 @@
     <p>Our LGCY is a private family project. This public preview shows the experience with a fictional sample family only.</p>
     <p class="fine">Prepared by Twistor Holdings LLC<br>
     Preview with a fictional sample family. No real family data.<br>
-    Credits: oak photograph "Angel Oak Tree" by Tmquinn2, CC BY-SA 3.0, via Wikimedia Commons; Eastern Screech Owl recording XC75829 by Jonathon Jongsma, CC BY-SA 3.0, via xeno-canto; animal photographs by Rita Wiskowski (Public Domain Mark 1.0), U.S. Fish and Wildlife Service Northeast Region (Public Domain Mark 1.0), Greg Schechter (CC BY 2.0), Image Catalog (CC0 1.0), and Raul654 (CC BY-SA 3.0). Full credits and source links live in this project's README on GitHub.</p>
+    Credits: oak photograph "Angel Oak Tree" by Tmquinn2, CC BY-SA 3.0, via Wikimedia Commons; Eastern Screech Owl recording XC75829 by Jonathon Jongsma, CC BY-SA 3.0, via xeno-canto; animal photographs by Rita Wiskowski (Public Domain Mark 1.0), U.S. Fish and Wildlife Service Northeast Region (Public Domain Mark 1.0), Greg Schechter (CC BY 2.0), Image Catalog (CC0 1.0), and Raul654 (CC BY-SA 3.0). WebGL deer at the base of the tree: model from the Ultimate Animated Animal Pack by Quaternius, CC0 1.0, via quaternius.com, rendered with three.js, Lenis, and maath (MIT). Full credits and source links live in this project's README on GitHub.</p>
   </div>
 </footer>
 
 <script src="app.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./gl/vendor/three.module.min.js",
+    "three/addons/": "./gl/vendor/addons/"
+  }
+}
+</script>
+<script type="module" src="gl/scene.js"></script>
 </body>
 </html>
