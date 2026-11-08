@@ -634,3 +634,10 @@ run it well.
 - Safari was not exercised in this sandbox. The layer is plain
   ES modules plus WebGL2, both standard there, but unproven
   here and stated as such.
+- The live Pages URL could not be driven from this sandbox's
+  headless Chromium (proxy tunnel failure to github.io, while
+  curl succeeds). Live verification therefore ran on bytes: the
+  published index.html, styles.css, gl/scene.js, and gl/deer.glb
+  were fetched from the live URL and their SHA-256 hashes and
+  sizes match the local files exactly, and those identical bytes
+  are what every check above ran against.
