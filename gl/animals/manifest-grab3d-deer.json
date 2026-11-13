@@ -1,0 +1,51 @@
+{
+ "slug": "deer",
+ "triangles": 745466,
+ "texture_px": 4096,
+ "triangles_light": 372733,
+ "texture_px_light": 1024,
+ "files": {
+  "glb": {
+   "name": "deer.glb",
+   "bytes": 29908068
+  },
+  "blend": {
+   "name": "deer.blend",
+   "bytes": 37095229
+  },
+  "fbx": {
+   "name": "deer.fbx",
+   "bytes": 50766812
+  },
+  "obj": {
+   "name": "deer-obj.zip",
+   "bytes": 23596258
+  },
+  "usdz": {
+   "name": "deer.usdz",
+   "bytes": 45089939
+  },
+  "glb_light": {
+   "name": "deer-light.glb",
+   "bytes": 11345744
+  },
+  "fbx_light": {
+   "name": "deer-light.fbx",
+   "bytes": 22431980
+  }
+ },
+ "extras": {
+  "license": "CC0-1.0",
+  "source": "grab3d.com",
+  "dimensions_m": "0.591 x 1.564 x 1.700",
+  "triangles": 745466,
+  "variant": "download",
+  "generator": "Created by grab3d",
+  "created": "2026-09-28"
+ },
+ "origin": {
+  "method": "ai-assisted",
+  "detail": "Base mesh and textures generated with an AI image-to-3D tool (Meshy), then cleaned up, scaled, textured and checked in Blender.",
+  "ai_content": true
+ }
+}
