@@ -1,0 +1,76 @@
+{
+ "objects": [
+  [
+   "BuckRig",
+   "ARMATURE"
+  ],
+  [
+   "Buck",
+   "MESH"
+  ],
+  [
+   "Icosphere",
+   "MESH"
+  ]
+ ],
+ "actions": {
+  "Ear_Adjust": [
+   0.0,
+   192.0
+  ],
+  "Look_Left": [
+   0.0,
+   144.0
+  ],
+  "Look_Right": [
+   0.0,
+   144.0
+  ],
+  "Lookout_Idle": [
+   0.0,
+   384.0
+  ]
+ },
+ "images": {
+  "Image_0": [
+   2048,
+   2048
+  ],
+  "Image_1": [
+   2048,
+   2048
+  ],
+  "Image_2": [
+   2048,
+   2048
+  ]
+ },
+ "bones": [
+  "root",
+  "pelvis",
+  "spine",
+  "chest",
+  "neck_1",
+  "neck_2",
+  "head",
+  "ear_L",
+  "ear_R",
+  "jaw",
+  "upperarm_L",
+  "forearm_L",
+  "hoof_FL",
+  "upperarm_R",
+  "forearm_R",
+  "hoof_FR",
+  "tail",
+  "thigh_L",
+  "gaskin_L",
+  "cannon_L",
+  "hoof_HL",
+  "thigh_R",
+  "gaskin_R",
+  "cannon_R",
+  "hoof_HR"
+ ],
+ "tris": 22080
+}

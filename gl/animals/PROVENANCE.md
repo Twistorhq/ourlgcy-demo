@@ -95,5 +95,35 @@ of the CC0 source above; every step is recorded here.
 
 - 2026-11-13: none yet. Source downloaded, hashed, inspected
   (Phase A asset gate, `qa/tw1075-grab3d/ASSET-GATE.md`).
+- 2026-11-13 (Phase B, Sofia Reyes): rigging base prepared from the
+  .blend source by `tools/fauna/build_buck_rig.py`, reproducible
+  stages. The preserved source files above were never modified.
+  - Decimated a copy to a 22,000-triangle / 18,636-vertex deformation
+    mesh.
+  - Founder-directed anatomy correction: legs lengthened and slimmed
+    toward white-tailed deer proportions (body raised 0.12 m on a
+    smooth blend band, 5 percent distributed leg stretch, leg columns
+    slimmed toward their axes, cannon bones most, hooves least). The
+    founder explicitly overrode the reference photo on this trait.
+    Resulting height 1.821 m at the antler tips.
+  - Built a 25-bone quadruped rig (root, spine chain, neck chain,
+    head, jaw, independent ears measured from the mesh, tail, full
+    legs) with scripted zone-corrected skinning: body-polyline
+    projection weights, segment-distance leg and ear weights, antlers
+    and eyes rigid to the head, and spatial weight smoothing (the
+    source is a shell mosaic; this keeps bends crack-free, verified
+    by deformation renders in `qa/tw1075-grab3d/rig/`).
+  - Authored the founder crest stance (15-degree uphill pitch, all
+    hooves coplanar on the fitted slope plane, measured) and four
+    animation clips baked over it: Lookout_Idle, Look_Left,
+    Look_Right, Ear_Adjust. Animation scope per the founder: head and
+    ears only.
+  - Downscaled the three textures to 2048 x 2048 and exported the
+    self-contained `buck-rigged.glb` in this folder (2,740,728 bytes,
+    SHA-256 c49ddf5ed1c8a0369ffd6ccbdae464ac0a1b11aa456eba5e5b39dcad1ffbb401).
+    Full rig documentation: `RIG-MAPPING.md` in this folder.
+    Editable rig source: `buck-rigged.blend`, Twistor internal
+    storage with the source files (SHA-256
+    da346d1ad765afee438364c0e860474bd94906af7f5f951e98e424ff3cd76ad1).
 
 Prepared by Twistor Holdings LLC
