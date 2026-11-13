@@ -1,0 +1,167 @@
+{
+ "glb": "/tmp/tw1075-src/deer.glb",
+ "label": "full",
+ "objects": [
+  {
+   "name": "deer",
+   "type": "MESH",
+   "verts": 392008,
+   "edges": 1137228,
+   "polys": 745466,
+   "tris": 745466,
+   "uv_layers": [
+    "UVMap"
+   ],
+   "materials": [
+    "Material_0"
+   ],
+   "vertex_groups": 0,
+   "shape_keys": false,
+   "modifiers": []
+  }
+ ],
+ "actions": [],
+ "images": [
+  {
+   "name": "Image_0",
+   "size": [
+    4096,
+    4096
+   ],
+   "colorspace": "sRGB",
+   "alpha_mode": "CHANNEL_PACKED"
+  },
+  {
+   "name": "Image_1",
+   "size": [
+    4096,
+    4096
+   ],
+   "colorspace": "Non-Color",
+   "alpha_mode": "CHANNEL_PACKED"
+  },
+  {
+   "name": "Image_2",
+   "size": [
+    4096,
+    4096
+   ],
+   "colorspace": "Non-Color",
+   "alpha_mode": "CHANNEL_PACKED"
+  }
+ ],
+ "materials": {
+  "Material_0": {
+   "nodes": [
+    {
+     "type": "ShaderNodeBsdfPrincipled",
+     "name": "Principled BSDF",
+     "input_Base Color": "linked:Image Texture",
+     "input_Metallic": "linked:Separate Color",
+     "input_Roughness": "linked:Separate Color",
+     "input_Normal": "linked:Normal Map",
+     "input_Alpha": "value:1.0"
+    },
+    {
+     "type": "ShaderNodeOutputMaterial",
+     "name": "Material Output"
+    },
+    {
+     "type": "ShaderNodeTexImage",
+     "name": "Image Texture",
+     "image": "Image_0",
+     "color_links": [
+      "Principled BSDF.Base Color"
+     ],
+     "alpha_links": []
+    },
+    {
+     "type": "ShaderNodeSeparateColor",
+     "name": "Separate Color"
+    },
+    {
+     "type": "ShaderNodeTexImage",
+     "name": "Image Texture.001",
+     "image": "Image_1",
+     "color_links": [
+      "Separate Color.Color"
+     ],
+     "alpha_links": []
+    },
+    {
+     "type": "ShaderNodeNormalMap",
+     "name": "Normal Map"
+    },
+    {
+     "type": "ShaderNodeTexImage",
+     "name": "Image Texture.002",
+     "image": "Image_2",
+     "color_links": [
+      "Normal Map.Color"
+     ],
+     "alpha_links": []
+    }
+   ]
+  }
+ },
+ "bounds": {
+  "min": [
+   -0.29550233483314514,
+   -0.7819429636001587,
+   0.0
+  ],
+  "max": [
+   0.2955493628978729,
+   0.7819159030914307,
+   1.7000000476837158
+  ],
+  "size_xyz": [
+   0.5910516977310181,
+   1.5638588666915894,
+   1.7000000476837158
+  ],
+  "center": [
+   2.35140323638916e-05,
+   -1.3530254364013672e-05,
+   0.8500000238418579
+  ]
+ },
+ "health": {
+  "mesh": "deer",
+  "nonmanifold_edges": 38058,
+  "wire_edges": 0,
+  "zero_area_polys": 1,
+  "islands": 246
+ },
+ "ends": {
+  "length_axis": "Y",
+  "regions": {
+   "min_end": {
+    "high_region_centroid": [
+     0.005099307436765793,
+     -0.6323454922230832,
+     1.3084028691631517
+    ],
+    "verts": 25878
+   },
+   "min_end_slab_centroid": [
+    0.005099307436765793,
+    -0.6323454922230832,
+    1.3084028691631517
+   ],
+   "max_end": {
+    "high_region_centroid": [
+     0.03423467242971594,
+     0.614824249844344,
+     0.9715357460704872
+    ],
+    "verts": 5917
+   },
+   "max_end_slab_centroid": [
+    0.029664493680098575,
+    0.6334388965514447,
+    0.5547272489448841
+   ]
+  }
+ }
+}
