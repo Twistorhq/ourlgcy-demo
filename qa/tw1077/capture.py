@@ -1,7 +1,10 @@
 # TW-1077 Community tab capture harness.
 # Serves the worktree over http and captures stills, phase shots, a
 # reduced-motion still, a route-highlight shot, a click-through
-# assertion, and a short motion recording with Playwright.
+# assertion, a short motion recording, an unforced phase-mapping
+# probe at the boundary hours, and the fail-closed floor probes
+# (village.js blocked, JavaScript disabled, torn down after load)
+# with Playwright.
 # Sandbox disclosure: captures run in headless Chromium on this
 # sandbox (no GPU); the village is SVG and DOM, so no GL override
 # is needed. Timings are real; the roaming is the page's own loop.
@@ -83,6 +86,16 @@ try:
         report["desktop"] = state_of(page)
         page.screenshot(path=f"{OUT}/community-desktop.png", full_page=True)
         page.locator("#village-stage").screenshot(path=f"{OUT}/stage-desktop.png")
+        # 1b. Unforced phase mapping: phaseForHour is the pure
+        # mapping phaseFromClock reads, independent of the
+        # ?village= override holding the shots above. The boundary
+        # hours are the point of the probe: deep night (hours 0 to
+        # 4) must resolve to night, not morning (Rosa gate fix).
+        report["phaseMap"] = page.evaluate(
+            "() => { const f = window.__lgcyVillage.phaseForHour;"
+            " const out = {}; for (let h = 0; h < 24; h++) out[h] = f(h);"
+            " return out; }"
+        )
 
         # 2. Traffic: first vehicle (the buggy) enters at once.
         page.goto(f"{BASE}/community.html?village=afternoon&traffic=1")
@@ -239,6 +252,60 @@ try:
         )
         ctx.close()
 
+        # 8b. Floor probes (Rosa gate fix round): what stands when
+        # the layer never loads, and what stands after teardown.
+        # Blocked script: village.js aborted at the network layer,
+        # so the roster that stands is the static HTML rendered in
+        # community.html from the same records: 14 profile links,
+        # the drawn scene, and no walkers.
+        ctx = browser.new_context(viewport={"width": 1440, "height": 900})
+        page = ctx.new_page()
+        page.route("**/village.js", lambda route: route.abort())
+        page.goto(f"{BASE}/community.html")
+        page.wait_for_timeout(800)
+        report["blockedFloor"] = page.evaluate(
+            "() => ({ scene: !!document.getElementById('village-svg'),"
+            " rosterLinks:"
+            " document.querySelectorAll('#roster-list a.roster-btn').length,"
+            " rosterHrefs:"
+            " [...document.querySelectorAll('#roster-list a.roster-btn')]"
+            ".every(a => a.getAttribute('href') === 'person.html'),"
+            " walkers: document.querySelectorAll('#v-walkers > a').length })"
+        )
+        ctx.close()
+
+        # JavaScript disabled: the floor comes from the HTML the
+        # browser parsed, scene plus static roster plus the
+        # noscript note. page.content() reads the parsed DOM back
+        # over CDP, which works with page scripts off.
+        ctx = browser.new_context(java_script_enabled=False)
+        page = ctx.new_page()
+        page.goto(f"{BASE}/community.html")
+        page.wait_for_timeout(400)
+        nojs_html = page.content()
+        report["noJsFloor"] = {
+            "rosterLinks": nojs_html.count('class="roster-btn"'),
+            "scene": 'id="village-svg"' in nojs_html,
+            "noscript": "stand as drawn" in nojs_html,
+        }
+        ctx.close()
+
+        # Torn down after load: the layer's own teardown leaves
+        # the scene and the roster it built standing.
+        ctx = browser.new_context(viewport={"width": 1440, "height": 900})
+        page = ctx.new_page()
+        watch(page)
+        page.goto(f"{BASE}/community.html?village=midday")
+        page.wait_for_timeout(1200)
+        report["tornDownFloor"] = page.evaluate(
+            "() => { window.__lgcyVillage.teardown('harness-probe');"
+            " return { mode: window.__lgcyVillage.mode,"
+            " scene: !!document.getElementById('village-svg'),"
+            " rosterLinks:"
+            " document.querySelectorAll('#roster-list a.roster-btn').length }; }"
+        )
+        ctx.close()
+
         # 9. Motion recording: 16 seconds of the roaming day.
         ctx = browser.new_context(
             viewport={"width": 1280, "height": 800},
@@ -298,4 +365,29 @@ mut = report["probableMutation"]
 assert mut["kit"] == "neutral", mut
 assert mut["status"] == "probable", mut
 assert "probable" in (mut["roster"] or ""), mut
+# Unforced phase mapping, full sweep plus the boundary hours by
+# name: 0 and 4 are night, 5 is dawn, 19 is dusk, 20 is night.
+expected_phases = (
+    ["night"] * 5
+    + ["dawn"] * 2
+    + ["morning"] * 4
+    + ["midday"] * 4
+    + ["afternoon"] * 3
+    + ["dusk"] * 2
+    + ["night"] * 4
+)
+pm = report["phaseMap"]
+assert [pm[str(h)] for h in range(24)] == expected_phases, pm
+assert pm["0"] == "night" and pm["4"] == "night", pm
+assert pm["5"] == "dawn" and pm["19"] == "dusk" and pm["20"] == "night", pm
+# Floors: blocked script and no-JavaScript both stand on the
+# static roster (14 links, all to person.html where checkable),
+# and teardown leaves the built roster standing.
+bf = report["blockedFloor"]
+assert bf["scene"] and bf["rosterLinks"] == 14, bf
+assert bf["rosterHrefs"] and bf["walkers"] == 0, bf
+nj = report["noJsFloor"]
+assert nj["scene"] and nj["rosterLinks"] == 14 and nj["noscript"], nj
+td = report["tornDownFloor"]
+assert td["mode"] == "off" and td["scene"] and td["rosterLinks"] == 14, td
 print("@@CAPTURE@@ all assertions passed")

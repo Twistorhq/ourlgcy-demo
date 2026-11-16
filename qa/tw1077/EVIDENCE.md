@@ -12,6 +12,30 @@ branch is not rebased; merges sequence through Marcus. The
 likely touch point is the styles.css tail, where both branches
 appended sections.
 
+## Gate fix round (Rosa REQUEST CHANGES, Nov 16)
+
+- Blocker 1, night phase mapping: phaseFromClock sent hours 0
+  to 4 into the morning branch, so deep night rendered as
+  morning. The mapping is now a pure phaseForHour with night
+  tested first (20:00 to 04:59 resolves to night), exposed on
+  window.__lgcyVillage, and the harness asserts the unforced
+  mapping across all 24 hours, boundaries by name.
+- Blocker 2, roster floor: the roster shipped empty and only
+  the layer filled it, so it did not stand when village.js was
+  blocked or JavaScript was off, while the noscript line and
+  this file claimed it did. community.html now renders the
+  roster as static HTML from the same villagers-data.js
+  records; buildRoster clears and replaces that list on init,
+  so the two never duplicate; the noscript line now says the
+  village scene and the roster stand as drawn; the floor claims
+  below are stated per case; the harness probes the
+  blocked-script and JavaScript-disabled cases alongside the
+  torn-down case.
+- Nits: the tier wording below no longer implies tier B
+  recovers to A within a run (it does not; the governor only
+  steps down, and each page load starts fresh at A). ROSTER.md
+  now calls Ruth's hat a wide-brim hat, matching the data.
+
 ## What landed
 
 - A Community tab in the demo nav (home nav link plus the page's
@@ -48,12 +72,19 @@ appended sections.
   data file, zero code change) and asserting the neutral kit,
   the probable status attribute, and the probable roster label;
   the unmutated run asserts the same villager in his hoodie.
-- Fail-closed floors, mirrored from gl/buck.js: the drawn scene,
-  the roster, and the profile links stand with the layer off,
-  torn down, or never loaded; reduced motion gets a composed
-  still village with all 14 villagers placed and all four era
-  vehicles parked; a frame governor thins the village (tier B)
-  or freezes it (tier C) rather than jank; the loop pauses
+- Fail-closed floors, mirrored from gl/buck.js, stated per
+  case: with the layer torn down after load, the drawn scene
+  and the roster the layer built stand (14 profile links). With
+  village.js blocked or never loaded, the drawn scene and the
+  roster rendered as static HTML in community.html itself stand
+  (14 profile links, from the same records; buildRoster clears
+  and replaces that list on init). With JavaScript disabled
+  entirely, the same scene and static roster stand, and the
+  noscript note on the page says so. The harness probes all
+  three cases. Reduced motion gets a composed still village
+  with all 14 villagers placed and all four era vehicles
+  parked; a frame governor thins the village (tier B) or
+  freezes it (tier C) rather than jank; the loop pauses
   offscreen and in background tabs.
 
 ## Captures (qa/tw1077/, harness capture.py, all assertions green)
@@ -76,11 +107,25 @@ appended sections.
 - Click-through asserted end to end: a real pointer click on
   Xavier's figure lands on person.html. Home nav asserted to
   carry the Community link.
+- Phase mapping asserted unforced (gate fix round): the pure
+  hour mapping swept across all 24 hours; 0 and 4 read night,
+  5 dawn, 19 dusk, 20 night.
+- Floor probes asserted (gate fix round): village.js blocked
+  (scene stands, 14 static roster links all to person.html, no
+  walkers), JavaScript disabled (scene, 14 static roster links,
+  and the noscript note in the parsed page), and torn down
+  after load (scene plus the built roster, 14 links).
 
 State probes from the harness (window.__lgcyVillage): mode roam,
-tier A, 14 walkers in every roaming pass; the governor's tier B
-appeared once under video-recording load in an earlier run and
-recovered to A in the final run.
+14 walkers in every roaming pass. The governor only steps down
+within a run: tier B, once entered, never returns to A, and a
+sustained frame-budget miss freezes the village at tier C; each
+page load starts fresh at tier A. In the gate fix round's run,
+shared sandbox load pushed the desktop pass to tier B and the
+recording pass to tier C near the end of its window; frames
+sampled at 1, 5, 10, and 15 seconds across the recording still
+differ, and the original gated run recorded the roaming day at
+tier A throughout.
 
 ## Sandbox disclosures (honest limits)
 
