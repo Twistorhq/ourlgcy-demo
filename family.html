@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stay in the Loop: Our LGCY</title>
+<meta name="description" content="The Our LGCY family sign up. Leave your name, email, phone, occupation, and how you heard about the tree, and we will write when your branch grows. Demo preview with a fictional sample family.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="index.html">Our <span>LGCY</span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" data-nav-toggle>Menu</button>
+    <nav class="main-nav" id="main-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+        <li><a href="family.html" aria-current="page">Stay in the Loop</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="demo-banner" role="note">
+  <div class="wrap">
+    <strong>Demo preview.</strong>
+    <span>This is the family sign up, shown with a sample family. In this preview the form sends nothing and stores nothing.</span>
+  </div>
+</div>
+
+<div class="family-hero" aria-hidden="true"></div>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Our LGCY · The family round</p>
+      <h1>You came to see the tree. Stay close to it.</h1>
+      <p class="lede">Most family will look once and drift. Leave your details before you go, and we will write when your branch grows, when new records land, and when it is your turn to add what you hold.</p>
+    </div>
+
+    <div class="two-col" style="margin-top:20px">
+      <div>
+        <form class="claim" id="family-form" novalidate>
+          <div class="field" data-field="name">
+            <label for="f-name">Your name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Your full name" aria-describedby="e-name">
+            <p class="field-error" id="e-name">Tell us your name so we know who we are writing to.</p>
+          </div>
+          <div class="field" data-field="email">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="e-email">
+            <p class="field-error" id="e-email">That email does not look complete. Check it and try again.</p>
+          </div>
+          <div class="field" data-field="phone">
+            <label for="f-phone">Phone number</label>
+            <p class="hint">So we can reach you when your branch needs you.</p>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="(555) 555-5555" aria-describedby="e-phone">
+            <p class="field-error" id="e-phone">That phone number looks too short. Add the full number, area code too.</p>
+          </div>
+          <div class="field" data-field="occupation">
+            <label for="f-occupation">Occupation</label>
+            <p class="hint">What you do, in a few words. It helps us know who to call for what.</p>
+            <input id="f-occupation" name="occupation" type="text" autocomplete="organization-title" placeholder="Teacher, nurse, retired, student..." aria-describedby="e-occupation">
+            <p class="field-error" id="e-occupation">A word or two about what you do is plenty.</p>
+          </div>
+          <div class="field" data-field="heard">
+            <label for="f-heard">How did you hear about Our LGCY?</label>
+            <select id="f-heard" name="heard" aria-describedby="e-heard">
+              <option value="">Choose one</option>
+              <option value="family-sent">A family member sent me the link</option>
+              <option value="group-chat">The family group chat</option>
+              <option value="social">Social media</option>
+              <option value="word-of-mouth">Word of mouth</option>
+              <option value="other">Somewhere else</option>
+            </select>
+            <p class="field-error" id="e-heard">Pick the closest one. It tells us how the word travels.</p>
+          </div>
+          <button class="btn btn-pine" type="submit" id="family-submit">Add me to the family list</button>
+          <p class="privacy-line">Your details go to the family's private list only. They never appear on this site, and they are never sold.</p>
+          <div class="form-note" id="family-preview-note" role="status">
+            <strong>Preview receipt.</strong> In this demo nothing was sent and nothing was stored. On the live page, this form adds you to the family's private list the moment you send it.
+          </div>
+          <div class="form-note error" id="family-error-note" role="alert">
+            <strong>That did not go through, and nothing was saved.</strong> Your answers are still in the form above. Check your connection and send again, or <a id="family-mailto" href="mailto:holla@twistor.co?subject=Our%20LGCY%20family%20list">send them by email instead</a>.
+          </div>
+        </form>
+
+        <section class="form-note" id="family-thanks" role="status" hidden>
+          <h2 style="margin-bottom:8px">You are on the list.</h2>
+          <p style="margin:0">Welcome home. We will write when your branch grows, and when it is your turn to add what you hold, you will hear from us first.</p>
+        </section>
+      </div>
+
+      <div>
+        <h2 style="margin-bottom:14px">What you will hear about</h2>
+        <ol class="steps">
+          <li>
+            <h3>Your branch grows</h3>
+            <p>When a record lands that touches your line, a census page, a Dawes card, a program from a home going, you hear it from us, in plain words.</p>
+          </li>
+          <li>
+            <h3>Your turn to add</h3>
+            <p>When the tree is ready for what you hold, a photo, a story, a name in a family Bible, we will ask you directly. Nobody else can place your people but you.</p>
+          </li>
+          <li>
+            <h3>The family round comes first</h3>
+            <p>Right now this is ours alone, family proving the tree works. When it holds, other families will get trees of their own. You were here at the root.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+        <li><a href="family.html">Stay in the Loop</a></li>
+      </ul>
+    </nav>
+    <p>Our LGCY is a private family project. This public preview shows the experience with a fictional sample family only.</p>
+    <p class="fine">Prepared by Twistor Holdings LLC<br>
+    Preview with a fictional sample family. No real family data.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script src="family.js"></script>
+</body>
+</html>
