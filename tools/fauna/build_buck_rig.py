@@ -28,10 +28,16 @@ SRC_BLEND = os.path.expanduser(
     "~/workspace/twistor-lab/projects/our-lgcy/tw1075-grab3d-source/deer.blend"
 )
 WORK_BLEND = os.path.expanduser(
-    "~/workspace/twistor-lab/projects/our-lgcy/tw1075-grab3d-source/buck-rig-work.blend"
+    os.environ.get(
+        "BUCK_WORK_BLEND",
+        "~/workspace/twistor-lab/projects/our-lgcy/tw1075-grab3d-source/buck-rig-work.blend",
+    )
 )
 QA_DIR = os.path.expanduser(
-    "~/workspace/repos/ourlgcy-demo-tw1075b/qa/tw1075-grab3d/rig"
+    os.environ.get(
+        "BUCK_QA_DIR",
+        "~/workspace/repos/ourlgcy-demo-tw1075b/qa/tw1075-grab3d/rig",
+    )
 )
 TARGET_TRIS = 22000
 
@@ -1061,72 +1067,85 @@ def _win(t, t0, t1):
 # Clip authoring on the measured conventions (probe.json): yaw toward
 # the viewer's left = neck_1 Z+, neck_2 X+, head Z+; pitch down =
 # neck_1 X+, head X+, neck_2 Z-. Founder scope (Nov 13): head and
-# ears only, slight movements; the body holds the crest stance.
+# ears only; the body holds the crest stance. TW-1152 (founder live
+# review, Nov 16): the Nov 13 amplitudes read as stillness at page
+# framing ("hard to tell the head is even moving"), so the arcs are
+# widened and slowed until the gestures are clearly perceptible at
+# the composed framing. The channel scope is unchanged: neck_1,
+# neck_2, head, ear_L, ear_R only, baked keys only.
 def _idle(t, T):
     o = {}
     ph = 2.0 * math.pi * t / 4.0
-    o[("neck_1", "X")] = -0.30 * math.sin(ph)
-    o[("head", "X")] = -0.40 * math.sin(ph + 0.4)
+    o[("neck_1", "X")] = -0.80 * math.sin(ph)
+    o[("head", "X")] = -1.10 * math.sin(ph + 0.4)
     shake = _win(t, 4.5, 6.0)
     if shake:
         s = math.sin(2.0 * math.pi * 2.0 * (t - 4.5) / 1.5) * shake
-        o[("head", "Z")] = o.get(("head", "Z"), 0.0) + 1.4 * s
-        o[("neck_2", "X")] = o.get(("neck_2", "X"), 0.0) + 0.6 * s
-        o[("neck_1", "Z")] = o.get(("neck_1", "Z"), 0.0) + 0.4 * s
+        o[("head", "Z")] = o.get(("head", "Z"), 0.0) + 2.6 * s
+        o[("neck_2", "X")] = o.get(("neck_2", "X"), 0.0) + 1.2 * s
+        o[("neck_1", "Z")] = o.get(("neck_1", "Z"), 0.0) + 0.8 * s
     e = _win(t, 8.0, 10.0)
     if e:
-        o[("ear_L", "X")] = -14.0 * e
+        o[("ear_L", "X")] = -18.0 * e
     e = _win(t, 11.5, 13.0)
     if e:
-        o[("ear_R", "X")] = 12.0 * e
-        o[("ear_R", "Z")] = 5.0 * e
-    o[("head", "Z")] = o.get(("head", "Z"), 0.0) + 0.8 * math.sin(2.0 * math.pi * t / T)
-    o[("head", "X")] += 0.5 * math.sin(4.0 * math.pi * t / T + 1.0)
+        o[("ear_R", "X")] = 16.0 * e
+        o[("ear_R", "Z")] = 7.0 * e
+    o[("head", "Z")] = o.get(("head", "Z"), 0.0) + 1.6 * math.sin(2.0 * math.pi * t / T)
+    o[("head", "X")] += 0.9 * math.sin(4.0 * math.pi * t / T + 1.0)
     return o
 
 
 def _look(t, T, sign):
-    out = _ss(t / 1.8) if t < 1.8 else (1.0 if t < 4.2 else 1.0 - _ss((t - 4.2) / 1.8))
+    # TW-1152: slower travel (2.4 s in, hold, 2.4 s out) and a wider
+    # arc (about 24.5 degrees of total yaw across the three channels,
+    # up from about 11) so the look reads at page framing.
+    ramp = 2.4
+    out = (
+        _ss(t / ramp)
+        if t < ramp
+        else (1.0 if t < T - ramp else 1.0 - _ss((t - (T - ramp)) / ramp))
+    )
     o = {}
-    o[("head", "Z")] = sign * 6.5 * out
-    o[("neck_2", "X")] = sign * 3.0 * out
-    o[("neck_1", "Z")] = sign * 1.5 * out
-    o[("head", "X")] = 1.5 * out
-    e = _win(t, 2.4, 3.6)
+    o[("head", "Z")] = sign * 14.0 * out
+    o[("neck_2", "X")] = sign * 6.5 * out
+    o[("neck_1", "Z")] = sign * 4.0 * out
+    o[("head", "X")] = 3.0 * out
+    e = _win(t, 3.0, 4.4)
     if e:
         bone = "ear_R" if sign > 0 else "ear_L"
-        o[(bone, "X")] = -11.0 * e
+        o[(bone, "X")] = -14.0 * e
     return o
 
 
 def _ears(t, T):
     o = {}
-    o[("head", "Z")] = 0.7 * math.sin(2.0 * math.pi * t / T)
+    o[("head", "Z")] = 1.2 * math.sin(2.0 * math.pi * t / T)
     e = _win(t, 0.6, 1.6)
     if e:
         s = (t - 0.6) / 1.0
-        o[("ear_L", "X")] = -16.0 * math.sin(math.pi * s**0.6) ** 2
+        o[("ear_L", "X")] = -20.0 * math.sin(math.pi * s**0.6) ** 2
     e = _win(t, 2.6, 4.2)
     if e:
-        o[("ear_L", "X")] = o.get(("ear_L", "X"), 0.0) + 10.0 * e
-        o[("ear_L", "Z")] = 4.0 * e
+        o[("ear_L", "X")] = o.get(("ear_L", "X"), 0.0) + 13.0 * e
+        o[("ear_L", "Z")] = 5.0 * e
     e = _win(t, 2.75, 4.35)
     if e:
-        o[("ear_R", "X")] = 10.0 * e
-        o[("ear_R", "Z")] = -4.0 * e
+        o[("ear_R", "X")] = 13.0 * e
+        o[("ear_R", "Z")] = -5.0 * e
     e = _win(t, 5.2, 6.4)
     if e:
         s = (t - 5.2) / 1.2
         o[("ear_R", "X")] = (
-            o.get(("ear_R", "X"), 0.0) + 16.0 * math.sin(math.pi * s**0.6) ** 2
+            o.get(("ear_R", "X"), 0.0) + 20.0 * math.sin(math.pi * s**0.6) ** 2
         )
     return o
 
 
 CLIPS = {
     "Lookout_Idle": (16.0, _idle),
-    "Look_Left": (6.0, lambda t, T: _look(t, T, 1.0)),
-    "Look_Right": (6.0, lambda t, T: _look(t, T, -1.0)),
+    "Look_Left": (7.8, lambda t, T: _look(t, T, 1.0)),
+    "Look_Right": (7.8, lambda t, T: _look(t, T, -1.0)),
     "Ear_Adjust": (8.0, _ears),
 }
 FPS = 24
@@ -1181,10 +1200,16 @@ def stage_clips():
 
 
 FINAL_BLEND = os.path.expanduser(
-    "~/workspace/twistor-lab/projects/our-lgcy/tw1075-grab3d-source/buck-rigged.blend"
+    os.environ.get(
+        "BUCK_FINAL_BLEND",
+        "~/workspace/twistor-lab/projects/our-lgcy/tw1075-grab3d-source/buck-rigged.blend",
+    )
 )
 GLB_PATH = os.path.expanduser(
-    "~/workspace/repos/ourlgcy-demo-tw1075b/gl/animals/buck-rigged.glb"
+    os.environ.get(
+        "BUCK_GLB_PATH",
+        "~/workspace/repos/ourlgcy-demo-tw1075b/gl/animals/buck-rigged.glb",
+    )
 )
 
 

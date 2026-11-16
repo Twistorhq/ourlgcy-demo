@@ -1,0 +1,95 @@
+{
+ "bytes": 2749316,
+ "meshes": 1,
+ "skins": 1,
+ "joints": 25,
+ "triangles": 22000,
+ "image_mime_types": [
+  "image/jpeg",
+  "image/jpeg",
+  "image/jpeg"
+ ],
+ "clips": {
+  "Ear_Adjust": {
+   "duration_s": 8.0,
+   "varying_bones": {
+    "head": 1.2,
+    "ear_L": 20.0,
+    "ear_R": 20.0
+   },
+   "all_channel_deviations_deg": {
+    "spine": 0.056,
+    "head": 1.199,
+    "ear_L": 19.999,
+    "ear_R": 19.996,
+    "forearm_R": 0.04,
+    "hoof_FR": 0.04,
+    "gaskin_L": 0.04,
+    "hoof_HR": 0.04
+   }
+  },
+  "Look_Left": {
+   "duration_s": 7.79,
+   "varying_bones": {
+    "neck_1": 4.0,
+    "neck_2": 6.5,
+    "head": 14.32,
+    "ear_R": 14.0
+   },
+   "all_channel_deviations_deg": {
+    "spine": 0.056,
+    "neck_1": 4.0,
+    "neck_2": 6.5,
+    "head": 14.316,
+    "ear_R": 13.995,
+    "forearm_R": 0.04,
+    "hoof_FR": 0.04,
+    "gaskin_L": 0.04,
+    "hoof_HR": 0.04
+   }
+  },
+  "Look_Right": {
+   "duration_s": 7.79,
+   "varying_bones": {
+    "neck_1": 4.0,
+    "neck_2": 6.5,
+    "head": 14.32,
+    "ear_L": 14.0
+   },
+   "all_channel_deviations_deg": {
+    "spine": 0.056,
+    "neck_1": 4.0,
+    "neck_2": 6.5,
+    "head": 14.316,
+    "ear_L": 13.995,
+    "forearm_R": 0.04,
+    "hoof_FR": 0.04,
+    "gaskin_L": 0.04,
+    "hoof_HR": 0.04
+   }
+  },
+  "Lookout_Idle": {
+   "duration_s": 16.0,
+   "varying_bones": {
+    "neck_1": 1.05,
+    "neck_2": 1.04,
+    "head": 3.98,
+    "ear_L": 18.0,
+    "ear_R": 17.46
+   },
+   "all_channel_deviations_deg": {
+    "spine": 0.056,
+    "neck_1": 1.055,
+    "neck_2": 1.044,
+    "head": 3.975,
+    "ear_L": 18.0,
+    "ear_R": 17.455,
+    "forearm_R": 0.04,
+    "hoof_FR": 0.04,
+    "gaskin_L": 0.04,
+    "hoof_HR": 0.04
+   }
+  }
+ },
+ "scope_ok": true
+}
