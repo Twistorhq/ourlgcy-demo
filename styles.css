@@ -455,6 +455,24 @@ form.claim {
 }
 .form-note.show { display: block; }
 
+/* ---------- Family landing (TW-1153) ---------- */
+
+.family-hero {
+  height: clamp(200px, 32vw, 320px);
+  background: url("assets/oak-tree.jpg") center 32% / cover no-repeat;
+}
+.field .field-error {
+  display: none;
+  color: var(--oxblood);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 6px 0 0;
+}
+.field.invalid .field-error { display: block; }
+.field.invalid input, .field.invalid select { border-color: var(--oxblood); }
+.form-note.error { border-color: var(--oxblood); background: #f7e9e4; }
+.privacy-line { font-size: 0.95rem; color: var(--ink-soft); margin: 14px 0 0; }
+
 /* ---------- Footer ---------- */
 
 .site-footer {
