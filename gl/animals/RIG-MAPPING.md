@@ -3,13 +3,46 @@
 Prepared by Twistor Holdings LLC
 
 Shipped asset: `gl/animals/buck-rigged.glb`
-SHA-256: `c49ddf5ed1c8a0369ffd6ccbdae464ac0a1b11aa456eba5e5b39dcad1ffbb401`
-Size: 2,740,728 bytes. Editable source: `buck-rigged.blend` in the
+SHA-256: `4facf4f6d201c9e7c6c477d99f15514475cb700153220a248ecabb9321ce6529`
+Size: 2,741,008 bytes. Editable source: `buck-rigged.blend` in the
 Twistor LGCY source folder (SHA-256
 `da346d1ad765afee438364c0e860474bd94906af7f5f951e98e424ff3cd76ad1`),
 built reproducibly by `tools/fauna/build_buck_rig.py` (stages: prep,
-correct, rig, stance, probe, clips, export, verify). Source and
-license: see `PROVENANCE.md` in this folder.
+correct, rig, stance, probe, clips, export, verify, headfix, eyefix).
+Source and license: see `PROVENANCE.md` in this folder.
+
+## TW-1147 head fix (2026-11-16, founder: "fix the head")
+
+Two recorded head items from the Phase A asset gate, worked in the
+`headfix` stage (geometry and texture edits in bind pose; antlers
+and eyes are rigid to the head bone, so both carry through every
+clip unchanged):
+
+- Antlers: the source rack curled inward with shorter upright
+  tines than the founder's reference buck. A progressive bend,
+  weighted by height above each pedicle so the burr stays seated,
+  opens each antler away from the skull midline (rotation up to
+  0.20 rad at the tips, +10% outward, +13% vertical at full
+  weight). Measured: tip-centroid spread from the head axis grew
+  ~28% (neg side) and ~30% (pos side); max height +0.9 to +1.5 cm;
+  zero vertices below z 1.50 moved.
+- Eyes: the source texture paints the iris blue-purple (stored
+  base texel mean B > R) at roughness ~0.24, the glass marble at
+  close framing. The paint region-grows the iris footprint in UV
+  space from the blue-dark seeds (4,977 texels at 4096, both eyes),
+  clamps it to a deep warm brown (footprint mean RGB 0.144/0.129/
+  0.161 before, 0.130/0.091/0.071 after), and lifts its roughness
+  floor to 0.42 (footprint mean 0.419 to 0.516). Verified after
+  save: zero blue-dark texels remain. Before/after renders at the
+  demo's framing distances: `qa/tw1075-grab3d/rig/head-before-*.png`
+  and `head-after-*.png`.
+- Two pipeline lessons recorded in the stages themselves: packed
+  images persist pixel edits across a blend save only when
+  repacked (`img.pack()`; the `eyefix` stage is the corrective
+  paint-only pass, the antler deform is not idempotent), and the
+  exporter must use JPEG by construction, because AUTO reads the
+  packed bytes' magic number and an in-session repack silently
+  flips the data maps to PNG (GLB 2.7 MB to 11 MB).
 
 ## Coordinate system, units, rest pose
 
@@ -170,14 +203,46 @@ muscle left full). Side evidence:
 ## Known limitations
 
 - Model/anatomy: the coat is the source's redder summer coat (the
-  photo reference is grayer); the eye reads slightly glassy at
-  extreme close-up; both are source traits recorded at the Phase A
-  gate. The mesh is a shell mosaic (246 islands, 38,058 non-manifold
-  edges in the source); it renders and deforms correctly at the
-  authored amplitudes but is not a clean manifold.
+  photo reference is grayer), a source trait recorded at the Phase A
+  gate. The glassy eye from the same gate was fixed in TW-1147 (see
+  the head-fix section above); a soft moist sheen remains at extreme
+  close-up by design. The mesh is a shell mosaic (246 islands,
+  38,058 non-manifold edges in the source); it renders and deforms
+  correctly at the authored amplitudes but is not a clean manifold.
 - Rig/animation: do not exceed roughly 30 degrees of total neck yaw
   or 25 degrees of ear rotation without re-running the deformation
   check (`--stage deform`); the cracks the spatial smoothing closed
   can reopen past the verified envelope. Legs carry no performance.
 - Renderer/integration and browser/device gaps: Phase D and E items,
   not covered by this document.
+
+## Phase D composition (TW-1147, 2026-11-16)
+
+`gl/buck.js` composes the buck into `#buck-break`, a page-break
+section between the journey and the base (gen-7). It replaces the
+v4 placeholder layer (`gl/scene.js`, the Quaternius pack deer and
+its whole-body procedural performance) outright; nothing of that
+model, rig, or motion carries over, and gen-7 keeps its v3 photo
+button as the fail-closed floor. The module mirrors the v4 layer's
+fail-closed contract (pre-checks, 120-frame probe, tiers, governor,
+`?gl=` QA overrides) and plays the baked clips only: Lookout_Idle
+by default, Look_Left / Look_Right / Ear_Adjust as calm gestures,
+an arrival look from an IntersectionObserver, frame-0 stance under
+reduced motion. There is no procedural bone layer.
+
+Staging, against the law recorded above: the composed group is
+mirrored (`scale.x` negative, item 2's 180-degree flip); the rock
+is a displaced, flat-shaded form whose crest facet is flattened
+onto this rig's fitted stance plane in the contact zone (front
+soles z 0.175 / y 0.219, hind-left z -0.647 / y 0, 15.05 degrees),
+with the camera-facing face steepened toward the founder's ~45
+degrees in the rock geometry only (item 1, Rosa note N2); the
+camera sits low (y 0.80) looking up at the head. The page-break
+blend (item 3) is a CSS mask on the canvas dissolving the render
+at both edges of the break over the unchanged photographic oak;
+the lower body and the rock's descent pass through it. Item 4's
+TW-1077 ink-walker band is not part of TW-1147 and is not
+represented in the composition; the layer slot behind the rock is
+the oak itself. QA state: `window.__lgcyBuck` (tier, clip,
+deerRect). Evidence: `qa/tw1147/` (before/after motion pair,
+composed stills, capture harness).

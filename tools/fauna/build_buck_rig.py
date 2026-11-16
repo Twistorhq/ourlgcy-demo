@@ -155,12 +155,19 @@ def render_views(outdir, prefix):
     hi = Vector((max(xs), max(ys), max(zs)))
     size = hi - lo
     center = (lo + hi) / 2
-    bpy.ops.mesh.primitive_plane_add(size=30, location=(center.x, center.y, lo.z - 0.001))
+    bpy.ops.mesh.primitive_plane_add(
+        size=30, location=(center.x, center.y, lo.z - 0.001)
+    )
     ground = bpy.context.object
     ground.name = "GroundQA"
     gmat = bpy.data.materials.new("groundqa")
     gmat.use_nodes = True
-    gmat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.36, 0.38, 0.35, 1)
+    gmat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (
+        0.36,
+        0.38,
+        0.35,
+        1,
+    )
     ground.data.materials.append(gmat)
 
     cam_data = bpy.data.cameras.new("Cam")
@@ -258,7 +265,9 @@ def stage_correct():
     mid_x = np.abs(out[:, 0]) < 0.05
     back = out[mid_x & (out[:, 1] > -0.55) & (out[:, 1] < -0.15)]
     withers = float(back[:, 2].max()) if len(back) else None
-    belly_band = out[(np.abs(out[:, 0]) < 0.03) & (out[:, 1] > -0.1) & (out[:, 1] < 0.3)]
+    belly_band = out[
+        (np.abs(out[:, 0]) < 0.03) & (out[:, 1] > -0.1) & (out[:, 1] < 0.3)
+    ]
     belly = float(belly_band[:, 2].min()) if len(belly_band) else None
     report = {
         "raise_m": LEG_RAISE,
@@ -319,12 +328,18 @@ def stage_rig():
 
     head_c = band((V[:, 1] < -0.52) & (V[:, 2] > 1.30))
     neck_a = band(
-        (V[:, 1] > -0.42) & (V[:, 1] < -0.34) & (np.abs(V[:, 0]) < 0.075)
-        & (V[:, 2] > 1.05) & (V[:, 2] < 1.50)
+        (V[:, 1] > -0.42)
+        & (V[:, 1] < -0.34)
+        & (np.abs(V[:, 0]) < 0.075)
+        & (V[:, 2] > 1.05)
+        & (V[:, 2] < 1.50)
     )
     neck_b = band(
-        (V[:, 1] > -0.54) & (V[:, 1] < -0.46) & (np.abs(V[:, 0]) < 0.07)
-        & (V[:, 2] > 1.20) & (V[:, 2] < 1.62)
+        (V[:, 1] > -0.54)
+        & (V[:, 1] < -0.46)
+        & (np.abs(V[:, 0]) < 0.07)
+        & (V[:, 2] > 1.20)
+        & (V[:, 2] < 1.62)
     )
 
     def leg_centerline(axis_xy):
@@ -357,7 +372,11 @@ def stage_rig():
     B["neck_2"] = (na, nb, "neck_1")
     hc = (float(head_c[0]), float(head_c[1]), float(head_c[2]))
     B["head"] = (nb, (hc[0], hc[1] - 0.09, hc[2] + 0.05), "neck_2")
-    B["jaw"] = ((nb[0], nb[1] - 0.03, nb[2] - 0.055), (hc[0], hc[1] - 0.20, hc[2] - 0.10), "head")
+    B["jaw"] = (
+        (nb[0], nb[1] - 0.03, nb[2] - 0.055),
+        (hc[0], hc[1] - 0.20, hc[2] - 0.10),
+        "head",
+    )
     # Ear bones measured from the island census (the head is yawed in
     # the source pose, so the ears are NOT mirror-symmetric: the right
     # ear flares out at +X, the left ear tucks to the back-top).
@@ -416,9 +435,17 @@ def stage_rig():
     names = list(B.keys())
     idx = {n: i for i, n in enumerate(names)}
     sigma = {
-        "pelvis": 0.10, "spine": 0.10, "chest": 0.10, "neck_1": 0.065,
-        "neck_2": 0.06, "head": 0.075, "jaw": 0.04, "tail": 0.05,
-        "ear_L": 0.03, "ear_R": 0.03, "root": 1.0,
+        "pelvis": 0.10,
+        "spine": 0.10,
+        "chest": 0.10,
+        "neck_1": 0.065,
+        "neck_2": 0.06,
+        "head": 0.075,
+        "jaw": 0.04,
+        "tail": 0.05,
+        "ear_L": 0.03,
+        "ear_R": 0.03,
+        "root": 1.0,
     }
     for n in names:
         if n.startswith(("upperarm", "thigh")):
@@ -491,8 +518,13 @@ def stage_rig():
         W[em, idx[bone]] = w
         W[em, idx["head"]] = 1.0 - w
     # jaw zone
-    jm = ((V[:, 1] > -0.76) & (V[:, 1] < -0.55) & (V[:, 2] > 1.34)
-          & (V[:, 2] < 1.485) & (np.abs(V[:, 0]) < 0.058))
+    jm = (
+        (V[:, 1] > -0.76)
+        & (V[:, 1] < -0.55)
+        & (V[:, 2] > 1.34)
+        & (V[:, 2] < 1.485)
+        & (np.abs(V[:, 0]) < 0.058)
+    )
     W[jm] = 0.0
     W[jm, idx["jaw"]] = 0.40
     W[jm, idx["head"]] = 0.60
@@ -500,8 +532,12 @@ def stage_rig():
     am = (V[:, 2] > 1.63) & (V[:, 1] < -0.46)
     eye = np.zeros(len(V), dtype=bool)
     for ex in (-0.060, 0.060):
-        eye |= np.sqrt((V[:, 0] - ex) ** 2 + (V[:, 1] + 0.650) ** 2
-                       + (V[:, 2] - 1.595) ** 2) < 0.030
+        eye |= (
+            np.sqrt(
+                (V[:, 0] - ex) ** 2 + (V[:, 1] + 0.650) ** 2 + (V[:, 2] - 1.595) ** 2
+            )
+            < 0.030
+        )
     rigid = am | eye
     rigid &= ~((W[:, idx["ear_L"]] >= 0.5) | (W[:, idx["ear_R"]] >= 0.5))
     W[rigid] = 0.0
@@ -513,13 +549,15 @@ def stage_rig():
     # weights over spatial neighbors makes coincident shells move
     # together.
     from collections import defaultdict
+
     radius = 0.028
     keys = np.floor(V / radius).astype(int)
     grid = defaultdict(list)
     for i, k in enumerate(map(tuple, keys)):
         grid[k].append(i)
-    offsets = [(dx, dy, dz) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
-               for dz in (-1, 0, 1)]
+    offsets = [
+        (dx, dy, dz) for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1)
+    ]
     nbrs = []
     for i in range(len(V)):
         k = tuple(keys[i])
@@ -557,8 +595,15 @@ def stage_rig():
     with open(os.path.join(QA_DIR, "bones.json"), "w") as fh:
         json.dump(bones_doc, fh, indent=1)
     weak = int((W.max(axis=1) < 0.45).sum())
-    log("RIG", {"bones": len(names), "verts": len(V), "weak_verts": weak,
-                "zero_weight_verts": int(zero.sum())})
+    log(
+        "RIG",
+        {
+            "bones": len(names),
+            "verts": len(V),
+            "weak_verts": weak,
+            "zero_weight_verts": int(zero.sum()),
+        },
+    )
     save_work()
 
 
@@ -586,10 +631,18 @@ def hoof_report(pts):
     hz = float(np.mean([c[2] for c in hind])) if hind else None
     fy = float(np.mean([c[1] for c in front])) if front else 0.0
     hy = float(np.mean([c[1] for c in hind])) if hind else 0.0
-    slope = math.degrees(math.atan2(fz - hz, hy - fy)) if fz is not None and hz is not None else None
-    return {"front_z": fz, "hind_z": hz, "min_z": float(pts[:, 2].min()),
-            "slope_deg": round(slope, 2) if slope is not None else None,
-            "clusters": len(cents)}
+    slope = (
+        math.degrees(math.atan2(fz - hz, hy - fy))
+        if fz is not None and hz is not None
+        else None
+    )
+    return {
+        "front_z": fz,
+        "hind_z": hz,
+        "min_z": float(pts[:, 2].min()),
+        "slope_deg": round(slope, 2) if slope is not None else None,
+        "clusters": len(cents),
+    }
 
 
 def focus_render(path, cam_pos, target, lens=62):
@@ -690,8 +743,10 @@ def stage_stance():
         d = np.sqrt((V[:, 0] - c[0]) ** 2 + (V[:, 1] - c[1]) ** 2)
         sel = np.where((d < 0.075) & (V[:, 2] < 0.05))[0]
         cen = pts[sel].mean(axis=0)
-        tracked[leg] = {"centroid": [round(float(v), 4) for v in cen],
-                        "min_z": round(float(pts[sel][:, 2].min()), 4)}
+        tracked[leg] = {
+            "centroid": [round(float(v), 4) for v in cen],
+            "min_z": round(float(pts[sel][:, 2].min()), 4),
+        }
     fz = np.mean([tracked[l]["centroid"][2] for l in ("front_L", "front_R")])
     hz = np.mean([tracked[l]["centroid"][2] for l in ("hind_L", "hind_R")])
     fy = np.mean([tracked[l]["centroid"][1] for l in ("front_L", "front_R")])
@@ -699,15 +754,19 @@ def stage_stance():
     tracked["slope_deg"] = round(math.degrees(math.atan2(fz - hz, hy - fy)), 2)
     tracked["max_hoof_min_z_spread"] = round(
         max(v["min_z"] for v in tracked.values() if isinstance(v, dict))
-        - min(v["min_z"] for v in tracked.values() if isinstance(v, dict)), 4)
+        - min(v["min_z"] for v in tracked.values() if isinstance(v, dict)),
+        4,
+    )
     log("HOOVES", tracked)
     with open(os.path.join(QA_DIR, "hooves.json"), "w") as fh:
         json.dump(tracked, fh, indent=1)
     save_work()
-    focus_render(os.path.join(QA_DIR, "stance-side.png"),
-                 (4.6, -0.15, 1.15), (0, 0.02, 0.98))
-    focus_render(os.path.join(QA_DIR, "stance-low-tq.png"),
-                 (2.3, -3.0, 0.55), (0, -0.02, 1.05))
+    focus_render(
+        os.path.join(QA_DIR, "stance-side.png"), (4.6, -0.15, 1.15), (0, 0.02, 0.98)
+    )
+    focus_render(
+        os.path.join(QA_DIR, "stance-low-tq.png"), (2.3, -3.0, 0.55), (0, -0.02, 1.05)
+    )
 
 
 def set_pose(arm, spec):
@@ -736,8 +795,9 @@ def stage_probe():
     V = V.reshape(-1, 3)
     head_mask = (V[:, 1] < -0.52) & (V[:, 2] > 1.30)
     head_idx = np.where(head_mask)[0]
-    nose_d = np.sqrt((V[:, 0] - 0.02) ** 2 + (V[:, 1] + 0.76) ** 2
-                     + (V[:, 2] - 1.50) ** 2)
+    nose_d = np.sqrt(
+        (V[:, 0] - 0.02) ** 2 + (V[:, 1] + 0.76) ** 2 + (V[:, 2] - 1.50) ** 2
+    )
     nose_idx = np.argsort(nose_d)[:24]
     ear_idx = {}
     for sgn in ("L", "R"):
@@ -753,8 +813,13 @@ def stage_probe():
     base_nose = base[nose_idx].mean(axis=0)
     base_ear = {s: base[i].mean(axis=0) for s, i in ear_idx.items() if len(i)}
     results = {}
-    for bone, kind in (("head", "head"), ("neck_2", "head"), ("neck_1", "head"),
-                       ("ear_L", "L"), ("ear_R", "R")):
+    for bone, kind in (
+        ("head", "head"),
+        ("neck_2", "head"),
+        ("neck_1", "head"),
+        ("ear_L", "L"),
+        ("ear_R", "R"),
+    ):
         results[bone] = {}
         for axis in "XYZ":
             set_pose(arm, {bone: (axis, 12.0)})
@@ -766,8 +831,12 @@ def stage_probe():
                 c = pts[ear_idx[kind]].mean(axis=0)
                 d = c - base_ear[kind]
             results[bone][axis] = [round(float(v), 4) for v in d]
-    results["_counts"] = {"head": len(head_idx), "nose": len(nose_idx),
-                          "ear_L": len(ear_idx["L"]), "ear_R": len(ear_idx["R"])}
+    results["_counts"] = {
+        "head": len(head_idx),
+        "nose": len(nose_idx),
+        "ear_L": len(ear_idx["L"]),
+        "ear_R": len(ear_idx["R"]),
+    }
     log("PROBE", results)
     with open(os.path.join(QA_DIR, "probe.json"), "w") as fh:
         json.dump(results, fh, indent=1)
@@ -795,20 +864,36 @@ def stage_eardiag():
         sel = np.where(w[name] > 0.3)[0]
         if len(sel):
             pts = V[sel]
-            out[name] = {"n": len(sel),
-                         "centroid": [round(float(v), 3) for v in pts.mean(axis=0)],
-                         "min": [round(float(v), 3) for v in pts.min(axis=0)],
-                         "max": [round(float(v), 3) for v in pts.max(axis=0)]}
+            out[name] = {
+                "n": len(sel),
+                "centroid": [round(float(v), 3) for v in pts.mean(axis=0)],
+                "min": [round(float(v), 3) for v in pts.min(axis=0)],
+                "max": [round(float(v), 3) for v in pts.max(axis=0)],
+            }
         else:
             out[name] = {"n": 0, "max_w": float(w[name].max())}
     for sgn, xr in (("L", (-0.24, -0.07)), ("R", (0.07, 0.24))):
-        box = ((V[:, 0] > xr[0]) & (V[:, 0] < xr[1]) & (V[:, 1] > -0.68)
-               & (V[:, 1] < -0.48) & (V[:, 2] > 1.50) & (V[:, 2] < 1.76))
+        box = (
+            (V[:, 0] > xr[0])
+            & (V[:, 0] < xr[1])
+            & (V[:, 1] > -0.68)
+            & (V[:, 1] < -0.48)
+            & (V[:, 2] > 1.50)
+            & (V[:, 2] < 1.76)
+        )
         pts = V[box]
-        out[f"box_{sgn}"] = {"n": int(box.sum()),
-                             "centroid": [round(float(v), 3) for v in pts.mean(axis=0)] if box.sum() else None,
-                             "ear_w_mean": round(float(w[f"ear_{sgn}"][box].mean()), 3) if box.sum() else None,
-                             "head_w_mean": round(float(w["head"][box].mean()), 3) if box.sum() else None}
+        out[f"box_{sgn}"] = {
+            "n": int(box.sum()),
+            "centroid": [round(float(v), 3) for v in pts.mean(axis=0)]
+            if box.sum()
+            else None,
+            "ear_w_mean": round(float(w[f"ear_{sgn}"][box].mean()), 3)
+            if box.sum()
+            else None,
+            "head_w_mean": round(float(w["head"][box].mean()), 3)
+            if box.sum()
+            else None,
+        }
     log("EARDIAG", out)
 
 
@@ -832,6 +917,7 @@ def stage_islands():
         if a != b:
             parent[a] = b
     from collections import defaultdict
+
     comp = defaultdict(list)
     for i in range(len(V)):
         comp[find(i)].append(i)
@@ -840,10 +926,14 @@ def stage_islands():
         pts = V[members]
         c = pts.mean(axis=0)
         if c[2] > 1.38 and c[1] < -0.38 and len(members) > 3:
-            out.append({"n": len(members),
-                        "centroid": [round(float(v), 3) for v in c],
-                        "min": [round(float(v), 3) for v in pts.min(axis=0)],
-                        "max": [round(float(v), 3) for v in pts.max(axis=0)]})
+            out.append(
+                {
+                    "n": len(members),
+                    "centroid": [round(float(v), 3) for v in c],
+                    "min": [round(float(v), 3) for v in pts.min(axis=0)],
+                    "max": [round(float(v), 3) for v in pts.max(axis=0)],
+                }
+            )
     out.sort(key=lambda d: -d["n"])
     log("ISLANDS", {"count": len(comp), "head_islands": len(out)})
     with open(os.path.join(QA_DIR, "islands.json"), "w") as fh:
@@ -855,9 +945,14 @@ EAR_BOX_L = ((-0.16, -0.05), (-0.48, -0.35), (1.42, 1.65))
 
 
 def in_box(V, box):
-    return ((V[:, 0] > box[0][0]) & (V[:, 0] < box[0][1])
-            & (V[:, 1] > box[1][0]) & (V[:, 1] < box[1][1])
-            & (V[:, 2] > box[2][0]) & (V[:, 2] < box[2][1]))
+    return (
+        (V[:, 0] > box[0][0])
+        & (V[:, 0] < box[0][1])
+        & (V[:, 1] > box[1][0])
+        & (V[:, 1] < box[1][1])
+        & (V[:, 2] > box[2][0])
+        & (V[:, 2] < box[2][1])
+    )
 
 
 def stage_earboxes():
@@ -905,17 +1000,21 @@ def stage_earboxes():
     scene.collection.objects.link(cam)
     scene.camera = cam
     head = Vector((0.02, -0.52, 1.52))
-    for name, pos in (("top", head + Vector((0, 0, 1.4))),
-                      ("front", head + Vector((0, -1.4, 0))),
-                      ("back", head + Vector((0, 1.4, 0.25)))):
+    for name, pos in (
+        ("top", head + Vector((0, 0, 1.4))),
+        ("front", head + Vector((0, -1.4, 0))),
+        ("back", head + Vector((0, 1.4, 0.25))),
+    ):
         cam.location = pos
         d = head - cam.location
         cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
         scene.render.filepath = os.path.join(QA_DIR, f"earbox-{name}.png")
         bpy.ops.render.render(write_still=True)
         print(f"@@RENDER@@ earbox-{name}")
-    log("EARBOX", {"R": int(in_box(V, EAR_BOX_R).sum()),
-                   "L": int(in_box(V, EAR_BOX_L).sum())})
+    log(
+        "EARBOX",
+        {"R": int(in_box(V, EAR_BOX_R).sum()), "L": int(in_box(V, EAR_BOX_L).sum())},
+    )
 
 
 def stage_deform():
@@ -927,10 +1026,16 @@ def stage_deform():
         ("deform-earsX", {"ear_L": ("X", 25.0), "ear_R": ("X", 25.0)}, cam_w),
         ("deform-earsZ", {"ear_L": ("Z", 25.0), "ear_R": ("Z", 25.0)}, cam_w),
         ("deform-earsX-back", {"ear_L": ("X", -25.0), "ear_R": ("X", -25.0)}, cam_w),
-        ("deform-turnL", {"neck_1": ("Z", 13.0), "neck_2": ("X", 9.0),
-                          "head": ("Z", 9.0)}, cam_w),
-        ("deform-nod", {"neck_1": ("X", 7.0), "neck_2": ("Z", -6.0),
-                        "head": ("X", 7.0)}, cam_w),
+        (
+            "deform-turnL",
+            {"neck_1": ("Z", 13.0), "neck_2": ("X", 9.0), "head": ("Z", 9.0)},
+            cam_w,
+        ),
+        (
+            "deform-nod",
+            {"neck_1": ("X", 7.0), "neck_2": ("Z", -6.0), "head": ("X", 7.0)},
+            cam_w,
+        ),
     ]
     for name, spec, (pos, tgt) in jobs:
         set_pose(arm, spec)
@@ -1000,7 +1105,7 @@ def _ears(t, T):
     e = _win(t, 0.6, 1.6)
     if e:
         s = (t - 0.6) / 1.0
-        o[("ear_L", "X")] = -16.0 * math.sin(math.pi * s ** 0.6) ** 2
+        o[("ear_L", "X")] = -16.0 * math.sin(math.pi * s**0.6) ** 2
     e = _win(t, 2.6, 4.2)
     if e:
         o[("ear_L", "X")] = o.get(("ear_L", "X"), 0.0) + 10.0 * e
@@ -1012,7 +1117,9 @@ def _ears(t, T):
     e = _win(t, 5.2, 6.4)
     if e:
         s = (t - 5.2) / 1.2
-        o[("ear_R", "X")] = o.get(("ear_R", "X"), 0.0) + 16.0 * math.sin(math.pi * s ** 0.6) ** 2
+        o[("ear_R", "X")] = (
+            o.get(("ear_R", "X"), 0.0) + 16.0 * math.sin(math.pi * s**0.6) ** 2
+        )
     return o
 
 
@@ -1107,12 +1214,231 @@ def stage_export():
     bpy.ops.wm.save_as_mainfile(filepath=FINAL_BLEND)
     os.makedirs(os.path.dirname(GLB_PATH), exist_ok=True)
     bpy.ops.export_scene.gltf(
-        filepath=GLB_PATH, export_format="GLB", export_animations=True,
-        export_animation_mode="ACTIONS", export_force_sampling=True,
-        export_apply=False, export_yup=True, export_image_format="AUTO",
-        export_jpeg_quality=85)
-    log("EXPORT", {"glb_bytes": os.path.getsize(GLB_PATH), "scaled_images": scaled,
-                   "actions": [a.name for a in bpy.data.actions]})
+        filepath=GLB_PATH,
+        export_format="GLB",
+        export_animations=True,
+        export_animation_mode="ACTIONS",
+        export_force_sampling=True,
+        export_apply=False,
+        export_yup=True,
+        # JPEG by construction, not AUTO: AUTO decides from the
+        # packed bytes' magic number, and any in-session image edit
+        # (the TW-1147 eye paint repacks as PNG) silently flips the
+        # data maps to lossless PNG, ballooning the GLB from 2.7 MB
+        # to 11 MB. Phase B shipped all-JPEG at this quality and
+        # passed its gate on those renders.
+        export_image_format="JPEG",
+        export_jpeg_quality=85,
+    )
+    log(
+        "EXPORT",
+        {
+            "glb_bytes": os.path.getsize(GLB_PATH),
+            "scaled_images": scaled,
+            "actions": [a.name for a in bpy.data.actions],
+        },
+    )
+
+
+def _paint_eyes():
+    """Clamp the iris footprint in Image_0/Image_1 to a deep warm brown
+    and lift its roughness floor to 0.42. The footprint is region-grown
+    in UV space from the blue-dark seed texels (the source paints the
+    iris blue-purple). Packed images only persist pixel edits across a
+    blend save when repacked, so pack() is part of the write."""
+
+    def img_arr(name):
+        img = bpy.data.images[name]
+        w, h = img.size
+        buf = np.empty(w * h * 4, dtype=np.float32)
+        img.pixels.foreach_get(buf)
+        return img, buf.reshape(h, w, 4).astype(np.float64)
+
+    def dilate(m):
+        out = m.copy()
+        out[1:, :] |= m[:-1, :]
+        out[:-1, :] |= m[1:, :]
+        out[:, 1:] |= m[:, :-1]
+        out[:, :-1] |= m[:, 1:]
+        return out
+
+    base_img, base = img_arr("Image_0")
+    mr_img, mr = img_arr("Image_1")
+    r, g, b = base[:, :, 0], base[:, :, 1], base[:, :, 2]
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    seeds = (b - r > 0.03) & (lum < 0.32)
+    growable = (b >= r * 0.92) & (lum < 0.45)
+    fp = seeds.copy()
+    for _ in range(10):
+        new = fp | (dilate(fp) & growable)
+        if (new == fp).all():
+            break
+        fp = new
+    ring1 = dilate(fp) & ~fp
+    ring2 = dilate(dilate(fp)) & ~dilate(fp)
+    weight = fp * 1.0 + ring1 * 0.6 + ring2 * 0.3
+    sel = weight > 0
+    stats = {
+        "seed_texels": int(seeds.sum()),
+        "footprint_texels": int(fp.sum()),
+        "base_mean_before": [round(float(x), 3) for x in base[fp][:, :3].mean(axis=0)],
+        "rough_mean_before": round(float(mr[fp][:, 1].mean()), 3),
+    }
+    wsel = weight[sel]
+    base[sel, 1] = (
+        base[sel, 1] * (1 - wsel) + np.minimum(base[sel, 1], base[sel, 0] * 0.70) * wsel
+    )
+    base[sel, 2] = (
+        base[sel, 2] * (1 - wsel) + np.minimum(base[sel, 2], base[sel, 0] * 0.55) * wsel
+    )
+    base[sel, :3] *= (1 - 0.10 * wsel)[:, None]
+    mr[sel, 1] = mr[sel, 1] * (1 - wsel) + np.maximum(mr[sel, 1], 0.42) * wsel
+    mr[sel, 2] = mr[sel, 2] * (1 - wsel) + np.minimum(mr[sel, 2], 0.01) * wsel
+    stats["base_mean_after"] = [
+        round(float(x), 3) for x in base[fp][:, :3].mean(axis=0)
+    ]
+    stats["rough_mean_after"] = round(float(mr[fp][:, 1].mean()), 3)
+    for img, arr in ((base_img, base), (mr_img, mr)):
+        img.pixels.foreach_set(arr.reshape(-1).astype(np.float32))
+        img.update()
+        img.pack()
+    return stats
+
+
+def stage_eyefix():
+    """TW-1147 corrective pass: the first headfix run's eye paint did
+    not persist (packed images need pack() after pixel edits; the
+    antler deform from that run DID persist and must not be reapplied).
+    Paint only, then save. Idempotent: painted texels no longer match
+    the blue seed test."""
+    bpy.ops.wm.open_mainfile(filepath=WORK_BLEND)
+    stats = _paint_eyes()
+    log("eyefix", stats)
+    save_work()
+
+
+def stage_headfix():
+    """TW-1147 head fix, founder directive 2026-11-16 ("fix the head").
+
+    Two recorded head items from the TW-1075 asset gate, worked here:
+    1. Antlers: the Grab3D rack curls inward with shorter upright tines
+       than the founder's reference buck (wide, open rack, long upright
+       tines). A progressive bend opens each antler away from the skull
+       midline and lengthens it upward, weighted by height above the
+       pedicle so the burr stays seated. Geometry only; antlers are
+       rigid to the head bone, so bind-pose edits carry through every
+       clip unchanged.
+    2. Eyes: the source texture paints the iris blue-purple (stored
+       base texel mean B > R) at roughness ~0.24, which renders as a
+       glass marble at close framing (ASSET-GATE.md prescribed exactly
+       this: a material/texture pass, not new geometry). The paint
+       clamps the iris footprint to a deep warm brown and lifts its
+       roughness to 0.42, a moist sheen instead of a mirror.
+
+    Runs on the work blend (post-clips). Re-run export + verify after.
+    """
+    bpy.ops.wm.open_mainfile(filepath=WORK_BLEND)
+    me = bpy.data.objects["Buck"].data
+    co = np.empty(len(me.vertices) * 3, dtype=np.float64)
+    me.vertices.foreach_get("co", co)
+    co = co.reshape(-1, 3)
+    before = co.copy()
+
+    # --- 1. antler opening ---
+    ears = []
+    arm = bpy.data.objects["BuckRig"]
+    for bn in ("ear_L", "ear_R"):
+        pb = arm.pose.bones[bn]
+        ears.append((np.array(pb.head), np.array(pb.tail)))
+    ear_d = np.minimum(*[seg_dist(co, a, b)[0] for a, b in ears])
+    mask = (co[:, 2] > 1.48) & (co[:, 1] < -0.40) & (ear_d > 0.07)
+    parent = list(range(len(co)))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    masked = {int(i) for i in np.where(mask)[0]}
+    for e in me.edges:
+        a, b = e.vertices
+        if a in masked and b in masked:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[ra] = rb
+    from collections import defaultdict
+
+    by_root = defaultdict(list)
+    for i in masked:
+        by_root[find(i)].append(i)
+    comps = [set(v) for v in by_root.values() if len(v) >= 4]
+    cents = np.array([co[sorted(c)].mean(axis=0) for c in comps])
+    sizes = np.array([len(c) for c in comps], dtype=np.float64)
+    # two-means on island centroids (weighted) splits the rack per side
+    lab = (cents[:, 0] >= 0.037).astype(int)
+    for _ in range(12):
+        mus = np.array(
+            [
+                np.average(cents[lab == k], axis=0, weights=sizes[lab == k])
+                if (lab == k).any()
+                else cents.mean(axis=0)
+                for k in (0, 1)
+            ]
+        )
+        new = np.array(
+            [
+                int(np.argmin([np.linalg.norm(c - mus[k]) for k in (0, 1)]))
+                for c in cents
+            ]
+        )
+        if (new == lab).all():
+            break
+        lab = new
+    antlers = {0: set(), 1: set()}
+    for comp, k in zip(comps, lab):
+        antlers[int(k)] |= comp
+    stats = {}
+    for k, verts in antlers.items():
+        idx = np.array(sorted(verts))
+        pts = co[idx]
+        base = pts[pts[:, 2] <= np.percentile(pts[:, 2], 12)].mean(axis=0)
+        tip0 = pts[pts[:, 2] >= np.percentile(pts[:, 2], 90)].mean(axis=0)
+        sign = 1.0 if base[0] >= 0.037 else -1.0
+        span = np.percentile(pts[:, 2], 90) - base[2]
+        for i, p in zip(idx, pts):
+            t = min(max((p[2] - base[2]) / span, 0.0), 1.0) if span > 0 else 0.0
+            ramp = min(max((p[2] - 1.50) / 0.10, 0.0), 1.0)
+            m = ramp * t**1.5
+            if m <= 0:
+                continue
+            a = sign * m * 0.20
+            dx, dz = p[0] - base[0], p[2] - base[2]
+            rx = dx * math.cos(a) + dz * math.sin(a)
+            rz = -dx * math.sin(a) + dz * math.cos(a)
+            co[i] = (
+                base[0] + rx * (1 + 0.10 * m),
+                p[1],
+                base[2] + rz * (1 + 0.13 * m),
+            )
+        tip1 = co[idx][co[idx][:, 2] >= np.percentile(co[idx][:, 2], 90)].mean(axis=0)
+        stats[k] = {
+            "verts": len(idx),
+            "base": [round(float(x), 3) for x in base],
+            "tip_before": [round(float(x), 3) for x in tip0],
+            "tip_after": [round(float(x), 3) for x in tip1],
+            "max_z_before": round(float(before[idx][:, 2].max()), 3),
+            "max_z_after": round(float(co[idx][:, 2].max()), 3),
+        }
+    low = before[:, 2] < 1.50
+    moved_low = int((np.abs(co[low] - before[low]) > 1e-9).any(axis=1).sum())
+    me.vertices.foreach_set("co", co.reshape(-1).astype(np.float32))
+    me.update()
+
+    # --- 2. eye paint ---
+    eye_stats = _paint_eyes()
+    log("headfix", {"antlers": stats, "moved_below_z150": moved_low, "eyes": eye_stats})
+    save_work()
 
 
 def stage_verify():
@@ -1140,28 +1466,51 @@ def stage_verify():
         arm.animation_data_create()
         arm.animation_data.action = bpy.data.actions["Lookout_Idle"]
         bpy.context.scene.frame_set(120)
-        focus_render(os.path.join(QA_DIR, "verify-idle-lowtq.png"),
-                     (2.3, -3.0, 0.55), (0, -0.02, 1.05))
+        focus_render(
+            os.path.join(QA_DIR, "verify-idle-lowtq.png"),
+            (2.3, -3.0, 0.55),
+            (0, -0.02, 1.05),
+        )
         if "Ear_Adjust" in bpy.data.actions:
             arm.animation_data.action = bpy.data.actions["Ear_Adjust"]
             bpy.context.scene.frame_set(30)
-            focus_render(os.path.join(QA_DIR, "verify-ear-head.png"),
-                         (1.35, -2.1, 2.15), (0.0, -0.55, 1.66), lens=55)
+            focus_render(
+                os.path.join(QA_DIR, "verify-ear-head.png"),
+                (1.35, -2.1, 2.15),
+                (0.0, -0.55, 1.66),
+                lens=55,
+            )
 
 
 def stage_views():
-    prefix = sys.argv[sys.argv.index("--stage") + 2] if len(sys.argv) > sys.argv.index("--stage") + 2 else "view"
+    prefix = (
+        sys.argv[sys.argv.index("--stage") + 2]
+        if len(sys.argv) > sys.argv.index("--stage") + 2
+        else "view"
+    )
     bpy.ops.wm.open_mainfile(filepath=WORK_BLEND)
     render_views(QA_DIR, prefix)
 
 
-STAGES = {"prep": stage_prep, "correct": stage_correct, "views": stage_views,
-          "rig": stage_rig, "stance": stage_stance, "probe": stage_probe,
-          "eardiag": stage_eardiag, "islands": stage_islands,
-          "earboxes": stage_earboxes, "deform": stage_deform,
-          "clips": stage_clips, "export": stage_export, "verify": stage_verify}
+STAGES = {
+    "prep": stage_prep,
+    "correct": stage_correct,
+    "views": stage_views,
+    "rig": stage_rig,
+    "stance": stage_stance,
+    "probe": stage_probe,
+    "eardiag": stage_eardiag,
+    "islands": stage_islands,
+    "earboxes": stage_earboxes,
+    "deform": stage_deform,
+    "clips": stage_clips,
+    "export": stage_export,
+    "verify": stage_verify,
+    "headfix": stage_headfix,
+    "eyefix": stage_eyefix,
+}
 
 if __name__ == "__main__":
-    argv = sys.argv[sys.argv.index("--") + 1:]
+    argv = sys.argv[sys.argv.index("--") + 1 :]
     stage = argv[argv.index("--stage") + 1] if "--stage" in argv else "prep"
     STAGES[stage]()
