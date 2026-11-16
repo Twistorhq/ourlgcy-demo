@@ -926,3 +926,38 @@ body.home .demo-banner { position: relative; z-index: 2; }
   .gl-canvas { transition: none; }
   #gen-7 .critter-deer img { transition: none; }
 }
+
+/* ================================================================
+   PHASE D (TW-1147): the buck at the threshold. A page-break
+   section between the journey and the base. The canvas mask
+   dissolves the rendered buck and rock at both edges of the
+   break, so the lower body blends into the section seam with no
+   hard edge, no rectangle, no halo; the photographic oak behind
+   the page never changes. Without the GL layer (fail-closed),
+   the section is a quiet divider carrying one caption line.
+   ================================================================ */
+.buck-break {
+  position: relative; overflow: hidden;
+  min-height: 30vh; padding: 6vh 24px 4vh 84px;
+}
+.buck-break.gl-on { min-height: 96vh; }
+.buck-caption {
+  position: relative; z-index: 2;
+  max-width: 1560px; margin: 0 auto; display: flex; align-items: center; gap: 12px;
+  font-size: 12px; letter-spacing: 0.22em; font-weight: 700; color: #f5efdd;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(20, 14, 4, 0.55);
+}
+.buck-caption::after { content: ""; flex: 1; height: 1px; background: rgba(255, 250, 240, 0.35); }
+#buck-break .gl-canvas {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 80%, transparent 99%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 80%, transparent 99%);
+}
+#buck-break.gl-on .gl-canvas { opacity: 1; }
+@media (max-width: 720px) {
+  .buck-break { padding: 5vh 14px 3vh 56px; }
+  .buck-break.gl-on { min-height: 88vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #buck-break .gl-canvas { transition: none; }
+}
