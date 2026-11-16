@@ -242,47 +242,64 @@
   }
 
   /* ---------------- The ink figure factory ----------------
-     Local coordinates: origin at the feet, up is negative y.
-     A figure stands about 104 units tall, hat included. */
+     One skeleton under every figure, drawn like a professional
+     pictogram wearing hand-drawn ink. Local coordinates: origin
+     at the ground point between the feet, up is negative y. A
+     figure stands about 104 units tall, hat included: legs 45,
+     torso 32, head and neck the rest, the head about one sixth
+     of the whole. One stroke system everywhere: filled shapes
+     outlined at 2.4, limbs as 4.8 round-joined strokes, details
+     at 1.7. Legs and arms are two-bone chains solved every
+     frame: feet plant in the world and the body solves over
+     them (no skating, no scissoring), elbows bend at the true
+     joint, and the head rides steady against the body's sway. */
 
-  function legPair() {
-    return (
-      '<g class="wk-legl"><path d="M-3 -44 L-5 -1" fill="none" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/></g>' +
-      '<g class="wk-legr"><path d="M3 -44 L5 -1" fill="none" stroke="' + INK + '" stroke-width="5" stroke-linecap="round"/></g>'
-    );
+  var HIP_Y = -45, THIGH = 24.5, SHIN = 24;
+  var SH_X = 9.5, SH_Y = -77, UARM = 12.5, FARM = 11.5;
+  var SW_LIMB = 4.8;
+
+  // Two-bone solver: given a root, a target, and the two bone
+  // lengths, return the joint. "fwd" picks the solution ahead
+  // of the line of travel (a knee); "low" picks the lower one,
+  // "out" the one away from the body line (an elbow). The target is clamped to reach.
+  function solve2(x0, y0, x1, y1, l1, l2, choose) {
+    var dx = x1 - x0, dy = y1 - y0;
+    var d = Math.hypot(dx, dy);
+    var maxD = l1 + l2 - 0.05;
+    if (d > maxD) { dx *= maxD / d; dy *= maxD / d; x1 = x0 + dx; y1 = y0 + dy; d = maxD; }
+    if (d < 0.01) { dx = 0.01; dy = 0; d = 0.01; }
+    var a = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
+    var h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+    var ux = dx / d, uy = dy / d;
+    var mx = x0 + a * ux, my = y0 + a * uy;
+    var j1x = mx - uy * h, j1y = my + ux * h;
+    var j2x = mx + uy * h, j2y = my - ux * h;
+    if (choose === "fwd") return j1x >= j2x ? { x: j1x, y: j1y } : { x: j2x, y: j2y };
+    if (choose === "out") return Math.abs(j1x) >= Math.abs(j2x) ? { x: j1x, y: j1y } : { x: j2x, y: j2y };
+    return j1y >= j2y ? { x: j1x, y: j1y } : { x: j2x, y: j2y };
   }
-  function kneeLegs() {
-    return (
-      '<g class="wk-legl"><path d="M-4 -27 L-5 -1" fill="none" stroke="' + PAPER + '" stroke-width="4.6" stroke-linecap="round"/></g>' +
-      '<g class="wk-legr"><path d="M4 -27 L5 -1" fill="none" stroke="' + PAPER + '" stroke-width="4.6" stroke-linecap="round"/></g>' +
-      '<path class="wk-shoe-l" d="M-9 -1.6 h8" stroke="' + INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
-      '<path class="wk-shoe-r" d="M1 -1.6 h8" stroke="' + INK + '" stroke-width="3.4" stroke-linecap="round"/>'
-    );
+  function limbPath(x0, y0, jx, jy, x1, y1) {
+    return "M" + x0.toFixed(1) + " " + y0.toFixed(1) +
+      " L" + jx.toFixed(1) + " " + jy.toFixed(1) +
+      " L" + x1.toFixed(1) + " " + y1.toFixed(1);
   }
-  function hemShoes() {
-    return (
-      '<path class="wk-shoe-l" d="M-10 -2 h9" stroke="' + INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
-      '<path class="wk-shoe-r" d="M1 -2 h9" stroke="' + INK + '" stroke-width="3.4" stroke-linecap="round"/>'
-    );
+  // Forward kinematics for an arm: a1 is the shoulder angle in
+  // degrees from straight down, positive forward; a2 is the
+  // elbow bend, positive bending the forearm further forward.
+  function armFK(sx, sy, a1deg, a2deg) {
+    var a1 = a1deg * Math.PI / 180;
+    var a2 = (a1deg + a2deg) * Math.PI / 180;
+    var ex = sx + UARM * Math.sin(a1), ey = sy + UARM * Math.cos(a1);
+    return { ex: ex, ey: ey, hx: ex + FARM * Math.sin(a2), hy: ey + FARM * Math.cos(a2) };
   }
-  function arm(side, accent, fixed) {
-    var sx = side === "l" ? -10 : 10;
-    var dx = side === "l" ? -3 : 3;
-    return (
-      '<g class="wk-arm' + side + '" transform="translate(' + sx + ' -76)">' +
-      '<path d="M0 0 L' + dx + ' 23" fill="none" stroke="' + accent + '" stroke-width="5" stroke-linecap="round"/>' +
-      '<circle cx="' + dx + '" cy="24" r="2.7" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.4"/>' +
-      (fixed || "") +
-      "</g>"
-    );
+  function shoeD() {
+    return "M-5.6 0.5 L4.6 0.5 C6.8 0.5 7.6 -0.7 7.4 -2.1 L-2.4 -2.9 C-4.6 -2.5 -5.9 -1.5 -5.6 0.5 Z";
   }
-  function caneProp() {
-    return '<path d="M3 24 L10 74" stroke="' + INK + '" stroke-width="2.6" stroke-linecap="round"/>';
-  }
-  function basketProp() {
+  function basketMarkup() {
     return (
-      '<path d="M6 30 h20 l-3.4 13 h-13.2 z" fill="' + BASKET + '" stroke="' + INK + '" stroke-width="2"/>' +
-      '<path d="M9 30 a7 6 0 0 1 14 0" fill="none" stroke="' + INK + '" stroke-width="2"/>'
+      '<path d="M-7.5 1 a7.5 6 0 0 1 15 0" fill="none" stroke="' + INK + '" stroke-width="2"/>' +
+      '<path d="M-10.5 2.5 h21 l-3.2 12.5 h-14.6 z" fill="' + BASKET + '" stroke="' + INK + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<path d="M-9 7.5 h18.5 M-8 11.5 h16.5" stroke="' + INK + '" stroke-width="1.2" opacity="0.55"/>'
     );
   }
   function torso(p) {
@@ -310,18 +327,27 @@
         return '<path d="M-11 -80 L-12 -46 L12 -46 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<rect x="-6.5" y="-58" width="13" height="8.5" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
       case "gown":
-        return '<path d="M-9 -80 C -12 -60, -17 -30, -19 -7 L19 -7 C 17 -30, 12 -60, 9 -80 Z" fill="' + a + '" ' + s + '/>' +
-          '<path d="M-11 -53 C -4 -49, 4 -49, 11 -53" fill="none" stroke="' + INK + '" stroke-width="1.8"/>' +
-          (p.apron ? '<path d="M-7.5 -51 L7.5 -51 L10.5 -11 L-10.5 -11 Z" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8" opacity="0.92"/>' : "");
+        return '<path d="M-9 -80 C -10.5 -68, -11.5 -60, -12 -53 L12 -53 C 11.5 -60, 10.5 -68, 9 -80 Z" fill="' + a + '" ' + s + '/>' +
+          '<g class="wk-skirt" data-pivot="-53">' +
+          '<path d="M-12 -53 C -15 -36, -17.5 -20, -19 -7 L19 -7 C 17.5 -20, 15 -36, 12 -53 Z" fill="' + a + '" ' + s + '/>' +
+          (p.apron ? '<path d="M-7.5 -51 L7.5 -51 L10.5 -11 L-10.5 -11 Z" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8" opacity="0.92"/>' : "") +
+          "</g>" +
+          '<path d="M-11 -53.5 C -4 -50, 4 -50, 11 -53.5" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
       case "blouseSkirt":
         return '<path d="M-10 -80 L-11 -55 L11 -55 L10 -80 Z" fill="' + PAPER + '" ' + s + '/>' +
-          '<path d="M-11 -55 C -14 -38, -16 -22, -17 -8 L17 -8 C 16 -22, 14 -38, 11 -55 Z" fill="' + a + '" ' + s + '/>';
+          '<g class="wk-skirt" data-pivot="-55">' +
+          '<path d="M-11 -55 C -14 -38, -16 -22, -17 -8 L17 -8 C 16 -22, 14 -38, 11 -55 Z" fill="' + a + '" ' + s + "/>" +
+          "</g>";
       case "dress50s":
         return '<path d="M-9 -80 L-10 -57 L10 -57 L9 -80 Z" fill="' + a + '" ' + s + '/>' +
-          '<path d="M-10 -57 C -18 -46, -20 -36, -21 -27 L21 -27 C 20 -36, 18 -46, 10 -57 Z" fill="' + a + '" ' + s + '/>';
+          '<g class="wk-skirt" data-pivot="-57">' +
+          '<path d="M-10 -57 C -18 -46, -20 -36, -21 -27 L21 -27 C 20 -36, 18 -46, 10 -57 Z" fill="' + a + '" ' + s + "/>" +
+          "</g>";
       case "modernDress":
         return '<path d="M-9 -80 L-10 -56 L10 -56 L9 -80 Z" fill="' + a + '" ' + s + '/>' +
-          '<path d="M-10 -56 C -14 -44, -15 -36, -15.5 -29 L15.5 -29 C 15 -36, 14 -44, 10 -56 Z" fill="' + a + '" ' + s + '/>';
+          '<g class="wk-skirt" data-pivot="-56">' +
+          '<path d="M-10 -56 C -14 -44, -15 -36, -15.5 -29 L15.5 -29 C 15 -36, 14 -44, 10 -56 Z" fill="' + a + '" ' + s + "/>" +
+          "</g>";
       case "modernF":
         return '<path d="M-10 -80 L-11 -48 L11 -48 L10 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M-6 -80 L0 -68 L6 -80" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
@@ -371,32 +397,124 @@
   }
 
   function figureMarkup(p) {
-    var covered = p.kit === "gown" || p.kit === "blouseSkirt";
-    var knee = p.kit === "dress50s" || p.kit === "modernDress";
-    var legs = covered ? hemShoes() : knee ? kneeLegs() : legPair();
-    var frontFixed = "";
-    var backFixed = "";
-    if (p.prop === "cane") frontFixed = caneProp();
-    if (p.prop === "basket") frontFixed = basketProp();
-    var armL = arm("l", p.accent, backFixed);
-    var armR = arm("r", p.accent, frontFixed);
-    if (p.prop === "book") {
-      armL = '<g class="wk-arml" transform="translate(-10 -76)"><path d="M0 0 L9 15" fill="none" stroke="' + p.accent + '" stroke-width="5" stroke-linecap="round"/></g>';
-      armR = '<g class="wk-armr" transform="translate(10 -76)"><path d="M0 0 L-9 15" fill="none" stroke="' + p.accent + '" stroke-width="5" stroke-linecap="round"/></g>';
+    var bare = p.kit === "dress50s" || p.kit === "modernDress";
+    function legPair(side) {
+      var under = bare
+        ? '<path class="wk-leg' + side + 'u" fill="none" stroke="' + INK + '" stroke-width="6.6" stroke-linecap="round" stroke-linejoin="round"/>'
+        : "";
+      var main = bare
+        ? '<path class="wk-leg' + side + 'p" fill="none" stroke="' + PAPER + '" stroke-width="4.3" stroke-linecap="round" stroke-linejoin="round"/>'
+        : '<path class="wk-leg' + side + 'p" fill="none" stroke="' + INK + '" stroke-width="' + SW_LIMB + '" stroke-linecap="round" stroke-linejoin="round"/>';
+      return under + main;
+    }
+    function armG(side) {
+      return (
+        '<g class="wk-arm' + side + '">' +
+        '<path class="wk-arm' + side + 'p" fill="none" stroke="' + p.accent + '" stroke-width="' + SW_LIMB + '" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<circle class="wk-hand' + side + '" r="2.6" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.4"/>' +
+        "</g>"
+      );
     }
     var book = p.prop === "book"
       ? '<g class="wk-book"><rect x="-8" y="-71" width="16" height="11.5" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="2"/><path d="M0 -71 v11.5" stroke="' + INK + '" stroke-width="1.4"/></g>'
       : "";
     return (
       '<ellipse class="wk-ring" cx="0" cy="1.5" rx="21" ry="5" fill="none" stroke="#b9872c" stroke-width="2.4" opacity="0"/>' +
-      '<g class="wk-flip"><g class="wk-bob">' +
-      legs +
-      '<g class="wk-upper">' + armL + torso(p) + armR + book +
+      '<g class="wk-flip">' +
+      '<g class="wk-legs">' + legPair("l") + legPair("r") +
+      '<path class="wk-shoel" d="' + shoeD() + '" fill="' + INK + '"/>' +
+      '<path class="wk-shoer" d="' + shoeD() + '" fill="' + INK + '"/>' +
+      "</g>" +
+      '<g class="wk-upper">' + armG("l") + torso(p) + armG("r") + book +
+      (p.prop === "basket" ? '<g class="wk-basket">' + basketMarkup() + "</g>" : "") +
+      (p.prop === "cane" ? '<path class="wk-cane" fill="none" stroke="' + INK + '" stroke-width="2.6" stroke-linecap="round"/>' : "") +
       '<g class="wk-head">' + head(p) + "</g>" +
-      "</g></g></g>" +
+      "</g></g>" +
       '<rect class="wk-hit" x="-23" y="-114" width="46" height="118" fill="rgba(0,0,0,0)"/>'
     );
   }
+
+  /* ---------------- The gait: feet belong to the world ----------------
+     Each foot carries a ground position (gx) in the same units
+     the body travels. Standing, a foot's ground position never
+     changes: the body walks over it, and the two-bone leg
+     solves the difference. When the planted foot trails too
+     far behind, it lifts, arcs forward, and plants ahead of
+     the body, alternating with its pair. Travel is accumulated
+     in figure-local units, so stride, bob, and arm swing all
+     read off the same clock the feet keep. */
+
+  var STEP_LEN = 26.5, GAIT_LEAD = 14, GAIT_TRAIL = -12.5;
+  var GAIT_LIFT = 6.5, GAIT_BOB = 1.9;
+
+  function makeFoot(restX) {
+    return { gx: restX, sw: false, from: restX, to: restX, t: 0, dur: 0.3, e: 0, lift: 1 };
+  }
+  function resetGait(w) {
+    w.travel = 0;
+    w.footL = makeFoot(-3.5);
+    w.footR = makeFoot(3.5);
+  }
+  function easeInOut(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+  function startSwing(w, f, speedLocal, liftScale) {
+    var need = Math.max(8, w.travel + GAIT_LEAD - f.gx);
+    f.dur = Math.min(0.55, Math.max(0.16, need / Math.max(34, speedLocal * 2.1)));
+    f.from = f.gx;
+    f.to = w.travel + GAIT_LEAD + speedLocal * f.dur * 0.85;
+    f.t = 0;
+    f.e = 0;
+    f.sw = true;
+    f.lift = liftScale || 1;
+  }
+  function updateGait(w, movedLocal, speedLocal, dt, active) {
+    w.travel += movedLocal;
+    var feet = [w.footL, w.footR];
+    var i, f;
+    for (i = 0; i < 2; i++) {
+      f = feet[i];
+      if (f.sw) {
+        f.t += dt;
+        var pr = Math.min(1, f.t / f.dur);
+        f.e = easeInOut(pr);
+        f.gx = f.from + (f.to - f.from) * f.e;
+        if (pr >= 1) { f.sw = false; f.gx = f.to; f.e = 0; }
+      }
+    }
+    if (active && speedLocal > 3) {
+      var back = w.footL.gx - w.travel < w.footR.gx - w.travel ? w.footL : w.footR;
+      var front = back === w.footL ? w.footR : w.footL;
+      if (!back.sw && !front.sw && back.gx - w.travel < GAIT_TRAIL) {
+        startSwing(w, back, speedLocal, 1);
+      } else if (!back.sw && front.sw && front.t / front.dur > 0.7 && back.gx - w.travel < GAIT_TRAIL + 3.5) {
+        startSwing(w, back, speedLocal, 1);
+      }
+    } else if (!active) {
+      var rests = [-3.5, 3.5];
+      for (i = 0; i < 2; i++) {
+        f = feet[i];
+        if (!f.sw && Math.abs(f.gx - w.travel - rests[i]) > 2.5) {
+          f.from = f.gx;
+          f.to = w.travel + rests[i];
+          f.dur = 0.22;
+          f.t = 0;
+          f.e = 0;
+          f.sw = true;
+          f.lift = 0.4;
+        }
+      }
+    }
+  }
+  function footPose(f, travel) {
+    var liftNow = f.sw ? Math.sin(Math.PI * f.e) * GAIT_LIFT * f.lift : 0;
+    return {
+      x: f.gx - travel,
+      y: -liftNow,
+      pitch: f.sw ? -15 * Math.sin(Math.PI * f.e) * f.lift : 0
+    };
+  }
+
 
   /* ---------------- Rounds: each villager's ordinary day ----------------
      A route is the guided path that villager walks on a normal
@@ -573,18 +691,27 @@
     layer.appendChild(a);
     var w = {
       person: person, el: a, idx: idx,
-      flipEl: g.querySelector(".wk-flip"), bobEl: g.querySelector(".wk-bob"),
+      flipEl: g.querySelector(".wk-flip"), upperEl: g.querySelector(".wk-upper"),
       headEl: g.querySelector(".wk-head"),
-      legL: g.querySelector(".wk-legl"), legR: g.querySelector(".wk-legr"),
-      armL: g.querySelector(".wk-arml"), armR: g.querySelector(".wk-armr"),
-      shoeL: g.querySelector(".wk-shoe-l"), shoeR: g.querySelector(".wk-shoe-r"),
+      legLP: g.querySelector(".wk-leglp"), legLU: g.querySelector(".wk-leglu"),
+      legRP: g.querySelector(".wk-legrp"), legRU: g.querySelector(".wk-legru"),
+      armLP: g.querySelector(".wk-armlp"), handL: g.querySelector(".wk-handl"),
+      armRP: g.querySelector(".wk-armrp"), handR: g.querySelector(".wk-handr"),
+      shoeL: g.querySelector(".wk-shoel"), shoeR: g.querySelector(".wk-shoer"),
+      basketEl: g.querySelector(".wk-basket"), caneEl: g.querySelector(".wk-cane"),
+      skirtEl: g.querySelector(".wk-skirt"),
+      skirtPivot: -54,
       ringEl: g.querySelector(".wk-ring"),
       x: 0, y: 0, ox: ((idx * 37) % 61) - 30, oy: ((idx * 19) % 17) - 8,
-      facing: 1, phase: Math.random() * 6.28,
+      facing: 1, phase: Math.random() * 6.28, moveV: 0,
       mode: "idle", node: person.home, routeIdx: 0, path: null, pathIdx: 0, target: null,
       idleT: 0, idleDur: 2, inside: false, goingIn: false, insideT: 0, insideDur: 0, fade: 1,
       gesture: null, gestureT: 0, gestureDur: 1.2, chatWith: null, chatT: 0, retire: false
     };
+    if (w.skirtEl && w.skirtEl.dataset && w.skirtEl.dataset.pivot) {
+      w.skirtPivot = parseFloat(w.skirtEl.dataset.pivot) || -54;
+    }
+    resetGait(w);
     a.addEventListener("click", function (ev) { onWalkerTap(ev, w); });
     a.addEventListener("mouseenter", function () { showRoute(person, "0.5"); });
     a.addEventListener("mouseleave", hideRoute);
@@ -614,39 +741,145 @@
     w.gestureDur = big ? 1.5 : 1.15;
   }
 
-  function setArm(w, side, angle) {
-    var el = side === "l" ? w.armL : w.armR;
+  function poseLeg(w, side, hipX, bobY, fp) {
+    var hipY = HIP_Y + bobY;
+    var pathEl = side === "l" ? w.legLP : w.legRP;
+    var underEl = side === "l" ? w.legLU : w.legRU;
+    if (!pathEl) return;
+    if (w.person.kit === "gown" || w.person.kit === "blouseSkirt") {
+      // Covered by the skirt: only an ankle steps out from
+      // under the hem, driven by the same planted foot.
+      var hemY = w.person.kit === "gown" ? -8 : -9;
+      pathEl.setAttribute("d", "M" + (fp.x * 0.55).toFixed(1) + " " + hemY + " L" + fp.x.toFixed(1) + " " + fp.y.toFixed(1));
+      if (underEl) underEl.setAttribute("d", "");
+      return;
+    }
+    var knee = solve2(hipX, hipY, fp.x, fp.y, THIGH, SHIN, "fwd");
+    var d = limbPath(hipX, hipY, knee.x, knee.y, fp.x, fp.y);
+    pathEl.setAttribute("d", d);
+    if (underEl) underEl.setAttribute("d", d);
+  }
+  function poseShoe(el, fp) {
     if (!el) return;
-    var sx = side === "l" ? -10 : 10;
-    el.setAttribute("transform", "translate(" + sx + " -76) rotate(" + angle.toFixed(1) + ")");
+    el.setAttribute("transform", "translate(" + fp.x.toFixed(1) + " " + fp.y.toFixed(1) + ") rotate(" + fp.pitch.toFixed(1) + ")");
+  }
+  // Pose one arm. The override, when present, is either an FK
+  // pose ({a1, a2}) or an IK reach ({ikx, iky, env}) blended
+  // from the hanging rest point. Otherwise the arm swings in
+  // counterphase to the opposite leg, carries its prop, or
+  // holds the book open with both hands solved to its corners.
+  function poseArm(w, side, override, swingDeg, bobY) {
+    var pathEl = side === "l" ? w.armLP : w.armRP;
+    var handEl = side === "l" ? w.handL : w.handR;
+    if (!pathEl) return null;
+    var sx = side === "l" ? -SH_X : SH_X;
+    var p = w.person;
+    var pts = null;
+    if (override && override.ikx !== undefined) {
+      var env = override.env;
+      var tx = sx + (override.ikx - sx) * env + (side === "l" ? -2 : 2) * (1 - env);
+      var ty = -54 + (override.iky + 54) * env;
+      var elbow = solve2(sx, SH_Y, tx, ty, UARM, FARM, "out");
+      pts = { ex: elbow.x, ey: elbow.y, hx: tx, hy: ty };
+    } else if (override) {
+      pts = armFK(sx, SH_Y, override.a1, override.a2);
+    } else if (p.prop === "book") {
+      var bel = solve2(sx, SH_Y, side === "l" ? -9.8 : 9.8, -58.5, UARM, FARM, "out");
+      pts = { ex: bel.x, ey: bel.y, hx: side === "l" ? -9.8 : 9.8, hy: -58.5 };
+    } else if (p.prop === "cane" && side === "r") {
+      pts = armFK(sx, SH_Y, 15, 9);
+    } else if (p.prop === "basket" && side === "r") {
+      pts = armFK(sx, SH_Y, 5 + swingDeg * 0.25, 7);
+    } else if (w.mode === "walk") {
+      var a1 = Math.max(-27, Math.min(27, swingDeg));
+      pts = armFK(sx, SH_Y, a1, 13 + Math.max(0, a1) * 0.5);
+    } else {
+      var sway = 2.2 * Math.sin(w.idleT * 0.85 + w.idx * 1.7 + (side === "r" ? 0.6 : 0));
+      pts = armFK(sx, SH_Y, sway, 12);
+    }
+    pathEl.setAttribute("d", limbPath(sx, SH_Y, pts.ex, pts.ey, pts.hx, pts.hy));
+    if (handEl) {
+      handEl.setAttribute("cx", pts.hx.toFixed(1));
+      handEl.setAttribute("cy", pts.hy.toFixed(1));
+    }
+    return pts;
   }
 
   function pose(w) {
-    var swing = w.mode === "walk" ? Math.sin(w.phase) * 25 : 0;
-    var bobY = w.mode === "walk" ? -Math.abs(Math.sin(w.phase)) * 1.5 : 0;
-    if (w.legL) w.legL.setAttribute("transform", "rotate(" + swing.toFixed(1) + " -3 -44)");
-    if (w.legR) w.legR.setAttribute("transform", "rotate(" + (-swing).toFixed(1) + " 3 -44)");
-    var shoeShift = w.mode === "walk" ? Math.sin(w.phase) * 4.2 : 0;
-    if (w.shoeL) w.shoeL.setAttribute("transform", "translate(" + shoeShift.toFixed(1) + " 0)");
-    if (w.shoeR) w.shoeR.setAttribute("transform", "translate(" + (-shoeShift).toFixed(1) + " 0)");
-    var headRot = 0;
-    var overL = null, overR = null;
+    var p = w.person;
+    var walking = w.mode === "walk";
+    var speedF = Math.max(0, Math.min(1.15, w.moveV / Math.max(1, p.speed)));
+    var cyc = w.travel / STEP_LEN;
+    var bobY = 0, upperRot = 0;
+    if (walking) {
+      // The body dips as each foot plants and rises over the
+      // planted leg, twice a stride; the torso leans into the
+      // walk and rolls a degree with the weight shift.
+      bobY = -GAIT_BOB * (0.5 - 0.5 * Math.cos(2 * Math.PI * cyc)) * Math.min(1, speedF + 0.3);
+      upperRot = 2.3 * speedF + 1.2 * Math.sin(Math.PI * cyc) * speedF;
+    }
+    // Gestures: one free arm, rebuilt on the same joints, so a
+    // wave raises a bent elbow and a hat tip solves the hand to
+    // the brim instead of swinging the whole arm like a flag.
+    var overL = null, overR = null, headGesture = 0;
     if (w.gesture) {
       var pr = Math.min(1, w.gestureT / w.gestureDur);
       var env = Math.sin(pr * Math.PI);
-      var freeSide = w.person.prop === "cane" || w.person.prop === "basket" ? "l" : "r";
-      var waveAngle = -35 - 105 * env + Math.sin(pr * 12.0) * 9 * env;
-      if (w.gesture === "wave") { if (freeSide === "l") overL = waveAngle; else overR = waveAngle; }
-      else if (w.gesture === "tip") { if (freeSide === "l") overL = -118 * env; else overR = -118 * env; headRot = 11 * env; }
-      else headRot = 8 * Math.sin(pr * Math.PI * 2) * env;
+      var freeSide = p.prop === "cane" || p.prop === "basket" ? "l" : "r";
+      if (w.gesture === "wave") {
+        var wave = { a1: 158 * env, a2: -42 * env + 20 * Math.sin(pr * 15) * env };
+        if (freeSide === "l") overL = wave; else overR = wave;
+      } else if (w.gesture === "tip") {
+        var tip = { ikx: freeSide === "l" ? -12.6 : 12.6, iky: -93.2, env: env };
+        if (freeSide === "l") overL = tip; else overR = tip;
+        headGesture = 10 * env;
+        upperRot += 3.2 * env;
+      } else {
+        headGesture = 7.5 * Math.sin(pr * Math.PI * 2) * env;
+      }
     }
-    var prop = w.person.prop;
-    if (overL !== null) setArm(w, "l", overL);
-    else if (prop !== "book") setArm(w, "l", -swing * 0.62);
-    if (overR !== null) setArm(w, "r", overR);
-    else if (prop !== "book" && prop !== "cane" && prop !== "basket") setArm(w, "r", swing * 0.62);
-    if (w.headEl) w.headEl.setAttribute("transform", headRot ? "rotate(" + headRot.toFixed(1) + " 0 -80)" : "");
-    if (w.bobEl) w.bobEl.setAttribute("transform", "translate(0 " + bobY.toFixed(2) + ")");
+    // Legs solve from the bobbing hip to the planted feet.
+    var fl = footPose(w.footL, w.travel);
+    var fr = footPose(w.footR, w.travel);
+    poseLeg(w, "l", -3.5, bobY, fl);
+    poseLeg(w, "r", 3.5, bobY, fr);
+    poseShoe(w.shoeL, fl);
+    poseShoe(w.shoeR, fr);
+    // Arms swing against the opposite leg's stride.
+    var swingL = Math.max(-27, Math.min(27, -fr.x * 1.3));
+    var swingR = Math.max(-27, Math.min(27, -fl.x * 1.3));
+    var handL = poseArm(w, "l", overL, swingL, bobY);
+    var handR = poseArm(w, "r", overR, swingR, bobY);
+    // Carried things ride the hand that holds them: the basket
+    // swings a beat behind the stride, the cane taps the
+    // ground ahead of the step.
+    if (w.basketEl && handR) {
+      var bSway = walking
+        ? -9 * Math.sin(2 * Math.PI * cyc - 1.05) * speedF
+        : 1.6 * Math.sin(w.idleT * 0.8);
+      w.basketEl.setAttribute("transform", "translate(" + handR.hx.toFixed(1) + " " + handR.hy.toFixed(1) + ") rotate(" + bSway.toFixed(1) + ")");
+    }
+    if (w.caneEl && handR) {
+      var tipX = handR.hx + 6 + (walking ? 3 * Math.sin(2 * Math.PI * cyc) : 0);
+      w.caneEl.setAttribute("d", "M" + handR.hx.toFixed(1) + " " + handR.hy.toFixed(1) + " L" + tipX.toFixed(1) + " " + (-bobY + 0.5).toFixed(1));
+    }
+    // The skirt hem trails the stride by a beat.
+    if (w.skirtEl) {
+      var skRot = walking
+        ? -2.1 * Math.sin(2 * Math.PI * cyc - 0.85) * speedF
+        : 0.5 * Math.sin(w.idleT * 0.7 + 1);
+      w.skirtEl.setAttribute("transform", "rotate(" + skRot.toFixed(2) + " 0 " + w.skirtPivot + ")");
+    }
+    // The head stays near level against the body's motion,
+    // with its own small lag, plus any gesture bow.
+    var headRot = headGesture;
+    if (walking) headRot += -upperRot * 0.4 + 1.1 * Math.sin(2 * Math.PI * cyc - 0.7) * speedF;
+    if (w.headEl) {
+      w.headEl.setAttribute("transform", headRot ? "rotate(" + headRot.toFixed(1) + " 0 -80)" : "");
+    }
+    if (w.upperEl) {
+      w.upperEl.setAttribute("transform", "translate(0 " + bobY.toFixed(2) + ") rotate(" + upperRot.toFixed(2) + " 0 -44)");
+    }
     if (w.flipEl) w.flipEl.setAttribute("transform", "scale(" + w.facing + " 1)");
     var sc = depthScale(w.y) * w.person.scale;
     w.el.setAttribute("transform", "translate(" + w.x.toFixed(1) + " " + w.y.toFixed(1) + ") scale(" + sc.toFixed(3) + ")");
@@ -663,6 +896,10 @@
     w.target = targetNode;
     w.mode = "walk";
     w.chatWith = null;
+    // Walks begin from a standstill and gather speed; the
+    // trailing foot takes the first step as the body leans in.
+    w.moveV = Math.min(w.moveV || 0, 8);
+    if (!w.footL.sw && !w.footR.sw) startSwing(w, w.footR, Math.max(20, w.person.speed), 1);
   }
   function goInside(w) {
     w.goingIn = true;
@@ -680,6 +917,8 @@
     w.y = NODES[door].y + w.oy;
     w.inside = false;
     w.fade = 0.04;
+    w.moveV = 0;
+    resetGait(w);
     w.mode = "idle";
     w.idleT = 0;
     w.idleDur = 1 + Math.random() * 2.5;
@@ -688,6 +927,8 @@
   function arrive(w, nodeId) {
     w.node = nodeId;
     w.mode = "idle";
+    w.moveV = 0;
+    resetGait(w);
     w.path = null;
     // A small personal sidestep, so villagers arriving at the
     // same stop stand beside each other instead of stacking.
@@ -785,17 +1026,29 @@
       var dx = target.x - w.x;
       var dy = target.y - w.y;
       var dist = Math.hypot(dx, dy);
-      var step = w.person.speed * (state.phase === "night" ? 0.85 : 1) * dt;
-      if (dist <= Math.max(step, 1.5)) {
+      // Speed eases: gather from a standstill, and bleed off
+      // over the last stretch of the final leg, so arrivals
+      // settle instead of stopping dead.
+      var cruise = w.person.speed * (state.phase === "night" ? 0.85 : 1);
+      var desired = cruise;
+      if (w.pathIdx === w.path.length - 1) {
+        desired = cruise * Math.max(0.16, Math.min(1, dist / 46));
+      }
+      var rate = desired > w.moveV ? 60 : 115;
+      w.moveV += Math.max(-rate * dt, Math.min(rate * dt, desired - w.moveV));
+      if (w.moveV < 2) w.moveV = 2;
+      var step = Math.min(w.moveV * dt, dist);
+      var scaleNow = Math.max(0.4, depthScale(w.y) * w.person.scale);
+      if (dist <= Math.max(step, 1.2)) {
         w.x = target.x;
         w.y = target.y;
-        w.phase += (dist / 11) * Math.PI;
+        updateGait(w, step / scaleNow, w.moveV / scaleNow, dt, true);
         w.pathIdx++;
         if (w.pathIdx >= w.path.length) arrive(w, w.target);
       } else {
         w.x += (dx / dist) * step;
         w.y += (dy / dist) * step;
-        w.phase += (step / 11) * Math.PI;
+        updateGait(w, step / scaleNow, w.moveV / scaleNow, dt, true);
         if (Math.abs(dx) > 2) w.facing = dx > 0 ? 1 : -1;
       }
       pose(w);
@@ -805,6 +1058,7 @@
     chatStep(w, dt);
     if (!w.gesture && Math.random() < dt * 0.045) triggerGesture(w, false);
     if (w.idleT >= w.idleDur && !w.chatWith) decide(w);
+    updateGait(w, 0, 0, dt, false);
     pose(w);
   }
 
