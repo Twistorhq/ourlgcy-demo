@@ -32,7 +32,7 @@ records in that one file in the same schema.
 | --- | --- | --- | --- |
 | Amos Shote | 1831 | the 1850s | frock coat and waistcoat, wide-brim hat, cane |
 | Celia Shote | 1836 | the 1860s | long gown with apron, bonnet, market basket |
-| Ruth Shote | 1858 | the 1880s | full gown, small brimmed hat |
+| Ruth Shote | 1858 | the 1880s | full gown, wide-brim hat |
 | Henry Shote | 1861 | the 1880s | sack suit, bowler |
 | Della Shote | 1864 | the 1880s | gown, brimmed hat, book |
 | Moses Shote | 1867 | the 1890s | suit, derby, cane |

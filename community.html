@@ -175,13 +175,61 @@
       </figcaption>
     </figure>
     <noscript>
-      <p class="village-noscript">The village and the roster below stand as drawn. The villagers themselves step out when JavaScript is on.</p>
+      <p class="village-noscript">The village scene and the roster below stand as drawn. The villagers themselves step out when JavaScript is on.</p>
     </noscript>
 
     <section class="village-roster" aria-labelledby="roster-title">
       <h2 id="roster-title">Who lives here</h2>
       <p>Dress, tools, transport, and dwellings follow documented years: each figure is drawn for the decade of their young adulthood, figured from the birth year on their tree card, and the village keeps to each era's way of getting there, horse and buggy for the oldest rounds, early motorcars, then sedans, then today's plain sport utility shapes, none of them branded. Where a record gives no year, a figure stays era-neutral. Four rounds cross the village: the homeplace round, the church round, the store round, and the road to town. The buildings are era-typical for the family's span, not tied to one person's record.</p>
-      <ul class="roster-list" id="roster-list"></ul>
+      <!-- Roster floor: this list is rendered statically from the
+           same records in villagers-data.js, so it stands when
+           village.js is blocked or JavaScript is off. When the
+           layer loads, buildRoster clears and rebuilds it from
+           those records; the two never duplicate. -->
+      <ul class="roster-list" id="roster-list">
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Amos Shote, born 1831, The founding couple. Open their profile."><span class="roster-name">Amos Shote</span><span class="roster-meta">Born 1831 · The founding couple · +12 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Celia Shote, born 1836, The founding couple. Open their profile."><span class="roster-name">Celia Shote</span><span class="roster-meta">Born 1836 · The founding couple · +9 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Ruth Shote, born 1858, Ruth line. Open their profile."><span class="roster-name">Ruth Shote</span><span class="roster-meta">Born 1858 · Ruth line · +21 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Henry Shote, born 1861, Henry line. Open their profile."><span class="roster-name">Henry Shote</span><span class="roster-meta">Born 1861 · Henry line · +18 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Della Shote, born 1864, Della line. Open their profile."><span class="roster-name">Della Shote</span><span class="roster-meta">Born 1864 · Della line · +15 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Moses Shote, born 1867, Moses line. Open their profile."><span class="roster-name">Moses Shote</span><span class="roster-meta">Born 1867 · Moses line · +19 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Ada Shote, born 1883, Ruth line. Open their profile."><span class="roster-name">Ada Shote</span><span class="roster-meta">Born 1883 · Ruth line · +11 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Booker Shote, born 1890, Moses line. Open their profile."><span class="roster-name">Booker Shote</span><span class="roster-meta">Born 1890 · Moses line · +13 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Lena Shote, born 1929, Ruth line. Open their profile."><span class="roster-name">Lena Shote</span><span class="roster-meta">Born 1929 · Ruth line · +8 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Emmett Shote, born 1930, Henry line. Open their profile."><span class="roster-name">Emmett Shote</span><span class="roster-meta">Born 1930 · Henry line · +8 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Sadie Shote, born 1956, Ruth line. Open their profile."><span class="roster-name">Sadie Shote</span><span class="roster-meta">Born 1956 · Ruth line · +4 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Jordan Shote, born 1972, Moses line. Open their profile."><span class="roster-name">Jordan Shote</span><span class="roster-meta">Born 1972 · Moses line · The focus card of the home tree</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Amara Shote, born 1985, Ruth line. Open their profile."><span class="roster-name">Amara Shote</span><span class="roster-meta">Born 1985 · Ruth line · +2 relatives</span></a>
+        </li>
+        <li>
+          <a class="roster-btn" href="person.html" aria-label="Xavier Shote, born 2001, Moses line. Open their profile."><span class="roster-name">Xavier Shote</span><span class="roster-meta">Born 2001 · Moses line · +1 relatives</span></a>
+        </li>
+      </ul>
     </section>
   </div>
 </main>

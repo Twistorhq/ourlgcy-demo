@@ -1,9 +1,9 @@
 // Our LGCY Community tab: the ink village layer (TW-1077).
 //
 // Fail-closed contract, mirrored from gl/buck.js on the home page:
-// the drawn village, the roster, and the card panel stand on their
-// own in community.html. This layer only adds the villagers and
-// their day. Any failure at any stage tears the layer down and the
+// the drawn village and the roster stand on their own in
+// community.html (the roster ships as static HTML there). This
+// layer only adds the villagers and their day. Any failure at any stage tears the layer down and the
 // page stands exactly as drawn. Reduced motion gets a composed
 // still village: everyone home in the scene, nobody roaming.
 //
@@ -1173,15 +1173,21 @@
   };
   var FORCED_PHASE = forcePhase && PHASES[forcePhase] ? forcePhase : null;
 
-  function phaseFromClock() {
-    var h = new Date().getHours();
-    if (h >= 5 && h < 7) return "dawn";
+  // The hour-to-phase mapping, kept pure so the harness can
+  // assert the unforced mapping at the boundary hours. Night is
+  // tested first: 20:00 to 04:59 is night, deep night included.
+  function phaseForHour(h) {
+    if (h >= 20 || h < 5) return "night";
+    if (h < 7) return "dawn";
     if (h < 11) return "morning";
     if (h < 15) return "midday";
     if (h < 18) return "afternoon";
-    if (h < 20) return "dusk";
-    return "night";
+    return "dusk";
   }
+  function phaseFromClock() {
+    return phaseForHour(new Date().getHours());
+  }
+  state.phaseForHour = phaseForHour;
   function applyPhase(name) {
     var ph = PHASES[name];
     if (!ph) return;
@@ -1206,6 +1212,11 @@
   function buildRoster() {
     var list = document.getElementById("roster-list");
     if (!list) return;
+    // community.html ships this same roster as static HTML, the
+    // floor that stands when this layer never loads. Clear and
+    // replace it so the two never duplicate: one list, one source
+    // (the records), whichever way the page was reached.
+    list.innerHTML = "";
     PEOPLE.forEach(function (p) {
       var li = document.createElement("li");
       var a = document.createElement("a");
