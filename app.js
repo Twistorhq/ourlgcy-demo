@@ -614,25 +614,11 @@
     };
   }
 
-  function performDeer(el) {
-    if (el.dataset.busy) return;
-    if (REDUCED) {
-      gentleFade(el);
-      return;
-    }
-    markBusy(el, 2500);
-    el.classList.add("alert");
-    window.setTimeout(function () {
-      el.classList.remove("alert");
-    }, 2350);
-  }
-
   var PERFORMERS = {
     owl: performOwl,
     squirrel: performSquirrel,
     woodpecker: performWoodpecker,
-    jay: performJay,
-    deer: performDeer
+    jay: performJay
   };
   document.querySelectorAll("[data-critter]").forEach(function (el) {
     var fn = PERFORMERS[el.getAttribute("data-critter")];

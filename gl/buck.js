@@ -9,6 +9,14 @@
 // pack deer and its whole-body procedural performance) outright:
 // no part of that model, rig, or motion carries over.
 //
+// TW-1152 (founder live review, Nov 16): the buck moves off center
+// to the right edge third of the frame, so he stands at the
+// threshold's edge and gazes across the page; the look clips in
+// the GLB are re-authored wider and slower (rig pipeline, not
+// here); and the light, material tint, rock color, and contact
+// shadow are graded warm against the oak photograph so he reads
+// as living in the tree rather than placed on it.
+//
 // Fail-closed contract, same as the layer it replaces: any failure
 // at any stage (no WebGL2, software renderer, slow probe, lost
 // context, asset error) tears the layer down and the section falls
@@ -153,7 +161,7 @@ import Lenis from "./vendor/lenis.mjs";
     }
     geo.computeVertexNormals();
     var mat = new THREE.MeshStandardMaterial({
-      color: 0x5f594f,
+      color: 0x6b5c47,
       roughness: 0.96,
       metalness: 0.0,
       flatShading: true
@@ -167,18 +175,18 @@ import Lenis from "./vendor/lenis.mjs";
     cv.width = cv.height = 256;
     var ctx = cv.getContext("2d");
     var g = ctx.createRadialGradient(128, 128, 8, 128, 128, 128);
-    g.addColorStop(0, "rgba(16,10,4,0.55)");
-    g.addColorStop(0.6, "rgba(16,10,4,0.28)");
-    g.addColorStop(1, "rgba(16,10,4,0)");
+    g.addColorStop(0, "rgba(26,17,7,0.66)");
+    g.addColorStop(0.6, "rgba(26,17,7,0.36)");
+    g.addColorStop(1, "rgba(26,17,7,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 256, 256);
     var tex = new THREE.CanvasTexture(cv);
     var mat = new THREE.MeshBasicMaterial({
       map: tex, transparent: true, depthWrite: false
     });
-    var m = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3.0), mat);
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 3.3), mat);
     m.rotation.x = -Math.PI / 2 + Math.atan(0.2664); // lie on the slope
-    m.position.set(0, stancePlaneY(-0.24) - 0.03, -0.24);
+    m.position.set(0, stancePlaneY(-0.24) - 0.022, -0.24);
     return m;
   }
 
@@ -189,7 +197,7 @@ import Lenis from "./vendor/lenis.mjs";
       powerPreference: "high-performance"
     });
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.05;
     state.renderer = renderer;
     state.canvas = renderer.domElement;
     state.canvas.className = "gl-canvas";
@@ -205,14 +213,16 @@ import Lenis from "./vendor/lenis.mjs";
     camera.position.set(0.25, 0.80, 6.6);
     camera.lookAt(LOOK.x, LOOK.y, LOOK.z);
 
-    // Same light recipe as the v4 dell, so the buck sits in the
-    // same forest light as the rest of the page.
-    var hemi = new THREE.HemisphereLight(0xe6d3a7, 0x33261a, 0.9);
+    // Light graded against the oak photograph (TW-1152 blend law):
+    // warm canopy light from the left, warm bounce where the cool
+    // rim used to fight the photo, so the buck sits in the same
+    // golden forest light as the page behind him.
+    var hemi = new THREE.HemisphereLight(0xe6d3a7, 0x33261a, 1.0);
     scene3.add(hemi);
-    var sun = new THREE.DirectionalLight(0xffc98a, 1.2);
+    var sun = new THREE.DirectionalLight(0xffc98a, 1.3);
     sun.position.set(-4.5, 6, 3.5);
     scene3.add(sun);
-    var rim = new THREE.DirectionalLight(0x93a7c4, 0.4);
+    var rim = new THREE.DirectionalLight(0xd9c9a8, 0.3);
     rim.position.set(5, 3, -2.5);
     scene3.add(rim);
     var face = new THREE.DirectionalLight(0xffe2b0, 0.35);
@@ -232,6 +242,14 @@ import Lenis from "./vendor/lenis.mjs";
         "gl/animals/buck-rigged.glb",
         function (gltf) {
           var deer = gltf.scene;
+          // Blend law (TW-1152): a warm tint multiplied into every
+          // coat material pulls the source's cooler render toward
+          // the oak photograph's golden register.
+          deer.traverse(function (o) {
+            if (o.isMesh && o.material && o.material.color) {
+              o.material.color.setRGB(1.0, 0.95, 0.87);
+            }
+          });
           buckGroup.add(deer);
           mixer = new THREE.AnimationMixer(deer);
           gltf.animations.forEach(function (clip) {
@@ -286,7 +304,9 @@ import Lenis from "./vendor/lenis.mjs";
 
   var GESTURES = ["Look_Left", "Look_Right", "Ear_Adjust"];
   function scheduleGesture(t) {
-    nextGestureAt = t + 13 + Math.random() * 9;
+    // TW-1152: gestures land every 9 to 15 s (was 13 to 22), so a
+    // visitor dwelling on the section sees the head work.
+    nextGestureAt = t + 9 + Math.random() * 6;
   }
 
   // ---------- Stage 3: layout ----------
@@ -303,7 +323,12 @@ import Lenis from "./vendor/lenis.mjs";
     // Three-quarter stance: the pitch of the crest only reads from
     // an angle, never from dead front.
     buckGroup.rotation.y = -0.7;
-    buckGroup.position.set(narrow ? 0.30 : 0.55, narrow ? -0.82 : -0.66, 0);
+    // TW-1152: off center, anchored in the right edge third (the
+    // mirrored buck gazes toward frame left, across the page), so
+    // he stands at the threshold's edge rather than posed in the
+    // middle. On narrow screens he eases toward center only as far
+    // as the frame forces, rack and head still inside it.
+    buckGroup.position.set(narrow ? 0.62 : 1.70, narrow ? -0.82 : -0.66, 0);
     camera.position.set(0.25, narrow ? 0.65 : 0.80, narrow ? 8.4 : 6.6);
     camera.lookAt(LOOK.x, LOOK.y, LOOK.z);
     camera.updateProjectionMatrix();

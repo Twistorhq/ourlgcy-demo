@@ -73,10 +73,6 @@ design; the circles never carry fake faces.
 - Squirrel (`assets/animals/squirrel.jpg`): "Grey Squirrel on Tree
   Branch" by Image Catalog, CC0 1.0, via Flickr.
   Source: https://www.flickr.com/photos/132795455@N08/20644732009
-- Deer (`assets/animals/deer.jpg`): "White-tailed deer (Odocoileus
-  virginianus) grazing" by Raul654, CC BY-SA 3.0, via Wikimedia Commons.
-  Source: https://commons.wikimedia.org/w/index.php?curid=262331
-  Cropped and mirrored so the doe's head stays in frame.
 - Owl hoot (`assets/sounds/owl-hoot.mp3`): Eastern Screech Owl
   recording XC75829, recorded for xeno-canto, Commons file by Jonathon
   Jongsma, CC BY-SA 3.0, via Wikimedia Commons.
