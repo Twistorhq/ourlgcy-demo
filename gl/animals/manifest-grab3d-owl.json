@@ -1,0 +1,51 @@
+{
+ "slug": "owl",
+ "triangles": 799999,
+ "texture_px": 4096,
+ "triangles_light": 399999,
+ "texture_px_light": 1024,
+ "files": {
+  "glb": {
+   "name": "owl.glb",
+   "bytes": 32395064
+  },
+  "blend": {
+   "name": "owl.blend",
+   "bytes": 39161589
+  },
+  "fbx": {
+   "name": "owl.fbx",
+   "bytes": 53866220
+  },
+  "obj": {
+   "name": "owl-obj.zip",
+   "bytes": 24692506
+  },
+  "usdz": {
+   "name": "owl.usdz",
+   "bytes": 48173161
+  },
+  "glb_light": {
+   "name": "owl-light.glb",
+   "bytes": 13356032
+  },
+  "fbx_light": {
+   "name": "owl-light.fbx",
+   "bytes": 26100876
+  }
+ },
+ "extras": {
+  "license": "CC0-1.0",
+  "source": "grab3d.com",
+  "dimensions_m": "0.288 x 0.321 x 0.550",
+  "triangles": 800000,
+  "variant": "download",
+  "generator": "Created by grab3d",
+  "created": "2026-09-28"
+ },
+ "origin": {
+  "method": "ai-assisted",
+  "detail": "Base mesh and textures generated with an AI image-to-3D tool (Meshy), then cleaned up, scaled, textured and checked in Blender.",
+  "ai_content": true
+ }
+}

@@ -1,0 +1,97 @@
+{
+ "meshes": {
+  "Acorn": {
+   "tris": 520,
+   "verts": 1080,
+   "groups": 27
+  },
+  "AcornStem": {
+   "tris": 36,
+   "verts": 60,
+   "groups": 27
+  },
+  "Squirrel": {
+   "tris": 146290,
+   "verts": 173285,
+   "groups": 27
+  },
+  "Icosphere": {
+   "tris": 80,
+   "verts": 42,
+   "groups": 0
+  }
+ },
+ "armatures": [
+  {
+   "name": "SquirrelRig",
+   "bones": [
+    "root",
+    "pelvis",
+    "spine",
+    "chest",
+    "acorn",
+    "neck",
+    "head",
+    "ear_L",
+    "ear_R",
+    "jaw",
+    "upperarm_L",
+    "forearm_L",
+    "paw_L",
+    "upperarm_R",
+    "forearm_R",
+    "paw_R",
+    "tail_1",
+    "tail_2",
+    "tail_3",
+    "tail_4",
+    "tail_5",
+    "thigh_L",
+    "shin_L",
+    "foot_L",
+    "thigh_R",
+    "shin_R",
+    "foot_R"
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "name": "Squirrel_Idle",
+   "frames": [
+    0.0,
+    384.0
+   ]
+  },
+  {
+   "name": "Squirrel_Look",
+   "frames": [
+    0.0,
+    120.0
+   ]
+  },
+  {
+   "name": "Squirrel_Nibble",
+   "frames": [
+    0.0,
+    168.0
+   ]
+  }
+ ],
+ "images": {
+  "Image_0": [
+   2048,
+   2048
+  ],
+  "Image_1": [
+   1024,
+   1024
+  ],
+  "Image_2": [
+   1024,
+   1024
+  ]
+ },
+ "total_tris": 146926,
+ "bytes": 11825300
+}

@@ -1,0 +1,51 @@
+{
+ "slug": "squirrel",
+ "triangles": 799999,
+ "texture_px": 4096,
+ "triangles_light": 399998,
+ "texture_px_light": 1024,
+ "files": {
+  "glb": {
+   "name": "squirrel.glb",
+   "bytes": 34105276
+  },
+  "blend": {
+   "name": "squirrel.blend",
+   "bytes": 37494561
+  },
+  "fbx": {
+   "name": "squirrel.fbx",
+   "bytes": 58684060
+  },
+  "obj": {
+   "name": "squirrel-obj.zip",
+   "bytes": 25959727
+  },
+  "usdz": {
+   "name": "squirrel.usdz",
+   "bytes": 48235342
+  },
+  "glb_light": {
+   "name": "squirrel-light.glb",
+   "bytes": 17019476
+  },
+  "fbx_light": {
+   "name": "squirrel-light.fbx",
+   "bytes": 33033740
+  }
+ },
+ "extras": {
+  "license": "CC0-1.0",
+  "source": "grab3d.com",
+  "dimensions_m": "0.154 x 0.371 x 0.297",
+  "triangles": 800000,
+  "variant": "download",
+  "generator": "Created by grab3d",
+  "created": "2026-10-29"
+ },
+ "origin": {
+  "method": "ai-assisted",
+  "detail": "Base mesh and textures generated with an AI image-to-3D tool (Meshy), then cleaned up, scaled, textured and checked in Blender.",
+  "ai_content": true
+ }
+}

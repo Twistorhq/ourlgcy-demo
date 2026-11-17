@@ -1,0 +1,69 @@
+{
+ "meshes": {
+  "Bird": {
+   "tris": 65695,
+   "verts": 68016
+  },
+  "Icosphere": {
+   "tris": 80,
+   "verts": 42
+  }
+ },
+ "armatures": [
+  {
+   "name": "BirdRig",
+   "bones": [
+    "root",
+    "body",
+    "chest",
+    "neck",
+    "head",
+    "wing_L",
+    "wing_R",
+    "leg_L",
+    "leg_R",
+    "tail_1",
+    "tail_2"
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "name": "Jay_Idle",
+   "frames": [
+    0.0,
+    288.0
+   ]
+  },
+  {
+   "name": "Jay_Look",
+   "frames": [
+    0.0,
+    108.0
+   ]
+  },
+  {
+   "name": "Jay_Peck",
+   "frames": [
+    0.0,
+    120.0
+   ]
+  }
+ ],
+ "images": {
+  "Image_0": [
+   2048,
+   2048
+  ],
+  "Image_1": [
+   1024,
+   1024
+  ],
+  "Image_2": [
+   1024,
+   1024
+  ]
+ },
+ "total_tris": 65775,
+ "bytes": 5265944
+}
