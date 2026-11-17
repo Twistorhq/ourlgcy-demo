@@ -181,7 +181,12 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       new THREE.CylinderGeometry(0.38, 0.56, 3.8, 14, 8), 0.04, 6.0
     );
     var trunk = new THREE.Mesh(trunkGeo, trunkMat);
-    trunk.position.set(-2.88, 0.66, 0.0);
+    // TW-1076 merge-readiness (Rosa N2): the whole trunk cluster
+    // (trunk, hollow, owl, woodpecker) sits 0.16 right of its
+    // first staging, so the owl hollow clears the frame edge at
+    // both widths on the TW-1152 composition; the branch root
+    // stays embedded in the trunk at the new center.
+    trunk.position.set(-2.72, 0.66, 0.0);
     trunk.rotation.z = 0.05;
     fauna.add(trunk);
 
@@ -206,8 +211,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       [-1.92, 0.95, 0.44, 0.20, 0.045, 0.12],
       [-1.60, 0.87, 0.50, 0.17, 0.04, 0.11],
       [-1.30, 0.80, 0.56, 0.14, 0.035, 0.10],
-      [-2.80, 1.62, 0.24, 0.30, 0.14, 0.22],
-      [-2.94, -0.30, 0.30, 0.38, 0.20, 0.26]
+      [-2.64, 1.62, 0.24, 0.30, 0.14, 0.22],
+      [-2.78, -0.30, 0.30, 0.38, 0.20, 0.26]
     ];
     mossSpots.forEach(function (m) {
       var s = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), mossMat);
@@ -454,7 +459,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       new THREE.PlaneGeometry(0.78, 0.98),
       new THREE.MeshBasicMaterial({ map: hollowTex, transparent: true, depthWrite: false })
     );
-    hollow.position.set(-2.80, 1.50, 0.435);
+    hollow.position.set(-2.64, 1.50, 0.435);
     hollow.renderOrder = 1;
     fauna.add(hollow);
     var rimMat = new THREE.MeshStandardMaterial({
@@ -462,19 +467,19 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     });
     var rimGeo = displace(new THREE.TorusGeometry(0.335, 0.038, 10, 28), 0.018, 7.0);
     var rim = new THREE.Mesh(rimGeo, rimMat);
-    rim.position.set(-2.80, 1.50, 0.47);
+    rim.position.set(-2.64, 1.50, 0.47);
     rim.scale.set(0.88, 1.12, 1.0);
     fauna.add(rim);
     // moss lip over the hollow's top edge
     var lip = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), mossMat);
-    lip.position.set(-2.84, 1.86, 0.44);
+    lip.position.set(-2.68, 1.86, 0.44);
     lip.scale.set(0.30, 0.07, 0.14);
     fauna.add(lip);
 
     loadResident({
       key: "owl",
       glb: "gl/animals/owl-rigged.glb",
-      pos: [-2.80, 1.16, 0.40],
+      pos: [-2.64, 1.16, 0.40],
       rot: [0, -0.12, 0],
       scale: 1.45,
       idle: "Owl_Idle",
@@ -491,10 +496,52 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       gestures: ["Jay_Look", "Jay_Peck"],
       gap: [15, 26]
     });
+    // The woodpecker's dapple (Rosa N1, merge-readiness round):
+    // its first staging clung low on the trunk in the deepest
+    // shadow, where the verified paint read mottled gray-brown
+    // and the wing patch vanished. It now clings higher, where a
+    // break in the canopy reaches the bark: a soft warm fleck
+    // painted on the trunk itself plus a narrow, soft-edged warm
+    // shaft from the canopy side, the same treatment that lets
+    // the jay's blue survive the scene light. The perch itself
+    // sits on open bark below the branch root, so the cling and
+    // the braced tail read whole instead of disappearing behind
+    // the limb. The fleck lands on
+    // the tree first and the bird second, so it reads as dappled
+    // sunlight, not a spotlight; the cone is aimed at the perch
+    // and falls off well before the squirrel, the jay, or the
+    // buck. Contact stays honest: the tail brace and feet still
+    // meet the same bark, in the same cling pitch.
+    var dappleC = document.createElement("canvas");
+    dappleC.width = 128; dappleC.height = 160;
+    var dg = dappleC.getContext("2d");
+    var dgrad = dg.createRadialGradient(64, 80, 6, 64, 80, 78);
+    dgrad.addColorStop(0, "rgba(255,206,128,0.52)");
+    dgrad.addColorStop(0.55, "rgba(255,182,98,0.24)");
+    dgrad.addColorStop(1, "rgba(255,182,98,0)");
+    dg.fillStyle = dgrad;
+    dg.fillRect(0, 0, 128, 160);
+    var dapple = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.05, 1.3),
+      new THREE.MeshBasicMaterial({
+        map: new THREE.CanvasTexture(dappleC),
+        transparent: true, depthWrite: false
+      })
+    );
+    dapple.position.set(-2.54, 0.78, 0.415);
+    dapple.rotation.y = 0.10;
+    dapple.renderOrder = 1;
+    fauna.add(dapple);
+    var shaft = new THREE.SpotLight(0xffd9a3, 2.0, 3.5, 0.42, 0.9, 1.6);
+    shaft.position.set(-2.05, 1.75, 1.35);
+    shaft.target.position.set(-2.52, 0.72, 0.45);
+    fauna.add(shaft);
+    fauna.add(shaft.target);
+
     loadResident({
       key: "woodpecker",
       glb: "gl/animals/woodpecker-rigged.glb",
-      pos: [-2.60, 0.18, 0.44],
+      pos: [-2.52, 0.72, 0.47],
       rot: [-0.62, 0.12, 0],
       scale: 2.6,
       idle: "Woodpecker_Idle",
@@ -510,12 +557,14 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       var cam = buck.camera;
       if (!cam) return;
       var narrow = cam.aspect < 1.1;
-      // 1.28, not the squirrel-only era's 0.92: with four
-      // residents the trunk cluster (owl, woodpecker) sat almost
-      // entirely off-frame at 0.92; 1.28 keeps the squirrel clear
-      // of the buck and brings the trunk birds into the frame
-      fauna.position.set(narrow ? 1.28 : 0, narrow ? -0.34 : 0, 0);
-      fauna.scale.setScalar(narrow ? 0.85 : 1);
+      // 1.38 and 0.82, re-measured on the TW-1152 composition
+      // (Rosa N2): at 1.28 and 0.85 the owl hollow still cropped
+      // at the left edge at 390; together with the trunk
+      // cluster's local shift right, this keeps the hollow whole
+      // in frame while the squirrel stays clear of the buck, who
+      // now stands further right than he did on the old base
+      fauna.position.set(narrow ? 1.38 : 0, narrow ? -0.34 : 0, 0);
+      fauna.scale.setScalar(narrow ? 0.82 : 1);
     }
     layoutFauna();
     window.addEventListener("resize", layoutFauna);

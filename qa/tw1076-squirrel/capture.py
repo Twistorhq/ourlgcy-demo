@@ -146,6 +146,26 @@ try:
             print(f"@@MRECT@@ {fn}", mpage.evaluate(f"() => window.__lgcyBuck.{fn}()"))
         mpage.screenshot(path=f"{OUT}/composed-390.png", timeout=120000)
         print("@@SHOT@@ composed-390.png")
+
+        # native-size mobile crops: the owl hollow framing (Rosa N2)
+        # and the woodpecker light read (Rosa N1) are judged at 390
+        # from these, not from the full-frame still
+        def mcrop(rect_fn, path, pad=26):
+            rect = mpage.evaluate(f"() => window.__lgcyBuck.{rect_fn}()")
+            clip = {
+                "x": max(0, rect["x"] - pad),
+                "y": max(0, rect["y"] - pad),
+                "width": rect["width"] + 2 * pad,
+                "height": rect["height"] + 2 * pad,
+            }
+            mpage.screenshot(path=path, clip=clip, timeout=120000)
+            print("@@SHOT@@", path)
+
+        mcrop("owlRect", f"{ROOT}/qa/tw1076-owl/owl-final-size-390.png")
+        mcrop(
+            "woodpeckerRect",
+            f"{ROOT}/qa/tw1076-woodpecker/woodpecker-final-size-390.png",
+        )
         mctx.close()
         browser.close()
 finally:

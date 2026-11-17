@@ -97,11 +97,22 @@ and rarer than his.
 - Stills in this folder: composed-1152.png (desktop),
   composed-390.png (mobile), squirrel-final-size.png (the animal
   cropped at native pixels, final size, for judging the blend),
-  composed-nibble-1152.png and composed-look-1152.png (posed
-  gestures in the composed page). Capture method: Playwright
+  composed-nibble-1152.png (a posed gesture in the composed
+  page). Capture method: Playwright
   under SwiftShader with the ?gl=force-a QA override and a
   network-level Lenis stub, harness only (capture.py here);
   page code untouched.
+
+## Merge-readiness re-capture (Nov 16)
+
+The composed stills in this folder were re-captured after the
+branch rebased onto main ce5e15b, so they show the fauna on
+the current TW-1152 composition (the buck at the right edge,
+the warm blend rig), not the old base. The round also fixed
+the mobile framing Rosa flagged as N2 and the woodpecker
+light read she flagged as N1; both are documented in
+qa/tw1076-woodpecker/EVIDENCE.md, and the harness now crops
+the owl and the woodpecker at 390 on every run.
 
 ## Reference comparison
 

@@ -76,4 +76,43 @@ page), woodpecker-peck-composed.png (mid-burst in the composed
 page), and the shared composed-1152.png / composed-390.png in
 qa/tw1076-squirrel/.
 
+## Merge-readiness addendum (Rosa N1 and N2, Nov 16)
+
+The branch was rebased onto main ce5e15b (the TW-1152
+composition) and everything below was re-captured there.
+
+N1, the light lift. Rosa's read on the old base: the paint was
+verified correct, but composed low on the trunk in its deepest
+shadow the white body read mottled gray-brown and the wing and
+patch separation was lost (woodpecker-before-lift.png and
+woodpecker-before-lift-390.png, captured on the rebased branch
+before this fix, preserve that read). The fix is staging and
+light, not paint: the bird now clings on open bark below the
+branch root, higher on the trunk, where a soft warm fleck is
+painted on the bark itself and a narrow soft-edged warm shaft
+(SpotLight, penumbra 0.9, aimed at the perch, falling off well
+before the squirrel, the jay, and the buck) stands in for a
+break in the canopy. The fleck lands on the tree first and the
+bird second, so it reads as dappled sunlight under the blend
+law, not as a spotlight; the cling pitch, tail brace, and
+contact with the bark are unchanged. After: in
+woodpecker-final-size.png and woodpecker-final-size-390.png
+the white body reads white, the crimson head reads crimson,
+and the black wing and its white patch separate from the body
+at both widths; woodpecker-peck-composed.png shows the same
+read mid-burst.
+
+N2, mobile framing. On the old base the fauna cluster
+compressed to the left edge at 390 and the owl hollow cropped.
+On the current composition, after a 0.16 local shift of the
+whole trunk cluster (trunk, hollow, owl, woodpecker) and a
+narrow-layout adjustment in gl/fauna.js (shift 1.38, scale
+0.82), the harness rects read: owl x 13.2 at 1152 and x 28.7
+at 390 (both fully in frame; the same crop was x -15.1 and
+x -13.8 before the shift), woodpecker x 59.2 at 1152 and
+x 57.0 at 390. New mobile crops: owl-final-size-390.png in
+qa/tw1076-owl/ and woodpecker-final-size-390.png here; the
+harness (qa/tw1076-squirrel/capture.py) now takes both on
+every run.
+
 Prepared by Twistor Holdings LLC
