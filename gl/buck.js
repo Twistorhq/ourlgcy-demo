@@ -66,6 +66,8 @@ import Lenis from "./vendor/lenis.mjs";
   function teardown(reason) {
     if (state.torn) return;
     state.torn = true;
+    // TW-1076: guest modules (gl/fauna.js) die with the layer.
+    window.dispatchEvent(new CustomEvent("lgcy-buck-teardown"));
     setTier("C", reason);
     if (state.raf) cancelAnimationFrame(state.raf);
     if (state.lenis) {
@@ -414,6 +416,11 @@ import Lenis from "./vendor/lenis.mjs";
       }
       if (mixer) mixer.update(dt);
     }
+    // TW-1076: guest modules tick inside this loop so the whole
+    // forest renders in one pass on one canvas.
+    if (state.tickFns) {
+      for (var ti = 0; ti < state.tickFns.length; ti++) state.tickFns[ti](dt, t);
+    }
     renderer.render(scene3, camera);
     governor(dtMs);
   }
@@ -483,6 +490,14 @@ import Lenis from "./vendor/lenis.mjs";
           });
         }
         requestAnimationFrame(mainLoop);
+
+        // TW-1076: publish the live scene for guest modules
+        // (gl/fauna.js builds the woodland fauna into this scene
+        // only after the tier is earned; see the blend law note in
+        // that module).
+        state.scene = scene3;
+        state.camera = camera;
+        window.dispatchEvent(new CustomEvent("lgcy-buck-ready"));
 
         // Arrival at the threshold: the buck notices you, once,
         // with a look to the side. Head only, per the law.

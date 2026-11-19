@@ -1,0 +1,66 @@
+{
+ "meshes": {
+  "Owl": {
+   "tris": 128949,
+   "verts": 112298
+  },
+  "Icosphere": {
+   "tris": 80,
+   "verts": 42
+  }
+ },
+ "armatures": [
+  {
+   "name": "OwlRig",
+   "bones": [
+    "root",
+    "body",
+    "chest",
+    "neck",
+    "head",
+    "wing_L",
+    "wing_R",
+    "tail"
+   ]
+  }
+ ],
+ "actions": [
+  {
+   "name": "Owl_Idle",
+   "frames": [
+    0.0,
+    336.0
+   ]
+  },
+  {
+   "name": "Owl_Scan",
+   "frames": [
+    0.0,
+    180.0
+   ]
+  },
+  {
+   "name": "Owl_Turn",
+   "frames": [
+    0.0,
+    156.0
+   ]
+  }
+ ],
+ "images": {
+  "Image_0": [
+   2048,
+   2048
+  ],
+  "Image_1": [
+   1024,
+   1024
+  ],
+  "Image_2": [
+   1024,
+   1024
+  ]
+ },
+ "total_tris": 129029,
+ "bytes": 8634476
+}
