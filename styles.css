@@ -965,3 +965,105 @@ body.home .demo-banner { position: relative; z-index: 2; }
    carries every cited fact for its people, which runs long. */
 .src.lead { background: #f2e3c2; color: #6b4d12; }
 .cp-list { max-height: min(52vh, 420px); overflow-y: auto; }
+/* ============ Community tab: the ink village (TW-1077) ============ */
+.village-figure { margin: 26px 0 10px; }
+.village-stage {
+  border: 2px solid var(--pine);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--pine-deep);
+  line-height: 0;
+}
+.village-svg { width: 100%; height: auto; display: block; }
+.village-svg .v-phase-rect { transition: opacity 0.9s ease; }
+.village-svg .v-clearing { fill: #37543f; opacity: 0.97; }
+.village-svg .v-path-main,
+.village-svg .v-path-spur {
+  fill: none; stroke: #9a7d52; stroke-linecap: round;
+}
+.village-svg .v-path-main { stroke-width: 26; opacity: 0.5; }
+.village-svg .v-path-spur { stroke-width: 11; opacity: 0.42; }
+.village-svg .v-buildings path,
+.village-svg .v-buildings rect,
+.village-svg .v-buildings polygon {
+  stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round;
+}
+.village-svg .v-body-w { fill: #f7efdb; }
+.village-svg .v-body-brick { fill: #9a5a48; }
+.village-svg .v-logs { fill: #e6d7b8; }
+.village-svg .v-roof { fill: #6b4a2c; }
+.village-svg .v-chimney { fill: #8d8578; }
+.village-svg .v-door { fill: #4a3826; }
+.village-svg .v-win { fill: #f3ead2; }
+.village-svg .v-win.lit { fill: #f0c94e; }
+.village-svg .v-loglines,
+.village-svg .v-bricklines {
+  fill: none; stroke-width: 1.6; opacity: 0.5;
+}
+.village-svg .v-porch,
+.village-svg .v-cross {
+  fill: none; stroke-width: 2.6; stroke-linecap: round;
+}
+.village-svg .v-awning { fill: var(--rust); }
+.village-svg .v-sign { fill: var(--paper); }
+.village-svg .v-sign-text {
+  fill: var(--ink); stroke: none;
+  font-size: 12.5px; font-weight: 700; letter-spacing: 0.22em;
+}
+.village-svg .v-props path,
+.village-svg .v-props rect,
+.village-svg .v-props polygon {
+  fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+}
+.village-svg .v-props .v-awning { fill: var(--rust); }
+.village-svg .v-props .v-sprouts { stroke: #8fae7d; stroke-width: 2.2; }
+.village-svg .v-sun circle { fill: #f3d98b; stroke: var(--ink); stroke-width: 2.4; }
+.village-svg .v-sun path { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; }
+.village-svg .v-moon { fill: #f7efdb; stroke: var(--ink); stroke-width: 2.4; display: none; }
+.village-svg[data-phase="night"] .v-sun { display: none; }
+.village-svg[data-phase="night"] .v-moon { display: block; }
+.village-svg[data-phase="dusk"] .v-sun { opacity: 0.45; }
+.village-svg .v-waypoint path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+.village-svg .v-waypoint rect { fill: var(--pine); stroke: var(--ink); stroke-width: 2.2; }
+.village-svg .v-waypoint text {
+  fill: #f7efdb; stroke: none;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+}
+.village-svg .v-waypoint text.v-waypoint-sub {
+  font-size: 10.5px; font-weight: 400; letter-spacing: 0.04em; fill: #e8dfc8;
+}
+.village-svg .walker { cursor: pointer; }
+.village-svg .walker:focus { outline: none; }
+.village-svg .walker:focus-visible .wk-ring { opacity: 1; }
+.village-svg .walker:hover .wk-ring { opacity: 0.55; }
+.village-caption {
+  display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: space-between;
+  margin-top: 9px; color: var(--ink-soft); font-size: 0.94rem; line-height: 1.45;
+}
+.village-noscript { color: var(--ink-soft); margin: 10px 0 0; }
+.village-roster { margin: 34px 0 8px; }
+.village-roster h2 { margin-bottom: 8px; }
+.village-roster p { max-width: 68ch; color: var(--ink-soft); }
+.roster-list {
+  list-style: none; margin: 18px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(218px, 1fr)); gap: 10px;
+}
+.roster-btn {
+  display: block; width: 100%; box-sizing: border-box;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; min-height: 58px;
+  color: var(--ink); text-decoration: none;
+}
+.roster-btn:hover, .roster-btn:focus-visible { border-color: var(--gold-deep); }
+.roster-name { display: block; font-weight: 700; font-size: 1.02rem; }
+.roster-meta { display: block; color: var(--ink-soft); font-size: 0.9rem; margin-top: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .village-svg .v-phase-rect { transition: none; }
+}
+@media (max-width: 560px) {
+  .village-caption { font-size: 0.88rem; }
+  .roster-list { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .roster-list { grid-template-columns: 1fr; }
+}
