@@ -959,3 +959,9 @@ body.home .demo-banner { position: relative; z-index: 2; }
 @media (prefers-reduced-motion: reduce) {
   #buck-break .gl-canvas { transition: none; }
 }
+
+/* TW-1155: Lead status chip (amber) beside the record and family
+   chips, and a bounded branch panel list: a phase 1 line panel
+   carries every cited fact for its people, which runs long. */
+.src.lead { background: #f2e3c2; color: #6b4d12; }
+.cp-list { max-height: min(52vh, 420px); overflow-y: auto; }
