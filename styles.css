@@ -776,6 +776,39 @@ body.js .gen.in .pcard { opacity: 1; transform: none; }
 #gen-3 .fan { margin-top: 140px; }
 #gen-4 .fan { margin-top: 126px; }
 
+/* TW-1209 habitats: each animal keeps a small feathered stage in
+   its own section (gl/scatter.js), laid over the spot where its
+   photograph sits. The canvas melts into the oak with the same
+   radial feather as the photographs; the photograph hands over
+   (fades out, button stays as the interaction layer) only once
+   the habitat has rendered its first frame. Without a habitat,
+   nothing here applies and the photographs stand as before. */
+.habitat {
+  position: absolute; z-index: 2; pointer-events: none;
+}
+.habitat-canvas {
+  display: block; width: 100%; height: 100%;
+  opacity: 0; transition: opacity 0.9s ease;
+  -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 56%, transparent 79%);
+  mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 56%, transparent 79%);
+}
+.habitat.on .habitat-canvas { opacity: 1; }
+.critter img { transition: opacity 0.9s ease; }
+.gen.habitat-live .critter img { opacity: 0; }
+.habitat-jay { width: 300px; height: 250px; top: 0; right: 1.5%; }
+.habitat-woodpecker { width: 290px; height: 260px; top: 0; right: 0.5%; }
+.habitat-owl { width: 300px; height: 270px; top: 4px; left: 0.5%; }
+.habitat-squirrel { width: 310px; height: 250px; top: 2px; right: 0.5%; }
+@media (max-width: 720px) {
+  .habitat-jay { width: 205px; height: 175px; top: 27%; right: 0; }
+  .habitat-woodpecker { width: 195px; height: 180px; top: 0; right: 0; }
+  .habitat-owl { width: 200px; height: 185px; top: 6px; left: 0; }
+  .habitat-squirrel { width: 210px; height: 175px; top: 4px; right: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .habitat-canvas, .critter img { transition: none; }
+}
+
 /* Animal performances (transforms on the photograph; no glow) */
 .critter-owl.hooting img { animation: owl-turn 1.6s ease-in-out; transform-origin: 50% 88%; }
 @keyframes owl-turn {
@@ -948,8 +981,16 @@ body.home .demo-banner { position: relative; z-index: 2; }
 }
 .buck-caption::after { content: ""; flex: 1; height: 1px; background: rgba(255, 250, 240, 0.35); }
 #buck-break .gl-canvas {
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 74%, transparent 98%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 74%, transparent 98%);
+  /* TW-1209 fix round: full opacity now holds to 84% (was 74%).
+     The fade used to start at the rock's crest line, so the
+     stone's body rendered at 70% opacity and falling down its
+     whole face and read as a translucent sheet however it was
+     textured (the core of Rosa's gate finding). The founder's
+     blend direction stands: the rock is solid and realistic
+     under the hooves first, and its base still dissolves into
+     the section foot, transparent by 100%. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 84%, transparent 100%);
 }
 #buck-break.gl-on .gl-canvas { opacity: 1; }
 @media (max-width: 720px) {

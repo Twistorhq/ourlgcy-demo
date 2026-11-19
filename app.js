@@ -1218,18 +1218,21 @@
     jay: performJay
   };
   document.querySelectorAll("[data-critter]").forEach(function (el) {
-    var fn = PERFORMERS[el.getAttribute("data-critter")];
+    var key = el.getAttribute("data-critter");
+    var fn = PERFORMERS[key];
     if (!fn) return;
-    el.addEventListener("click", function () {
+    // TW-1209: when the animal's 3D habitat is live in this
+    // section, every performance trigger is the animal's own
+    // signature gesture; the photograph's CSS performance is the
+    // fallback for devices without a habitat.
+    function perform() {
+      if (window.__lgcyScatter && window.__lgcyScatter.perform(key)) return;
       fn(el);
-    });
-    el.addEventListener("focus", function () {
-      fn(el);
-    });
+    }
+    el.addEventListener("click", perform);
+    el.addEventListener("focus", perform);
     if (HOVERABLE) {
-      el.addEventListener("mouseenter", function () {
-        fn(el);
-      });
+      el.addEventListener("mouseenter", perform);
     }
   });
   document.querySelectorAll("[data-acorns]").forEach(function (el) {
