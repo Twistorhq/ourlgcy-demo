@@ -33,6 +33,7 @@
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import Lenis from "./vendor/lenis.mjs";
 
 (function () {
@@ -66,7 +67,10 @@ import Lenis from "./vendor/lenis.mjs";
   function teardown(reason) {
     if (state.torn) return;
     state.torn = true;
-    // TW-1076: guest modules (gl/fauna.js) die with the layer.
+    // Guest modules die with the layer. (TW-1076's fauna guests
+    // retired with TW-1209; the scattered habitats in
+    // gl/scatter.js are independent of this layer and do not
+    // listen, but the contract stays for any future guest.)
     window.dispatchEvent(new CustomEvent("lgcy-buck-teardown"));
     setTier("C", reason);
     if (state.raf) cancelAnimationFrame(state.raf);
@@ -130,8 +134,63 @@ import Lenis from "./vendor/lenis.mjs";
     return 0.219 - (0.175 - z) * 0.2664;
   }
 
+  // TW-1209 (founder, 2026-11-19): the rock goes realistic. The
+  // Phase D rock was a flat-shaded low-poly form in one flat
+  // color; it read as a prop. The new rock keeps every contact
+  // invariant the rig was fitted against (the stance-plane cap,
+  // the steep camera face, the flattened base) and changes only
+  // the surface: a denser displaced form with smooth normals, a
+  // procedural granite skin (speckle, lichen, faint strata) used
+  // as both map and bump, and a ground apron of the same skin
+  // running out from the base toward the page, alpha-feathered
+  // at its rim, so the stone grades into the section's own
+  // dissolve and from there into the oak photograph behind the
+  // page. No seam where the rock ends.
+  function rockTexture() {
+    var c = document.createElement("canvas");
+    c.width = 512; c.height = 512;
+    var g = c.getContext("2d");
+    g.fillStyle = "#6f6050";
+    g.fillRect(0, 0, 512, 512);
+    // faint strata bands
+    for (var b = 0; b < 9; b++) {
+      var y0 = (b / 9) * 512 + (Math.sin(b * 7.3) * 10);
+      g.fillStyle = b % 2 ? "rgba(52,42,30,0.10)" : "rgba(214,198,168,0.07)";
+      g.fillRect(0, y0, 512, 26 + (b % 3) * 9);
+    }
+    // granite speckle: dark and light grains
+    var tones = ["#5a4c3a", "#7d6c56", "#87765e", "#4c4033", "#97876c", "#665743"];
+    for (var i = 0; i < 15000; i++) {
+      g.fillStyle = tones[i % tones.length];
+      g.globalAlpha = 0.25 + Math.random() * 0.5;
+      g.fillRect(Math.random() * 512, Math.random() * 512,
+        1 + Math.random() * 2.2, 1 + Math.random() * 2.2);
+    }
+    g.globalAlpha = 1;
+    // lichen: pale sage and rust patches, soft-edged, sparse
+    [["#9aa27a", 26], ["#a9703f", 14], ["#8b9578", 18]].forEach(function (p) {
+      for (var j = 0; j < p[1]; j++) {
+        var x = Math.random() * 512, y = Math.random() * 512;
+        var r = 4 + Math.random() * 15;
+        var rg = g.createRadialGradient(x, y, 1, x, y, r);
+        rg.addColorStop(0, p[0] + "cc");
+        rg.addColorStop(1, p[0] + "00");
+        g.fillStyle = rg;
+        g.beginPath();
+        g.arc(x, y, r, 0, 7);
+        g.fill();
+      }
+    });
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
   function buildRock() {
-    var geo = new THREE.IcosahedronGeometry(1, 3);
+    // mergeVertices first: the polyhedron geometry is
+    // non-indexed, and smooth normals need shared vertices
+    var geo = mergeVertices(new THREE.IcosahedronGeometry(1, 4));
     var pos = geo.attributes.position;
     var v = new THREE.Vector3();
     var i;
@@ -142,7 +201,9 @@ import Lenis from "./vendor/lenis.mjs";
       v.z *= 2.05;
       var n = Math.sin(v.x * 5.1) * Math.cos(v.z * 3.7) * 0.045 +
               Math.sin(v.z * 7.3 + v.x * 2.9) * 0.030 +
-              Math.sin(v.y * 9.1 + v.z * 4.3) * 0.020;
+              Math.sin(v.y * 9.1 + v.z * 4.3) * 0.020 +
+              Math.sin(v.x * 14.7 + v.y * 11.3) * Math.cos(v.z * 12.9) * 0.012 +
+              Math.sin(v.z * 21.7 + v.y * 17.1) * 0.007;
       v.multiplyScalar(1 + n);
       // The camera-facing face drops steeply (the founder's ~45
       // degrees lives in the rock, per Rosa's Phase B note N2; the
@@ -151,7 +212,7 @@ import Lenis from "./vendor/lenis.mjs";
       if (v.y < -0.30) v.y = -0.30 + (v.y + 0.30) * 0.25; // flattened base
       pos.setXYZ(i, v.x, v.y, v.z);
     }
-    geo.translate(0, -0.60, -0.18);
+    geo.translate(0, -0.52, -0.18);
     // Flatten the crest facet onto the stance plane in the contact
     // zone, a hair below the soles, so the hooves own the contact.
     for (i = 0; i < pos.count; i++) {
@@ -162,14 +223,92 @@ import Lenis from "./vendor/lenis.mjs";
       }
     }
     geo.computeVertexNormals();
+    // Height tint in vertex colors: the crest takes the warm
+    // canopy light, the base falls toward forest-floor shade, so
+    // the form reads as sunlit stone even where the texture's own
+    // detail is fine-grained.
+    var colors = new Float32Array(pos.count * 3);
+    for (i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      var t = Math.min(1, Math.max(0, (v.y + 0.85) / 1.15));
+      colors[i * 3] = 0.42 + 0.58 * t;
+      colors[i * 3 + 1] = 0.36 + 0.57 * t;
+      colors[i * 3 + 2] = 0.27 + 0.55 * t;
+    }
+    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    var skin = rockTexture();
     var mat = new THREE.MeshStandardMaterial({
-      color: 0x6b5c47,
-      roughness: 0.96,
-      metalness: 0.0,
-      flatShading: true
+      map: skin,
+      bumpMap: skin,
+      bumpScale: 1.3,
+      vertexColors: true,
+      color: 0xd8c8ac,
+      roughness: 0.97,
+      metalness: 0.0
     });
     var rock = new THREE.Mesh(geo, mat);
     return rock;
+  }
+
+  // The ground shade: the blend vehicle under the rock. Four
+  // captures taught the lesson (qa/tw1209): a LIT stone surface
+  // spread toward the camera reads as a sheet against the
+  // photograph no matter how it is displaced, dappled, or
+  // tinted, because a grazing camera foreshortens it into a
+  // band with one clean lit edge. Shade does not fight the
+  // photograph: a warm earth-dark gradient, dappled at its rim,
+  // reads as the ground shadow of the outcrop on any photo
+  // content, and it carries the eye from the real rock under
+  // the hooves down to the foot of the section, where the
+  // canvas mask's own dissolve finishes the blend into the
+  // page. Same construction as the contact shadow, broader and
+  // softer, sitting just under it.
+  function buildApron() {
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = 512;
+    var ctx = cv.getContext("2d");
+    var g = ctx.createRadialGradient(256, 256, 20, 256, 256, 256);
+    g.addColorStop(0, "rgba(43,31,17,0.60)");
+    g.addColorStop(0.42, "rgba(43,31,17,0.47)");
+    g.addColorStop(0.72, "rgba(43,31,17,0.20)");
+    g.addColorStop(1, "rgba(43,31,17,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 512, 512);
+    // dapple the rim band both ways, the way light through
+    // leaves breaks an edge: some spots hold the shade longer,
+    // some let the photograph through early, so the falloff is
+    // a scatter and never a clean geometric line
+    for (var i = 0; i < 700; i++) {
+      var ang = Math.random() * Math.PI * 2;
+      var rad = (0.52 + Math.random() * 0.48) * 256;
+      var bx = 256 + Math.cos(ang) * rad;
+      var by = 256 + Math.sin(ang) * rad;
+      if (bx < 0 || bx > 512 || by < 0 || by > 512) continue;
+      var br = 6 + Math.random() * 26;
+      var bg = ctx.createRadialGradient(bx, by, 0.5, bx, by, br);
+      if (Math.random() < 0.5) {
+        bg.addColorStop(0, "rgba(43,31,17," + (0.05 + Math.random() * 0.13) + ")");
+      } else {
+        bg.addColorStop(0, "rgba(255,244,214," + (0.04 + Math.random() * 0.09) + ")");
+      }
+      bg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.arc(bx, by, br, 0, 7);
+      ctx.fill();
+    }
+    var tex = new THREE.CanvasTexture(cv);
+    var mat = new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, depthWrite: false
+    });
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 5.4), mat);
+    m.rotation.x = -Math.PI / 2 + Math.atan(0.2664); // lie on the slope
+    m.position.set(0, stancePlaneY(-0.24) - 0.055, 0.45);
+    // a tongue, not a disc: narrower across the frame, longer
+    // down it, running from the rock to the foot of the page
+    m.scale.set(0.88, 1.28, 1);
+    m.renderOrder = 1;
+    return m;
   }
 
   function buildShadow() {
@@ -233,7 +372,10 @@ import Lenis from "./vendor/lenis.mjs";
 
     buckGroup = new THREE.Group();
     buckGroup.add(buildRock());
-    buckGroup.add(buildShadow());
+    buckGroup.add(buildApron());
+    var shadow = buildShadow();
+    shadow.renderOrder = 2;
+    buckGroup.add(shadow);
     scene3.add(buckGroup);
   }
 
@@ -416,8 +558,8 @@ import Lenis from "./vendor/lenis.mjs";
       }
       if (mixer) mixer.update(dt);
     }
-    // TW-1076: guest modules tick inside this loop so the whole
-    // forest renders in one pass on one canvas.
+    // Guest-module tick hook (the TW-1076 fauna guests retired
+    // with TW-1209; no guests register today).
     if (state.tickFns) {
       for (var ti = 0; ti < state.tickFns.length; ti++) state.tickFns[ti](dt, t);
     }
@@ -491,10 +633,10 @@ import Lenis from "./vendor/lenis.mjs";
         }
         requestAnimationFrame(mainLoop);
 
-        // TW-1076: publish the live scene for guest modules
-        // (gl/fauna.js builds the woodland fauna into this scene
-        // only after the tier is earned; see the blend law note in
-        // that module).
+        // Publish the live scene for guest modules. (The TW-1076
+        // fauna guests that built into this scene retired with
+        // TW-1209; the fauna now keep their own habitats in
+        // gl/scatter.js.)
         state.scene = scene3;
         state.camera = camera;
         window.dispatchEvent(new CustomEvent("lgcy-buck-ready"));
