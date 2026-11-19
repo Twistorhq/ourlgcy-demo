@@ -62,9 +62,11 @@ the final files at gate time: **all 5 GLBs, RESULT: ALL PASS.**
 
 ## Captures (qa/tw1209/shots/, harness qa/tw1209/capture.mjs)
 
-34 frames at 1440 and 390: per habitat a still, a section
+40 frames at 1440 and 390: per habitat a still, a section
 context shot, and two gesture frames; the buck at both widths;
-the page top at both widths. Zero habitat failures, zero
+the page top at both widths; plus four probe frames (owl turn
+pair, squirrel clip pair). Count corrected in the fix round:
+this file originally said 34; the folder held 40. Zero habitat failures, zero
 not-live fallbacks in the final run. Animal bounding boxes
 (canvas-relative px, 1440): jay 111x79, woodpecker 95x109,
 owl 118x203, squirrel 114x94.
@@ -145,3 +147,145 @@ and mid-nibble. Owl turn probe frames are `owl-turn-a/b-1440.png`.
   lineage wiring replaces the cards underneath them at merge
   time and does not touch the habitat anchors (gen-0/2/3/4 and
   the four `data-critter` buttons verified present in 7281fa4).
+
+## Fix round (Rosa's REQUEST CHANGES, 2026-11-19)
+
+Rosa's gate returned REQUEST CHANGES: one blocker (the rock),
+one major (the woodpecker floats), two nits (frame count, owl
+halo). Everything she verified PASS (scatter architecture,
+fail-closed behavior, compression, motion measurement,
+agent-eyes, the manual Impeccable audit) is untouched except
+where a fix required it. The full capture set was re-shot on
+the final code; the four probe frames (owl turn, squirrel
+clip) predate this round and are unchanged behavior.
+
+### Finding 1 — the rock (BLOCKER)
+
+Her words: hooves on a broad flat plane with straight
+geometric edges, reading translucent; granite skin illegible
+at render scale (her measure: hf-gradient 3.34 rock vs 16.69
+photograph). Three separate causes were found, each fixed:
+
+1. **The cap rectangle.** The crest was clamped to the stance
+   plane over |x| < 0.52, z −0.80..0.34, far larger than the
+   stance, and the render showed the rectangle. The hard cap
+   now covers only the true contact patch (|x| < 0.36,
+   z −0.74..0.26; front soles z 0.175, hind sole z −0.647 — a
+   rig invariant, exact as before). Outside it a noise
+   envelope takes over and the shoulders fall away within
+   ~0.4 units (an earlier, wider feather still read as a
+   table; the crest now reads as a ridge). Geometry detail
+   4 → 5 halved facet scale (detail-4 crest facets ran
+   40–70 px and read as planes however dressed). The
+   camera-cut face (z > 0.45) is rumpled at two scales, so
+   its straight lit edge is gone.
+2. **The skin never reached the surface.** (a) The
+   icosahedron's spherical UVs pinch to a sliver at the crest
+   pole: the crest sampled a thin strip of the canvas however
+   detailed it was. UVs are now planar, projected per-vertex
+   by dominant normal axis at 0.55 UV per world unit; granite
+   noise hides the projection seams as cracks. (b) The canvas
+   was fine grain in a narrow value range. It is now 1024²
+   with detail at every scale: tonal mottling, deep shadow
+   pooling, sun-fleck dapple at the photograph's own scale,
+   300 mid-scale aggregate patches (the 10–40 px band that
+   survives render minification; fine grain alone averages
+   to tone), darker crack walks, freckled lichen. Bump scale
+   1.3 → 3.2; anisotropy up to 8 (the camera meets the stone
+   at a grazing angle, where minification without it smears
+   the skin). Per-vertex tint now carries its own mottling,
+   so the crest holds value changes even where the texture
+   foreshortens.
+3. **The translucency was structural.** The buck canvas's
+   CSS dissolve mask held full opacity only to 74% of canvas
+   height; the rock's crest sits at ~74% of the section, so
+   the stone's whole face rendered at ~70% opacity and
+   falling — a translucent sheet however it was textured.
+   The mask now holds full opacity to 84% and reaches
+   transparent at 100%: solid under the hooves, base still
+   dissolving into the section foot, which is the founder's
+   blend direction ("a realistic rock under the deer's feet
+   blending from the rock to the end of the page into the
+   background").
+
+Element bisect (same frame, one element removed at a time):
+the pale sheet at the crest is the rock mesh itself — absent
+with the rock removed, present without apron and without
+contact shadow — i.e. the cap + fade above, not a stray
+overlay. The foot-of-section dappled-shade blend Rosa passed
+is unchanged (apron and shadow untouched).
+
+Measurement, stated honestly (grayscale, Gaussian-blur
+high-pass, mean absolute gradient; identical crops
+before/after): the gate-replication crop over the rock body
+reads 4.59 before, 4.25 after; the photograph crop is
+unchanged at ~15.9. The composed-frame number does not rise
+because the old one was inflated by the defect itself:
+photograph detail showing through the translucent surface
+contributed gradient the opaque stone now covers with its
+own. The photograph's ~16 is sky-against-bark contrast,
+which shaded granite does not reach; the fix is therefore
+judged on the frames (buck-1440/390, before/after) and on
+the rock-alone diagnostic (magenta backdrop, deer/apron/
+shadow removed), which confirms the craggy silhouette and
+the skinned slope are the mesh's own.
+
+Diagnosis note, so nobody re-chases it: two early test
+captures this round were silently served by a stale
+http.server left on port 8209 from the original run (it
+served this worktree, shadowing the scratch copy); the
+toggle tests run against it were void and were re-run after
+the port was cleared and verified free.
+
+### Finding 2 — the woodpecker (MAJOR)
+
+The stance was solved numerically against the snag's own
+displaced geometry instead of by eye. Landmarks measured out
+of the GLB: feet at model (±0.017, 0, +0.045), breast front
+(0, 0.055, +0.058), beak (0, 0.085, +0.070), tail tip
+(0, 0.010, −0.070); the snag's displaced face sampled height
+by height (it bulges: face z ≈ 0.14 at feet height, ≈ 0.21
+at breast height). New stance pos [0.061, −0.169, 0.238],
+rot [0.65, 3.00, 0.20], scale 2.9. Resulting gaps to the
+face: feet −4/+4/+1 mm across the three foot landmarks
+(toes on the proudest wood), breast −4 mm (against the
+face), beak +6 mm pointing at the bark (the peck now jabs
+the snag, not the air), head up and out from the wood, tail
+tip 0.18 below the feet. The contact shadow the other
+perches carry now stands on the snag's face behind the
+bird, laid along the snag's lean, centered on the
+feet-to-breast contact patch. One honest limit: the rig is
+a perching songbird pose, spine-to-tail ≈ 84° where a true
+cling wants ≈ 160°, so the tail cannot also press the wood
+while the head is up; it hangs below the feet toward the
+viewer instead. Rosa's stated fix (feet + breast + contact
+shadow) is met; the re-captured habitat and gesture frames
+at both widths show the bird vertical on the snag.
+
+### Nits
+
+3. Frame count corrected above: 40 (this file said 34).
+4. Owl hollow halo: the hollow gradient's outer band was
+   #33200d from 0.82 out and read as a light tan oval at
+   close framing; the band is now #241505 from 0.90 with the
+   fade starting later, and in the re-captured habitat-owl
+   frames the ring shrinks into the bark's own shadow.
+
+### Gates re-run on the final code
+
+- GLB verifier (sources in the TW-1076 worktree):
+  buck, jay, owl, squirrel, woodpecker — RESULT: ALL PASS,
+  ×5 (files untouched this round; re-run for the record).
+- agent-eyes --strict, plan = home + buck frames + habitat
+  frames at 1440 and 390: exit 0. "no page errors, no
+  console errors, no server errors, no horizontal scroll,
+  actions ok"; every motion check "no shrink, snap, flicker,
+  disappearance or detour". One advisory at 390: the tool
+  noted a 2104 ms browser freeze but attributed it to the
+  machine ("frames were already 500 ms apart before the
+  action: the machine is busy") — SwiftShader on this shared
+  host, not a page defect.
+- Captures: full set re-shot, zero habitat failures, zero
+  not-live fallbacks. Animal boxes (canvas-relative px,
+  1440): jay 112×79, woodpecker 76×128 (taller: the cling
+  stance), owl 118×202, squirrel 113×92.

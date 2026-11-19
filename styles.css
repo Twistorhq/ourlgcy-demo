@@ -981,8 +981,16 @@ body.home .demo-banner { position: relative; z-index: 2; }
 }
 .buck-caption::after { content: ""; flex: 1; height: 1px; background: rgba(255, 250, 240, 0.35); }
 #buck-break .gl-canvas {
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 74%, transparent 98%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 74%, transparent 98%);
+  /* TW-1209 fix round: full opacity now holds to 84% (was 74%).
+     The fade used to start at the rock's crest line, so the
+     stone's body rendered at 70% opacity and falling down its
+     whole face and read as a translucent sheet however it was
+     textured (the core of Rosa's gate finding). The founder's
+     blend direction stands: the rock is solid and realistic
+     under the hooves first, and its base still dissolves into
+     the section foot, transparent by 100%. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 17%, #000 84%, transparent 100%);
 }
 #buck-break.gl-on .gl-canvas { opacity: 1; }
 @media (max-width: 720px) {

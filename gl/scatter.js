@@ -302,9 +302,13 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     var hg = hollowC.getContext("2d");
     var hgrad = hg.createRadialGradient(64, 84, 6, 64, 80, 78);
     hgrad.addColorStop(0, "#060302");
-    hgrad.addColorStop(0.55, "#0d0703");
-    hgrad.addColorStop(0.82, "#33200d");
-    hgrad.addColorStop(1, "rgba(51,32,13,0)");
+    hgrad.addColorStop(0.62, "#0d0703");
+    // fix round (Rosa nit 4): the outer band was #33200d from
+    // 0.82 out, which read as a light tan oval halo at close
+    // framing; the band is darker now and the fade starts
+    // later, so the ring shrinks into the bark's own shadow
+    hgrad.addColorStop(0.90, "#241505");
+    hgrad.addColorStop(1, "rgba(36,21,5,0)");
     hg.fillStyle = hgrad;
     hg.fillRect(0, 0, 128, 160);
     var hollow = new THREE.Mesh(
@@ -401,9 +405,32 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     shaft.target.position.set(0.12, -0.05, 0.30);
     h.group.add(shaft);
     h.group.add(shaft.target);
-    // profile, feet planted on the snag's face: the close
-    // framing exposes any gap the composed scene hid
-    return { pos: [0.12, -0.05, 0.28], rot: [-0.50, 0.70, 0], scale: 2.9 };
+    // The stance, solved against the snag's own displaced
+    // geometry (fix round, Rosa's TW-1209 gate: the first
+    // stance, pos [0.12, -0.05, 0.28] rot [-0.50, 0.70, 0],
+    // hovered beside the snag with the feet dangling clear of
+    // the wood). The rig's landmarks were measured out of the
+    // GLB (feet at model z +0.045, y 0; breast at z +0.058;
+    // tail tip at z -0.070) and the snag's displaced face was
+    // sampled height by height; the stance below puts the
+    // feet on the face (toes a few mm into the proudest wood,
+    // the grip read), the breast against it, the head up and
+    // out, the beak a peck's distance from the bark, the tail
+    // dropped below the feet. The yaw turns the breast to the
+    // wood, so the peck jabs the snag instead of the air. The
+    // contact shadow the other perches carry stands on the
+    // face behind the bird, laid along the snag's lean.
+    var contact = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.52, 0.60),
+      new THREE.MeshBasicMaterial({
+        map: h.shadowTex, transparent: true, depthWrite: false
+      })
+    );
+    contact.position.set(0.098, -0.018, 0.175);
+    contact.rotation.set(0.05, 0, 0.17);
+    contact.renderOrder = 1;
+    h.group.add(contact);
+    return { pos: [0.061, -0.169, 0.238], rot: [0.65, 3.00, 0.20], scale: 2.9 };
   }
 
   function perchJay(h) {

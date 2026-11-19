@@ -146,43 +146,167 @@ import Lenis from "./vendor/lenis.mjs";
   // at its rim, so the stone grades into the section's own
   // dissolve and from there into the oak photograph behind the
   // page. No seam where the rock ends.
+  // Deterministic multi-scale noise for the rock's broken
+  // surfaces (the crest envelope and the cut-face rumple below).
+  // Sin products, in the house style of the displacement in
+  // buildRock; range roughly [-1, 1]; no Math.random, so the
+  // captures reproduce frame to frame.
+  function rockNoise(x, z) {
+    return Math.sin(x * 2.3 + z * 1.7) * 0.45 +
+           Math.sin(x * 4.9 - z * 3.8 + 1.7) * 0.30 +
+           Math.sin(x * 9.7 + z * 8.3 + 4.1) * 0.17 +
+           Math.sin(x * 19.3 - z * 15.1 + 2.3) * 0.08;
+  }
+
   function rockTexture() {
     var c = document.createElement("canvas");
-    c.width = 512; c.height = 512;
+    c.width = 1024; c.height = 1024;
     var g = c.getContext("2d");
-    g.fillStyle = "#6f6050";
-    g.fillRect(0, 0, 512, 512);
+    g.fillStyle = "#6a5947";
+    g.fillRect(0, 0, 1024, 1024);
+    var i, j;
+    // TW-1209 fix round (Rosa's gate measure): the first skin
+    // was fine grain only, and at render scale its high-
+    // frequency gradient measured 3.34 against the photo-
+    // graph's 16.69, so the stone read flat where the light
+    // was even. The skin now carries detail at every scale,
+    // strongest at the mid scales the render actually
+    // resolves: tonal mottling, cracks, clustered speckle,
+    // then the fine grain, at higher contrast throughout.
+    // large tonal mottling
+    for (i = 0; i < 30; i++) {
+      var bx = Math.random() * 1024, by = Math.random() * 1024;
+      var br = 60 + Math.random() * 150;
+      var bg = g.createRadialGradient(bx, by, 2, bx, by, br);
+      bg.addColorStop(0, Math.random() < 0.55
+        ? "rgba(38,29,19,0.20)" : "rgba(219,203,172,0.15)");
+      bg.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = bg;
+      g.beginPath();
+      g.arc(bx, by, br, 0, 7);
+      g.fill();
+    }
+    // value range, the part the first skin lacked: the
+    // photograph's gradient is sky-bright against bark-dark,
+    // and a stone in tree shade only competes if its own
+    // range runs deep shadow to sun fleck. Dark pooling in
+    // the lows, then dappled sun flecks at the same scale
+    // the canopy throws them on the photo itself.
+    for (i = 0; i < 22; i++) {
+      var dx = Math.random() * 1024, dy = Math.random() * 1024;
+      var dr = 36 + Math.random() * 96;
+      var dg = g.createRadialGradient(dx, dy, 2, dx, dy, dr);
+      dg.addColorStop(0, "rgba(14,9,4," + (0.22 + Math.random() * 0.18) + ")");
+      dg.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = dg;
+      g.beginPath();
+      g.arc(dx, dy, dr, 0, 7);
+      g.fill();
+    }
+    for (i = 0; i < 110; i++) {
+      var sx = Math.random() * 1024, sy = Math.random() * 1024;
+      var sr = 7 + Math.random() * 34;
+      var sg = g.createRadialGradient(sx, sy, 1, sx, sy, sr);
+      sg.addColorStop(0, "rgba(238,226,196," + (0.16 + Math.random() * 0.26) + ")");
+      sg.addColorStop(1, "rgba(238,226,196,0)");
+      g.fillStyle = sg;
+      g.beginPath();
+      g.arc(sx, sy, sr, 0, 7);
+      g.fill();
+    }
     // faint strata bands
     for (var b = 0; b < 9; b++) {
-      var y0 = (b / 9) * 512 + (Math.sin(b * 7.3) * 10);
+      var y0 = (b / 9) * 1024 + (Math.sin(b * 7.3) * 20);
       g.fillStyle = b % 2 ? "rgba(52,42,30,0.10)" : "rgba(214,198,168,0.07)";
-      g.fillRect(0, y0, 512, 26 + (b % 3) * 9);
+      g.fillRect(0, y0, 1024, 52 + (b % 3) * 18);
     }
-    // granite speckle: dark and light grains
-    var tones = ["#5a4c3a", "#7d6c56", "#87765e", "#4c4033", "#97876c", "#665743"];
-    for (var i = 0; i < 15000; i++) {
+    // cracks: short dark walks with jitter, the strongest
+    // mid-scale signal granite carries
+    for (i = 0; i < 52; i++) {
+      var cx = Math.random() * 1024, cy = Math.random() * 1024;
+      var ang = Math.random() * Math.PI * 2;
+      var segs = 3 + (Math.random() * 5 | 0);
+      g.strokeStyle = "rgba(16,10,5," + (0.42 + Math.random() * 0.30) + ")";
+      g.lineWidth = 2 + Math.random() * 2.4;
+      g.beginPath();
+      g.moveTo(cx, cy);
+      for (j = 0; j < segs; j++) {
+        ang += (Math.random() - 0.5) * 0.9;
+        var len = 14 + Math.random() * 30;
+        cx += Math.cos(ang) * len;
+        cy += Math.sin(ang) * len;
+        g.lineTo(cx, cy);
+      }
+      g.stroke();
+    }
+    var tones = ["#5a4c3a", "#7d6c56", "#87765e", "#4c4033",
+                 "#97876c", "#665743", "#3e3325", "#a08e6f"];
+    // aggregate patches: irregular mid-scale polygons in
+    // contrasting tones, the scale band (10-40 px on the
+    // canvas) that survives render minification and carries
+    // the measured gradient; fine grain alone averages to
+    // tone at render scale, which is why the first skin's
+    // detail never reached the frame
+    for (i = 0; i < 300; i++) {
+      var px = Math.random() * 1024, py = Math.random() * 1024;
+      var pr = 6 + Math.random() * 18;
+      var pts = 5 + (Math.random() * 3 | 0);
       g.fillStyle = tones[i % tones.length];
-      g.globalAlpha = 0.25 + Math.random() * 0.5;
-      g.fillRect(Math.random() * 512, Math.random() * 512,
-        1 + Math.random() * 2.2, 1 + Math.random() * 2.2);
+      g.globalAlpha = 0.25 + Math.random() * 0.35;
+      g.beginPath();
+      for (j = 0; j < pts; j++) {
+        var pa = (j / pts) * Math.PI * 2;
+        var prad = pr * (0.6 + Math.random() * 0.6);
+        var vx = px + Math.cos(pa) * prad, vy = py + Math.sin(pa) * prad;
+        if (j === 0) g.moveTo(vx, vy); else g.lineTo(vx, vy);
+      }
+      g.closePath();
+      g.fill();
     }
     g.globalAlpha = 1;
-    // lichen: pale sage and rust patches, soft-edged, sparse
-    [["#9aa27a", 26], ["#a9703f", 14], ["#8b9578", 18]].forEach(function (p) {
+    // mid speckle: clustered grains
+    for (i = 0; i < 2800; i++) {
+      g.fillStyle = tones[i % tones.length];
+      g.globalAlpha = 0.30 + Math.random() * 0.45;
+      g.beginPath();
+      g.arc(Math.random() * 1024, Math.random() * 1024,
+        1.5 + Math.random() * 2.6, 0, 7);
+      g.fill();
+    }
+    // fine granite grain, high contrast
+    for (i = 0; i < 30000; i++) {
+      g.fillStyle = tones[i % tones.length];
+      g.globalAlpha = 0.35 + Math.random() * 0.5;
+      g.fillRect(Math.random() * 1024, Math.random() * 1024,
+        1 + Math.random() * 1.6, 1 + Math.random() * 1.6);
+    }
+    g.globalAlpha = 1;
+    // lichen: pale sage and rust patches, soft-edged, each
+    // freckled so the patch itself carries texture
+    [["#b3bd8d", 30], ["#a9703f", 16], ["#9aa87f", 22]].forEach(function (p) {
       for (var j = 0; j < p[1]; j++) {
-        var x = Math.random() * 512, y = Math.random() * 512;
-        var r = 4 + Math.random() * 15;
+        var x = Math.random() * 1024, y = Math.random() * 1024;
+        var r = 6 + Math.random() * 26;
         var rg = g.createRadialGradient(x, y, 1, x, y, r);
-        rg.addColorStop(0, p[0] + "cc");
+        rg.addColorStop(0, p[0] + "e6");
         rg.addColorStop(1, p[0] + "00");
         g.fillStyle = rg;
         g.beginPath();
         g.arc(x, y, r, 0, 7);
         g.fill();
+        g.fillStyle = p[0];
+        for (var k = 0; k < 14; k++) {
+          g.globalAlpha = 0.25 + Math.random() * 0.4;
+          g.fillRect(x + (Math.random() - 0.5) * r * 1.4,
+            y + (Math.random() - 0.5) * r * 1.4, 1.6, 1.6);
+        }
+        g.globalAlpha = 1;
       }
     });
     var tex = new THREE.CanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    // no repeat: texel density is set by buildRock's planar
+    // UVs (0.55 per world unit), not by tiling this canvas
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }
@@ -190,7 +314,12 @@ import Lenis from "./vendor/lenis.mjs";
   function buildRock() {
     // mergeVertices first: the polyhedron geometry is
     // non-indexed, and smooth normals need shared vertices
-    var geo = mergeVertices(new THREE.IcosahedronGeometry(1, 4));
+    // detail 5 (fix round): at detail 4 the crest's facets ran
+    // 40-70 px across in the render and read as flat planes
+    // however the surface was dressed; detail 5 halves the
+    // facet scale so the displacement can carry crag at the
+    // scale the eye actually resolves
+    var geo = mergeVertices(new THREE.IcosahedronGeometry(1, 5));
     var pos = geo.attributes.position;
     var v = new THREE.Vector3();
     var i;
@@ -203,26 +332,93 @@ import Lenis from "./vendor/lenis.mjs";
               Math.sin(v.z * 7.3 + v.x * 2.9) * 0.030 +
               Math.sin(v.y * 9.1 + v.z * 4.3) * 0.020 +
               Math.sin(v.x * 14.7 + v.y * 11.3) * Math.cos(v.z * 12.9) * 0.012 +
-              Math.sin(v.z * 21.7 + v.y * 17.1) * 0.007;
+              Math.sin(v.z * 21.7 + v.y * 17.1) * 0.007 +
+              Math.sin(v.x * 26.3 + v.y * 19.7) * Math.cos(v.z * 23.1) * 0.015 +
+              Math.sin(v.z * 34.9 + v.x * 29.3) * 0.010 +
+              Math.sin(v.x * 47.3 - v.z * 41.7) * 0.005;
+      // the crest carries the crag: displacement grows toward
+      // the top of the form, the base stays calm
+      n *= 1 + 0.7 * Math.max(0, v.y);
       v.multiplyScalar(1 + n);
       // The camera-facing face drops steeply (the founder's ~45
       // degrees lives in the rock, per Rosa's Phase B note N2; the
       // rig's fitted 15-degree contact plane is untouched).
       if (v.z > 0.45) v.y -= (v.z - 0.45) * 0.95;
+      // ...but not as a plane (fix round, Rosa's TW-1209 gate):
+      // the cut face is rumpled at two scales, the rumple
+      // growing with distance from the crest break, so no
+      // straight lit edge survives to the render.
+      if (v.z > 0.45) {
+        var rumple = Math.min(1, (v.z - 0.45) / 0.85);
+        v.y += rockNoise(v.x * 1.9 + 7.3, v.z * 1.6) * 0.085 * rumple +
+               Math.sin(v.x * 23.0 + v.z * 19.0) * 0.016 * rumple;
+      }
       if (v.y < -0.30) v.y = -0.30 + (v.y + 0.30) * 0.25; // flattened base
       pos.setXYZ(i, v.x, v.y, v.z);
     }
     geo.translate(0, -0.52, -0.18);
-    // Flatten the crest facet onto the stance plane in the contact
-    // zone, a hair below the soles, so the hooves own the contact.
+    // The stance plane is flattened ONLY where the hooves
+    // actually stand (front soles at z 0.175, hind sole at
+    // z -0.647, legs inside |x| 0.36): that cap is a rig
+    // invariant and stays exact, a hair below the soles, so
+    // the hooves own the contact. The first build clamped a
+    // broad rectangle (|x| 0.52, z -0.80..0.34) to the same
+    // plane and the render showed the rectangle: a flat sheet
+    // with straight edges (Rosa, TW-1209 gate). Outside the
+    // stance patch the cap now lets go gradually: a noise
+    // envelope takes over across a feather band, so the crest
+    // breaks into lumps around the patch and the silhouette
+    // against the photograph is a noise contour, never a
+    // straight line; past the band the cap lifts away and the
+    // displaced form stands on its own.
     for (i = 0; i < pos.count; i++) {
       v.fromBufferAttribute(pos, i);
-      if (Math.abs(v.x) < 0.52 && v.z > -0.80 && v.z < 0.34) {
-        var cap = stancePlaneY(v.z) - 0.012;
-        if (v.y > cap) pos.setY(i, cap);
+      var plane = stancePlaneY(v.z) - 0.012;
+      var dx = Math.max(0, Math.abs(v.x) - 0.36);
+      var dz = 0;
+      if (v.z < -0.74) dz = -0.74 - v.z;
+      else if (v.z > 0.26) dz = v.z - 0.26;
+      var d = Math.sqrt(dx * dx + dz * dz);
+      if (d === 0) {
+        if (v.y > plane) pos.setY(i, plane);
+      } else if (d < 0.42) {
+        // narrow feather: the first fix round's band reached
+        // 0.9-1.05 units out and the crest read as a table
+        // however craggy its rim was; the stance needs only
+        // the patch, so the shoulders now fall away within
+        // ~0.4 units and the crest reads as a ridge
+        var s = Math.min(1, d / 0.22);
+        s = s * s * (3 - 2 * s);
+        var capY = plane + rockNoise(v.x * 3.2 + 3.1, v.z * 3.2) * 0.20 * s +
+          Math.max(0, d - 0.22) * 2.6;
+        if (v.y > capY) pos.setY(i, capY);
       }
     }
     geo.computeVertexNormals();
+    // Planar UVs by dominant normal axis (fix round). The
+    // icosahedron's spherical UVs pinch to a sliver at the
+    // crest pole, so the crest sampled a thin strip of the
+    // skin canvas and rendered as mush no matter how much
+    // detail the canvas carried: the rock-alone diagnostic
+    // measured hf-gradient 2.8 against the photograph's 16.
+    // A rock does not need continuous UVs; it needs even
+    // texel density. Granite noise hides the projection
+    // seams as cracks.
+    var nrm = geo.attributes.normal;
+    var uvs = new Float32Array(pos.count * 2);
+    for (i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      var anx = Math.abs(nrm.getX(i));
+      var any = Math.abs(nrm.getY(i));
+      var anz = Math.abs(nrm.getZ(i));
+      var pu, pv;
+      if (any >= anx && any >= anz) { pu = v.x; pv = v.z; }
+      else if (anx >= anz) { pu = v.z; pv = v.y; }
+      else { pu = v.x; pv = v.y; }
+      uvs[i * 2] = pu * 0.55;
+      uvs[i * 2 + 1] = pv * 0.55;
+    }
+    geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
     // Height tint in vertex colors: the crest takes the warm
     // canopy light, the base falls toward forest-floor shade, so
     // the form reads as sunlit stone even where the texture's own
@@ -231,16 +427,29 @@ import Lenis from "./vendor/lenis.mjs";
     for (i = 0; i < pos.count; i++) {
       v.fromBufferAttribute(pos, i);
       var t = Math.min(1, Math.max(0, (v.y + 0.85) / 1.15));
-      colors[i * 3] = 0.42 + 0.58 * t;
-      colors[i * 3 + 1] = 0.36 + 0.57 * t;
-      colors[i * 3 + 2] = 0.27 + 0.55 * t;
+      // per-vertex tonal mottling (fix round): at the grazing
+      // angle the camera meets the crest, the skin texture
+      // foreshortens to a smear and the top read as one even
+      // lit band; the tint itself now varies at the 15-25 px
+      // scale so the crest carries value changes even where
+      // the texture cannot
+      var vm = 0.80 + 0.32 * (0.5 + 0.5 * rockNoise(v.x * 11 + 9.2, v.z * 11));
+      colors[i * 3] = Math.min(1, (0.42 + 0.58 * t) * vm);
+      colors[i * 3 + 1] = Math.min(1, (0.36 + 0.57 * t) * vm);
+      colors[i * 3 + 2] = Math.min(1, (0.27 + 0.55 * t) * vm);
     }
     geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     var skin = rockTexture();
+    // the camera meets this stone at a grazing angle, where
+    // minification without anisotropy smears the skin to mush;
+    // keep the detail the texture now carries
+    if (renderer) {
+      skin.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    }
     var mat = new THREE.MeshStandardMaterial({
       map: skin,
       bumpMap: skin,
-      bumpScale: 1.3,
+      bumpScale: 3.2,
       vertexColors: true,
       color: 0xd8c8ac,
       roughness: 0.97,
