@@ -1327,11 +1327,20 @@
 
   var bubbleLayer = document.getElementById("v-bubbles");
   var activeBubbles = 0;
+  // The texts currently on screen. A line that is still
+  // displayed is never shown twice at once: pickLine's guard
+  // only stops consecutive repeats, so the choke point here
+  // refuses any text already in this set, for walker speech
+  // and the buggy's driver alike. A refused pick simply does
+  // not speak this tick; the next pick moves to another line.
+  var activeTexts = {};
   state.speechCount = 0;
   state.showBubble = function (x, y, text) { return showBubble(x, y, text); };
 
   function showBubble(x, y, text) {
     if (!bubbleLayer || activeBubbles >= 2) return false;
+    if (activeTexts[text]) return false;
+    activeTexts[text] = true;
     var wpx = Math.round(text.length * 6.9 + 26);
     var g = document.createElementNS(SVGNS, "g");
     g.setAttribute("class", "v-bubble");
@@ -1351,6 +1360,7 @@
       window.setTimeout(function () {
         if (g.parentNode) g.parentNode.removeChild(g);
         activeBubbles = Math.max(0, activeBubbles - 1);
+        delete activeTexts[text];
       }, 420);
     }, 3400);
     return true;
