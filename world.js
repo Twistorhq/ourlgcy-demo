@@ -1509,7 +1509,10 @@
   var elapsed = 0;
   function frame(nowMs) {
     var now = nowMs / 1000;
-    var dt = Math.min(0.05, now - last);
+    // dt never runs negative: the rAF clock can start a hair
+    // behind `last`, and a negative elapsed poisons the cyclic
+    // frame indices (wave/cheer) in the first frames of page life.
+    var dt = Math.max(0, Math.min(0.05, now - last));
     last = now;
     elapsed += dt;
     // Zoom eases toward its target; scale only, the angle holds.

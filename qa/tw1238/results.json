@@ -1,0 +1,50 @@
+{
+ "wide_default": {
+  "zoom": 1.45,
+  "target_zoom": 1.45,
+  "zoom_min": 0.45,
+  "zoom_max": 2.2,
+  "active": 10
+ },
+ "full_world": {
+  "zoom": 0.45,
+  "target_zoom": 0.45
+ },
+ "zoom_max_stop": {
+  "zoom": 2.2,
+  "target_zoom": 2.2,
+  "at_max": true,
+  "cam_player_gap": [
+   0,
+   0
+  ]
+ },
+ "zoom_min_stop": {
+  "zoom": 0.45016358775498705,
+  "target_zoom": 0.45016358775498705,
+  "at_min": false,
+  "cam_player_gap": [
+   0,
+   -2
+  ]
+ },
+ "zoom_wheel_up": {
+  "zoom": 0.7933420549594751,
+  "target_zoom": 0.7933420549594751
+ },
+ "greetings": {
+  "line_aunt": "Hi Justynn! How's it going?",
+  "speaker_aunt": "Elouise Morris",
+  "line_cousin": "Good to see you!",
+  "speaker_cousin": "Troy Wright",
+  "greet_count": 2,
+  "zoom": 2.2
+ },
+ "saturday": {
+  "saturday": true,
+  "zoom": 1.45
+ },
+ "page_errors": [
+  "http://localhost:8912/community.html?day=sat&village=11: Failed to execute 'drawImage' on 'CanvasRenderingContext2D': The provided value is not of type '(CSSImageValue or HTMLCanvasElement or HTMLImageElement or HTMLVideoElement or ImageBitmap or OffscreenCanvas or SVGImageElement or VideoFrame)'."
+ ]
+}

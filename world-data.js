@@ -45,6 +45,16 @@
 // default. As of this pass, NO roster person has an uploaded
 // photo on file (photo: null throughout): every sprite below
 // is record-driven, and the gap is stated, not filled.
+//
+// Skin-tone rule (founder, TW-1238): where a person's tone is
+// unsure (no photo, no record), the default is the mixed and
+// dark brown range, varied person to person across a real
+// range, never one flat tone for everyone. A photo-derived
+// tone wins wherever a photo exists. The roster below is all
+// unsure cases today, so its tones are assigned one by one
+// across #54331d (deep dark brown) to #a9744a (warm medium
+// brown); the generic crowd and spectator pool draws from the
+// same range.
 
 window.LGCY_WORLD_PEOPLE = [
   { id: "elouise-morris", name: "Elouise Morris", born: 1915, bornStatus: "documented", died: 2011, diedStatus: "documented",
@@ -61,49 +71,49 @@ window.LGCY_WORLD_PEOPLE = [
     saturday: { role: "tailgate" } },
   { id: "curtis-franklin-hammond", name: "Curtis Franklin Hammond", born: 1933, bornStatus: "documented", died: 2012, diedStatus: "documented",
     line: "Hammond line", gender: "m",
-    present: { kit: "#5a5148", kitDark: "#423b33", hat: "fedora", hatColor: "#3d362e", hair: "short-gray", skin: "#6e4525", hairColor: "#b9b0a0", build: "average", glasses: false, photo: null, speed: 29, prop: null },
+    present: { kit: "#5a5148", kitDark: "#423b33", hat: "fedora", hatColor: "#3d362e", hair: "short-gray", skin: "#5d3a20", hairColor: "#b9b0a0", build: "average", glasses: false, photo: null, speed: 29, prop: null },
     home: "h4", rounds: ["plazaE", "store", "plazaC", "home"],
     lines: ["Well hey, Justynn.", "Good to see you, son.", "How's it going, Justynn?"],
     saturday: { role: "grill" } },
   { id: "melvin-andrew-gooden", name: "Melvin Andrew Gooden", born: 1932, bornStatus: "documented", died: null, diedStatus: "unknown",
     line: "Gooden line", gender: "m",
-    present: { kit: "#cbbfa5", kitDark: "#a89a7d", hat: null, hatColor: null, hair: "short-gray", skin: "#7a4c28", hairColor: "#bfb7a6", build: "slim", glasses: false, photo: null, speed: 31, prop: null },
+    present: { kit: "#cbbfa5", kitDark: "#a89a7d", hat: null, hatColor: null, hair: "short-gray", skin: "#9c6a3e", hairColor: "#bfb7a6", build: "slim", glasses: false, photo: null, speed: 31, prop: null },
     home: "h2", rounds: ["plazaW", "church", "plazaC", "home"],
     lines: ["Hey now, Justynn.", "Good to see you!", "How you been, Justynn?"],
     saturday: { role: "gates" } },
   { id: "emma-jean-jackson", name: "Emma Jean Jackson", born: 1936, bornStatus: "probable", died: 2018, diedStatus: "probable",
     line: "Jackson line", gender: "f",
-    present: { kit: "#a34a28", kitDark: "#7e3820", hat: null, hatColor: null, hair: "long", skin: "#8a5a34", hairColor: "#2a1a10", build: "average", glasses: false, photo: null, speed: 30, prop: null },
+    present: { kit: "#a34a28", kitDark: "#7e3820", hat: null, hatColor: null, hair: "long", skin: "#835231", hairColor: "#2a1a10", build: "average", glasses: false, photo: null, speed: 30, prop: null },
     home: "h4", rounds: ["store", "plazaE", "plazaC", "home"],
     lines: ["Hi Justynn! How's it going?", "There's my grandson.", "Good to see you, baby."],
     saturday: { role: "tailgate" } },
   { id: "willie-bethsaida-anderson", name: "Willie Bethsaida Anderson", born: 1897, bornStatus: "probable", died: 1982, diedStatus: "probable",
     line: "Hammond line", gender: "f",
-    present: { kit: "#77815f", kitDark: "#5a6349", hat: null, hatColor: null, hair: "bun-gray", skin: "#6e4525", hairColor: "#c9c2b4", build: "slim", glasses: false, photo: null, speed: 26, prop: null },
+    present: { kit: "#77815f", kitDark: "#5a6349", hat: null, hatColor: null, hair: "bun-gray", skin: "#54331d", hairColor: "#c9c2b4", build: "slim", glasses: false, photo: null, speed: 26, prop: null },
     home: "h1", rounds: ["church", "plazaW", "home"],
     lines: ["Well, look who it is.", "Hi Justynn! How's it going?", "Come walk with me a ways."],
     saturday: { role: "stands" } },
   { id: "dora-weathers", name: "Dora Weathers", born: 1895, bornStatus: "probable", died: 1976, diedStatus: "probable",
     line: "Jackson line", gender: "f",
-    present: { kit: "#6d4a63", kitDark: "#523649", hat: null, hatColor: null, hair: "bun", skin: "#7a4c28", hairColor: "#3a2417", build: "average", glasses: false, photo: null, speed: 26, prop: "basket" },
+    present: { kit: "#6d4a63", kitDark: "#523649", hat: null, hatColor: null, hair: "bun", skin: "#a9744a", hairColor: "#3a2417", build: "average", glasses: false, photo: null, speed: 26, prop: "basket" },
     home: "h1", rounds: ["church", "store", "plazaW", "home"],
     lines: ["Good to see you, Justynn.", "Hi Justynn! How's it going?", "You eating right, Justynn?"],
     saturday: { role: "tailgate" } },
   { id: "troy-wright", name: "Troy Wright", born: 1908, bornStatus: "probable", died: 1992, diedStatus: "probable",
     line: "Wright line", gender: "m",
-    present: { kit: "#74553a", kitDark: "#573f2a", hat: "cap", hatColor: "#4c3a26", hair: "short", skin: "#8a5a34", hairColor: "#241a12", build: "sturdy", glasses: false, photo: null, speed: 33, prop: "plate" },
+    present: { kit: "#74553a", kitDark: "#573f2a", hat: "cap", hatColor: "#4c3a26", hair: "short", skin: "#6e4525", hairColor: "#241a12", build: "sturdy", glasses: false, photo: null, speed: 33, prop: "plate" },
     home: "h6", rounds: ["plazaC", "store", "plazaE", "home"],
     lines: ["Good to see you!", "Hey, Justynn! Plate's still warm.", "How's it going, Justynn?"],
     saturday: { role: "tailgate", plate: true } },
   { id: "andrew-jackson-gooden", name: "Andrew Jackson Gooden", born: 1903, bornStatus: "probable", died: 1960, diedStatus: "probable",
     line: "Gooden line", gender: "m",
-    present: { kit: "#33523e", kitDark: "#243b2d", hat: null, hatColor: null, hair: "short-gray", skin: "#6e4525", hairColor: "#b5ab99", build: "average", glasses: false, photo: null, speed: 28, prop: null },
+    present: { kit: "#33523e", kitDark: "#243b2d", hat: null, hatColor: null, hair: "short-gray", skin: "#96613a", hairColor: "#b5ab99", build: "average", glasses: false, photo: null, speed: 28, prop: null },
     home: "h2", rounds: ["church", "plazaC", "plazaW", "home"],
     lines: ["Justynn. Good to see you.", "How's it going, Justynn?", "Walk with me to the corner."],
     saturday: { role: "gates" } },
   { id: "james-j-hammond", name: "James J Hammond", born: 1865, bornStatus: "probable", died: null, diedStatus: "unknown",
     line: "Hammond line", gender: "m",
-    present: { kit: "#43484e", kitDark: "#30343a", hat: null, hatColor: null, hair: "gray", skin: "#7a4c28", hairColor: "#d6cfc0", build: "slim", glasses: false, photo: null, speed: 23, prop: "cane" },
+    present: { kit: "#43484e", kitDark: "#30343a", hat: null, hatColor: null, hair: "gray", skin: "#684628", hairColor: "#d6cfc0", build: "slim", glasses: false, photo: null, speed: 23, prop: "cane" },
     home: "h1", rounds: ["plazaW", "church", "home"],
     lines: ["Well now. Justynn.", "Good to see you, boy.", "How's it going, Justynn?"],
     saturday: { role: "stands" } }
