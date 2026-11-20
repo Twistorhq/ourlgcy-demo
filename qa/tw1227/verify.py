@@ -6,7 +6,6 @@ import json
 import subprocess
 import sys
 import time
-import urllib.request
 
 from playwright.sync_api import sync_playwright
 
@@ -55,12 +54,23 @@ try:
         st = page.evaluate("() => JSON.parse(JSON.stringify(window.__lgcyVillage))")
         results["middaySpeechCount"] = st.get("speechCount")
         # Click a visible walker; the tap lights the route, then
-        # navigates to the profile after a breath.
+        # navigates to the profile after a breath. The stage sits
+        # below the fold at this viewport, so scroll it in and
+        # pick a walker actually on screen: the Phase 1 run and
+        # Rosa's gate both hit the below-the-fold artifact when
+        # the click targeted an off-viewport figure.
+        page.locator("#village-stage").scroll_into_view_if_needed()
+        page.wait_for_timeout(500)
         box = page.evaluate(
-            "() => { const w = document.querySelector('#v-walkers .walker');"
-            " const r = w.getBoundingClientRect();"
+            "() => { const ws = Array.from(document.querySelectorAll('#v-walkers .walker'));"
+            " for (const w of ws) { const r = w.getBoundingClientRect();"
+            " const o = parseFloat(w.getAttribute('opacity') || '1');"
+            " if (o > 0.5 && r.width > 0 && r.x >= 0 && r.y >= 0"
+            " && r.x + r.width <= innerWidth && r.y + r.height <= innerHeight)"
             " return { x: r.x + r.width / 2, y: r.y + r.height / 2, href: w.getAttribute('href') }; }"
+            " return null; }"
         )
+        results["clickTarget"] = box
         page.mouse.click(box["x"], box["y"])
         page.wait_for_timeout(1400)
         results["clickLandsOn"] = page.url.split("/")[-1]
