@@ -56,7 +56,19 @@
     h3: { x: 1560, y: 1920, w: 240, h: 170, roof: "#e2d2b0", door: [1680, 1910], side: "n" },
     h4: { x: 2100, y: 1920, w: 240, h: 170, roof: "#d3bd94", door: [2220, 1910], side: "n" },
     h5: { x: 1180, y: 330, w: 240, h: 170, roof: "#dccaa9", door: [1300, 510], side: "s" },
-    h6: { x: 240, y: 1240, w: 240, h: 170, roof: "#c2a678", door: [360, 1420], side: "s" }
+    h6: { x: 240, y: 1240, w: 240, h: 170, roof: "#c2a678", door: [360, 1420], side: "s" },
+    // The neighborhood fills out (TW-1242): background homes
+    // completing the street grid on both sides. h1-h6 are the
+    // roster families' homes (destinations, from the data);
+    // h7-h12 are lived-in street dressing: no roster, no
+    // rounds, drawn with the same house language (varied
+    // footprints, ridge lines, fences, chimneys, yards).
+    h7: { x: 600, y: 1920, w: 220, h: 170, roof: "#cfb489", door: [710, 1910], side: "n", ridge: "ns", fence: true, chim: 0.3 },
+    h8: { x: 2540, y: 1920, w: 240, h: 160, roof: "#e6d7ba", door: [2660, 1910], side: "n", ridge: "hip" },
+    h9: { x: 2900, y: 1920, w: 220, h: 170, roof: "#bfa87e", door: [3010, 1910], side: "n", fence: true, chim: 0.22 },
+    h10: { x: 580, y: 330, w: 230, h: 160, roof: "#d8bf98", door: [695, 500], side: "s", ridge: "ns" },
+    h11: { x: 2660, y: 1270, w: 230, h: 160, roof: "#d9c8a6", door: [2775, 1440], side: "s", ridge: "hip" },
+    h12: { x: 2930, y: 1270, w: 210, h: 150, roof: "#c9ae84", door: [3035, 1430], side: "s", chim: 0.3 }
   };
   var CHURCH = { x: 200, y: 300, w: 320, h: 300, door: [360, 612] };
   var STORE = { x: 1180, y: 1260, w: 340, h: 220, door: [1350, 1248] };
@@ -68,6 +80,18 @@
   // the rig rolls on.
   var STATION = { x: 580, y: 884, w: 252, h: 156, bldg: [596, 896, 104, 58], pumps: [728, 966, 52, 26], stop: [706, 982] };
   var STADIUM = { cx: 2540, cy: 470, rx: 450, ry: 340 };
+  // Terrain (TW-1242): the land has a horizon and a river.
+  // Mountains frame the north edge (and run down the west
+  // edge as foothills): layered ridges, backdrop only, never
+  // walkable ground. The river crosses the south, east to
+  // west, on a gentle meander; the one road it meets is the
+  // north-south road, and there it is crossed by a bridge.
+  // Everywhere else the water is a wall in the grid: you
+  // cross at the bridge, or you walk the bank.
+  var MTN_N = 118;              // north ridge band depth
+  var MTN_W = 64;               // west foothill strip width
+  function riverY(x) { return 2230 + 24 * Math.sin(x / 460 + 0.6); }
+  var BRIDGE = { x0: 846, x1: 1034 };
   var TENTS = [
     { x: 1830, y: 330, a: "#b3392e", b: "#f2ead8" },
     { x: 2050, y: 330, a: "#5b3a8e", b: "#e3a81c" },
@@ -78,8 +102,9 @@
     [620, 1470, 1.2], [1150, 1470, 1.0], [2050, 1470, 1.15], [2900, 1470, 1.0],
     [470, 800, 1.0], [1300, 700, 1.2], [700, 700, 1.0], [1760, 290, 0.9],
     [2160, 800, 0.9], [560, 2060, 1.1], [1450, 2070, 1.0], [1980, 2290, 1.15],
-    [2620, 2070, 1.2], [2950, 2210, 1.0], [150, 1300, 0.9], [3060, 900, 1.0],
-    [2540, 1330, 1.1], [620, 2290, 1.0], [900, 350, 1.05], [3160, 1330, 1.0],
+    [2860, 2060, 1.2], [2950, 2150, 1.0], [150, 1300, 0.9], [3060, 900, 1.0],
+    [2540, 1330, 1.1], [620, 2335, 1.0], [900, 350, 1.05], [3160, 1330, 1.0],
+    [2150, 1320, 1.15], [2500, 1470, 1.0], [1745, 1470, 0.95], [140, 690, 1.0],
     [330, 1470, 1.05], [1750, 1470, 1.1], [2620, 1470, 0.95], [1080, 350, 1.0],
     [1620, 620, 1.15], [3050, 350, 0.9], [700, 1100, 0.9], [2400, 2290, 1.05],
     [120, 2050, 1.0], [3050, 1900, 1.1]
@@ -90,8 +115,40 @@
     plazaW: { x: 700, y: 1660 },
     plazaC: { x: 1600, y: 1660 },
     plazaE: { x: 2400, y: 1660 },
-    gate: { x: 2540, y: 856 }
+    gate: { x: 2540, y: 856 },
+    // The south bank of the river (TW-1242): a meadow you
+    // reach only over the bridge, and walk along the water.
+    bank: { x: 760, y: 2348 },
+    // The parks (TW-1242): destinations in the rounds.
+    park: { x: 2050, y: 1451 },
+    parkW: { x: 300, y: 820 }
   };
+  // Parks with playgrounds (TW-1242): kept grass, dirt paths,
+  // and equipment in the world's sprite language. The main
+  // park sits east of the store above the plaza; the west
+  // park is a smaller green by the church. Swings and the
+  // merry-go-round move in the dynamic layer (SWINGS/MERRIES);
+  // everything else is static furniture, blocked in the grid.
+  var PARK_MAIN = {
+    x: 1700, y: 1250, w: 900, h: 260,
+    paths: [[2020, 1330, 60, 180], [1700, 1436, 900, 30]],
+    swings: [1778, 1882, 1332], slide: [1940, 1380], merry: [1835, 1462],
+    sandbox: [2004, 1318, 92, 54], benches: [[2230, 1478], [2420, 1478]],
+    picnics: [[2280, 1360], [2430, 1420]], lamps: [[2060, 1300], [2560, 1490]]
+  };
+  var PARK_WEST = {
+    x: 80, y: 640, w: 460, h: 230,
+    paths: [[285, 640, 30, 230]],
+    swings: [152, 238, 716], slide: [312, 700], merry: null,
+    sandbox: [370, 800, 70, 44], benches: [[140, 668], [470, 668]],
+    picnics: [], lamps: [[300, 660]]
+  };
+  var SWINGS = [
+    { px: 1806, py: 1332, len: 34, ph: 0.0 }, { px: 1854, py: 1332, len: 34, ph: 1.7 },
+    { px: 176, py: 716, len: 30, ph: 0.8 }, { px: 214, py: 716, len: 30, ph: 2.6 }
+  ];
+  var MERRIES = [{ x: 1835, y: 1462, r: 30 }];
+  var PARK_LAMPS = [[2060, 1300], [2560, 1490], [300, 660]];
   var TAILGATE_SPOTS = [[1940, 470], [1780, 490], [2130, 490], [1940, 770], [2060, 760], [1850, 770]];
   var GATE_SPOTS = [[2380, 884], [2700, 884], [2540, 928], [2300, 824], [2780, 824]];
   var GRILL_SPOT = { x: 1994, y: 585 };
@@ -120,8 +177,31 @@
     blockRect(STORE.x, STORE.y, STORE.w, STORE.h);
     blockRect(STATION.bldg[0], STATION.bldg[1], STATION.bldg[2], STATION.bldg[3]);
     blockRect(STATION.pumps[0], STATION.pumps[1], STATION.pumps[2], STATION.pumps[3]);
+    // Mountains are backdrop, not ground (TW-1242).
+    blockRect(0, 0, W, MTN_N);
+    blockRect(0, 0, MTN_W, 1040);
+    // The river is a wall except at the bridge (TW-1242):
+    // tiles whose center sits in the water band are blocked,
+    // sparing the bridge columns on the north-south road.
+    for (var ry2 = 0; ry2 < ROWS; ry2++) for (var rx2 = 0; rx2 < COLS; rx2++) {
+      var rcx = rx2 * TILE + TILE / 2, rcy = ry2 * TILE + TILE / 2;
+      if (Math.abs(rcy - riverY(rcx)) < 48 && !(rcx >= BRIDGE.x0 + 10 && rcx <= BRIDGE.x1 - 10)) {
+        grid[ry2 * COLS + rx2] = 1;
+      }
+    }
     blockRect(428, 990, 52, 30);   // the parked Model T by the church
     blockRect(1550, 1212, 60, 28); // the parked sedan at the store
+    // Playground equipment is furniture (TW-1242): nobody
+    // walks through a swing set, a slide, or a sandbox.
+    blockRect(1770, 1308, 120, 92);  // main swings and their arc
+    blockRect(1936, 1376, 84, 76);   // main slide
+    blockCircle(1835, 1462, 32);     // merry-go-round
+    blockRect(2004, 1318, 92, 54);   // main sandbox
+    blockRect(2253, 1345, 54, 30);   // picnic tables
+    blockRect(2403, 1405, 54, 30);
+    blockRect(146, 692, 100, 80);    // west swings and their arc
+    blockRect(306, 692, 76, 72);     // west slide
+    blockRect(370, 800, 70, 44);     // west sandbox
     TENTS.forEach(function (t) { blockRect(t.x - 68, t.y - 50, 136, 100); });
     TREES.forEach(function (t) { blockCircle(t[0], t[1], 13); });
     // Stadium: field blocked; wall ring blocked except the south gate.
@@ -863,22 +943,54 @@
       c.fillRect(hse.x + 3, sy, hse.w - 6, 2.4);
     }
     speckle(c, hse.x, hse.y, hse.w, hse.h, 240, ["rgba(0,0,0,0.10)", "rgba(255,255,255,0.07)"], 1, 2.4);
-    c.fillStyle = "rgba(0,0,0,0.16)";
-    c.fillRect(hse.x, hse.y + hse.h / 2 - 3, hse.w, 6);
-    c.fillStyle = "rgba(255,255,255,0.13)";
-    c.fillRect(hse.x, hse.y + hse.h / 2 - 9, hse.w, 3);
+    // The ridge line, in the house's own orientation (TW-1242):
+    // an east-west ridge by default, a north-south ridge where
+    // the lot runs the other way, and a hip roof's inset fall
+    // where the roof slopes on every side.
+    if (hse.ridge === "hip") {
+      c.strokeStyle = "rgba(0,0,0,0.13)"; c.lineWidth = 11;
+      c.strokeRect(hse.x + 18, hse.y + 18, hse.w - 36, hse.h - 36);
+      c.strokeStyle = "rgba(255,255,255,0.10)"; c.lineWidth = 3;
+      c.strokeRect(hse.x + 27, hse.y + 27, hse.w - 54, hse.h - 54);
+    } else if (hse.ridge === "ns") {
+      c.fillStyle = "rgba(0,0,0,0.16)";
+      c.fillRect(hse.x + hse.w / 2 - 3, hse.y, 6, hse.h);
+      c.fillStyle = "rgba(255,255,255,0.13)";
+      c.fillRect(hse.x + hse.w / 2 - 9, hse.y, 3, hse.h);
+    } else {
+      c.fillStyle = "rgba(0,0,0,0.16)";
+      c.fillRect(hse.x, hse.y + hse.h / 2 - 3, hse.w, 6);
+      c.fillStyle = "rgba(255,255,255,0.13)";
+      c.fillRect(hse.x, hse.y + hse.h / 2 - 9, hse.w, 3);
+    }
     c.strokeStyle = "rgba(40,30,20,0.35)";
     c.lineWidth = 3; c.strokeRect(hse.x + 1, hse.y + 1, hse.w - 2, hse.h - 2);
+    var chimX = hse.x + hse.w * (hse.chim || 0.68);
     c.fillStyle = "#9c5f43";
-    c.fillRect(hse.x + hse.w * 0.68, hse.y + 14, 22, 30);
+    c.fillRect(chimX, hse.y + 14, 22, 30);
     c.fillStyle = "rgba(0,0,0,0.18)";
-    c.fillRect(hse.x + hse.w * 0.68, hse.y + 40, 22, 4);
+    c.fillRect(chimX, hse.y + 40, 22, 4);
     // Porch at the door side.
     c.fillStyle = "#b09a76";
     if (hse.side === "n") c.fillRect(dx - 34, hse.y - 16, 68, 16);
     else c.fillRect(dx - 34, hse.y + hse.h, 68, 16);
     drawBush(c, hse.x + 16, hse.y + hse.h + 20, true);
     drawBush(c, hse.x + hse.w - 16, hse.y - 18, false);
+    // A picket fence along the front yard where the lot has
+    // one (TW-1242), with a gate gap at the walkway.
+    if (hse.fence) {
+      var fy = hse.side === "n" ? hse.y - 30 : hse.y + hse.h + 30;
+      c.strokeStyle = "rgba(216,203,166,0.9)"; c.lineWidth = 2.4;
+      c.beginPath();
+      c.moveTo(hse.x - 28, fy); c.lineTo(dx - 15, fy);
+      c.moveTo(dx + 15, fy); c.lineTo(hse.x + hse.w + 28, fy);
+      c.stroke();
+      c.fillStyle = "#d8cba6";
+      for (var fx = hse.x - 28; fx <= hse.x + hse.w + 28; fx += 17) {
+        if (Math.abs(fx - dx) < 16) continue;
+        c.fillRect(fx - 1.6, fy - 5, 3.2, 10);
+      }
+    }
   }
   function drawChurch(c) {
     paperShadow(c, CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h);
@@ -1134,10 +1246,266 @@
       c.fillRect(p[0] - 10, p[1] - 4, 20, 8);
     });
   }
+  // Mountains (TW-1242): layered ridges on the horizon, in
+  // the reference palette's depth: a far blue-gray ridge with
+  // snow on its tallest peaks, a mid ridge, and green
+  // foothills rolling down to the land. Backdrop only.
+  function ridgePath(c, pts, base, vertical) {
+    c.beginPath();
+    if (vertical) {
+      c.moveTo(base, -20);
+      pts.forEach(function (p) { c.lineTo(p[1], p[0]); });
+      c.lineTo(base, 1060);
+    } else {
+      c.moveTo(-20, base);
+      pts.forEach(function (p) { c.lineTo(p[0], p[1]); });
+      c.lineTo(W + 20, base);
+    }
+    c.closePath();
+  }
+  function drawMountains(c) {
+    // North horizon: far ridge, snow where it reads.
+    var far = [[-40, 64], [120, 26], [300, 52], [470, 14], [640, 44], [820, 30], [990, 58], [1150, 20], [1330, 48], [1500, 24], [1680, 54], [1860, 16], [2040, 46], [2230, 28], [2410, 56], [2600, 18], [2790, 42], [2970, 24], [3140, 50], [3240, 36]];
+    ridgePath(c, far, MTN_N, false);
+    c.fillStyle = "#93a3c0"; c.fill();
+    c.fillStyle = "#f4f1e6";
+    far.forEach(function (p) {
+      if (p[1] > 30) return; // snow only on the tall peaks
+      c.beginPath();
+      c.moveTo(p[0] - 27, p[1] + 23);
+      c.lineTo(p[0] - 12, p[1] + 15); c.lineTo(p[0], p[1]);
+      c.lineTo(p[0] + 11, p[1] + 17); c.lineTo(p[0] + 27, p[1] + 23);
+      c.closePath(); c.fill();
+    });
+    var mid = [[-40, 84], [180, 58], [390, 80], [610, 54], [840, 78], [1080, 60], [1310, 82], [1560, 56], [1800, 80], [2050, 62], [2290, 84], [2540, 58], [2780, 78], [3010, 60], [3240, 80]];
+    ridgePath(c, mid, MTN_N, false);
+    c.fillStyle = "#6d7794"; c.fill();
+    var foot = [[-40, 104], [200, 88], [450, 102], [700, 86], [980, 100], [1250, 88], [1520, 103], [1790, 87], [2060, 101], [2330, 88], [2600, 102], [2870, 87], [3240, 100]];
+    ridgePath(c, foot, MTN_N, false);
+    c.fillStyle = "#5f7346"; c.fill();
+    speckle(c, 0, 60, W, 58, 700, ["rgba(40,54,26,0.20)", "rgba(140,160,105,0.16)"], 1, 2.4);
+    // West edge: the same country, lower: foothills running
+    // down to the east-west road, no snow at this height.
+    // The west strip is narrow, so it stays in sage and olive
+    // greens: the far ridge's blue-gray read as water here.
+    var wfar = [[-20, 12], [150, 27], [320, 15], [500, 31], [680, 19], [860, 29], [1060, 17]];
+    ridgePath(c, wfar, MTN_W, true);
+    c.fillStyle = "#6f7f5c"; c.fill();
+    var wfoot = [[-20, 41], [180, 53], [360, 39], [540, 55], [720, 43], [900, 56], [1060, 45]];
+    ridgePath(c, wfoot, MTN_W, true);
+    c.fillStyle = "#5f7346"; c.fill();
+    speckle(c, 0, 0, 58, 1040, 260, ["rgba(40,54,26,0.20)", "rgba(140,160,105,0.16)"], 1, 2.2);
+  }
+  // The river (TW-1242): a band path along the meander, used
+  // for the sand banks, the water, and the flow clip.
+  function riverBandPath(c, half) {
+    c.beginPath();
+    for (var x = -20; x <= W + 20; x += 40) {
+      var y = riverY(x) - half;
+      if (x === -20) c.moveTo(x, y); else c.lineTo(x, y);
+    }
+    for (var x2 = W + 20; x2 >= -20; x2 -= 40) c.lineTo(x2, riverY(x2) + half);
+    c.closePath();
+  }
+  function drawRiver(c) {
+    // Sand banks, then the dirt paths walkers keep along
+    // both banks, then the water itself, deep at the center.
+    riverBandPath(c, 55);
+    c.fillStyle = "#cbb489"; c.fill();
+    [-66, 66].forEach(function (off) {
+      c.beginPath();
+      for (var x = -20; x <= W + 20; x += 40) {
+        var y = riverY(x) + off;
+        if (x === -20) c.moveTo(x, y); else c.lineTo(x, y);
+      }
+      c.strokeStyle = "rgba(194,171,132,0.8)"; c.lineWidth = 13;
+      c.lineJoin = "round"; c.stroke();
+    });
+    riverBandPath(c, 40);
+    c.fillStyle = "#38698a"; c.fill();
+    riverBandPath(c, 23);
+    c.fillStyle = "rgba(38,76,104,0.6)"; c.fill();
+    // Still-water glints under the moving flow.
+    c.strokeStyle = "rgba(225,240,250,0.13)"; c.lineWidth = 2.4;
+    for (var gx = 60; gx < W; gx += 130) {
+      var gy = riverY(gx) + rr(-20, 20);
+      c.beginPath(); c.moveTo(gx, gy); c.lineTo(gx + rr(24, 44), gy + rr(-2, 2)); c.stroke();
+    }
+  }
+  function drawBridge(c) {
+    // A wooden road bridge where the north-south road meets
+    // the river: plank deck, edge beams, posts and rails.
+    var bx0 = BRIDGE.x0, bx1 = BRIDGE.x1;
+    var by0 = riverY(940) - 86, by1 = riverY(940) + 86;
+    c.fillStyle = "rgba(20,16,10,0.25)";
+    c.fillRect(bx0 + 5, by0 + 7, bx1 - bx0, by1 - by0);
+    c.fillStyle = "#9c7a4e";
+    c.fillRect(bx0, by0, bx1 - bx0, by1 - by0);
+    c.fillStyle = "rgba(0,0,0,0.18)";
+    for (var py = by0 + 9; py < by1 - 4; py += 15) c.fillRect(bx0 + 3, py, bx1 - bx0 - 6, 2.4);
+    speckle(c, bx0, by0, bx1 - bx0, by1 - by0, 160, ["rgba(60,40,18,0.15)", "rgba(255,240,210,0.08)"], 1, 2);
+    c.fillStyle = "#7d5f3a";
+    c.fillRect(bx0, by0, 9, by1 - by0); c.fillRect(bx1 - 9, by0, 9, by1 - by0);
+    c.fillStyle = "#54391f";
+    for (var ry3 = by0 + 8; ry3 < by1; ry3 += 38) {
+      c.fillRect(bx0 + 1, ry3, 7, 13); c.fillRect(bx1 - 8, ry3, 7, 13);
+    }
+  }
+  // Park furniture (TW-1242), drawn in the same language as
+  // the plaza: benches like the plaza benches, wood and iron
+  // playground equipment at the one scale.
+  function drawBenchAt(c, cx, cy) {
+    c.fillStyle = "rgba(30,25,15,0.22)";
+    c.fillRect(cx - 32, cy + 4, 70, 12);
+    c.fillStyle = "#7d5a13";
+    c.fillRect(cx - 34, cy, 70, 11);
+    c.fillStyle = "#5f440e";
+    c.fillRect(cx - 30, cy + 11, 8, 7); c.fillRect(cx + 24, cy + 11, 8, 7);
+  }
+  function drawSwingFrame(c, sw) {
+    // Overhead, a swing set is its beam, its feet, and the
+    // worn ground under the arc; the swings themselves move
+    // in the dynamic layer.
+    var x0 = sw[0], x1 = sw[1], by = sw[2];
+    c.fillStyle = "rgba(60,45,20,0.16)";
+    c.fillRect(x0 - 14, by + 16, (x1 - x0) + 28, 62);
+    c.fillStyle = "#6e5233";
+    [[x0 - 10, by + 46], [x0 + 10, by + 46], [x1 - 10, by + 46], [x1 + 10, by + 46]].forEach(function (ft) {
+      c.fillRect(ft[0] - 4, ft[1] - 4, 8, 8);
+    });
+    c.strokeStyle = "#54443a"; c.lineWidth = 6;
+    c.beginPath(); c.moveTo(x0, by); c.lineTo(x1, by); c.stroke();
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(x0, by - 2); c.lineTo(x1, by - 2); c.stroke();
+  }
+  function drawSlide(c, sl) {
+    var tx = sl[0], ty = sl[1];
+    c.fillStyle = "rgba(30,25,15,0.20)";
+    c.fillRect(tx - 2, ty + 4, 84, 62);
+    // The chute: a red slide running down to the southeast.
+    c.fillStyle = "#b3392e";
+    c.beginPath();
+    c.moveTo(tx + 16, ty + 2); c.lineTo(tx + 30, ty - 4);
+    c.lineTo(tx + 76, ty + 50); c.lineTo(tx + 62, ty + 58);
+    c.closePath(); c.fill();
+    c.fillStyle = "rgba(255,255,255,0.20)";
+    c.fillRect(tx + 30, ty + 8, 34, 4);
+    // The tower platform and its ladder rungs.
+    c.fillStyle = "#7d5a13";
+    c.fillRect(tx, ty, 27, 27);
+    c.strokeStyle = "rgba(40,30,16,0.5)"; c.lineWidth = 2;
+    c.strokeRect(tx + 1, ty + 1, 25, 25);
+    c.fillStyle = "#54443a";
+    for (var r2 = 0; r2 < 3; r2++) c.fillRect(tx + 4, ty + 6 + r2 * 7, 8, 3);
+  }
+  function drawSandbox(c, sb) {
+    c.fillStyle = "#8a6a44";
+    c.fillRect(sb[0], sb[1], sb[2], sb[3]);
+    c.fillStyle = "#e3d3a4";
+    c.fillRect(sb[0] + 6, sb[1] + 6, sb[2] - 12, sb[3] - 12);
+    speckle(c, sb[0] + 6, sb[1] + 6, sb[2] - 12, sb[3] - 12, 60, ["#d8c48e", "#f0e2b6"], 1, 1.8);
+    c.fillStyle = "#b3392e";
+    c.beginPath(); c.arc(sb[0] + sb[2] * 0.3, sb[1] + sb[3] * 0.55, 4.4, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#2e6f6a";
+    c.beginPath(); c.arc(sb[0] + sb[2] * 0.68, sb[1] + sb[3] * 0.38, 4, 0, Math.PI * 2); c.fill();
+  }
+  function drawPicnic(c, p) {
+    c.fillStyle = "rgba(30,25,15,0.20)";
+    c.fillRect(p[0] - 26, p[1] - 20, 56, 44);
+    c.fillStyle = "#7d5a13";
+    c.fillRect(p[0] - 27, p[1] - 23, 54, 6); c.fillRect(p[0] - 27, p[1] + 17, 54, 6);
+    c.fillStyle = "#8a6a44";
+    c.fillRect(p[0] - 27, p[1] - 15, 54, 30);
+    c.fillStyle = "rgba(0,0,0,0.16)";
+    c.fillRect(p[0] - 1.5, p[1] - 15, 3, 30);
+  }
+  function drawPark(c, P) {
+    // Kept grass: a lighter, mown green with stripes.
+    c.fillStyle = "#679c36";
+    c.fillRect(P.x, P.y, P.w, P.h);
+    for (var mx = P.x; mx < P.x + P.w; mx += 62) {
+      if (((mx - P.x) / 62) % 2) continue;
+      c.fillStyle = "rgba(255,255,255,0.05)";
+      c.fillRect(mx, P.y, 62, P.h);
+    }
+    speckle(c, P.x, P.y, P.w, P.h, Math.floor(P.w * P.h / 900), ["#598c2e", "#77a83e", "#86b45c"], 1, 2.2);
+    c.strokeStyle = "rgba(60,50,35,0.28)"; c.lineWidth = 2.4;
+    c.strokeRect(P.x + 1, P.y + 1, P.w - 2, P.h - 2);
+    // Dirt paths.
+    c.fillStyle = "#c2ab84";
+    P.paths.forEach(function (p) { c.fillRect(p[0], p[1], p[2], p[3]); });
+    // Furniture and equipment.
+    drawSwingFrame(c, P.swings);
+    drawSlide(c, P.slide);
+    if (P.merry) {
+      c.fillStyle = "rgba(30,25,15,0.22)";
+      c.beginPath(); c.arc(P.merry[0], P.merry[1] + 3, 33, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#c2ab84";
+      c.beginPath(); c.arc(P.merry[0], P.merry[1], 35, 0, Math.PI * 2); c.fill();
+    }
+    drawSandbox(c, P.sandbox);
+    P.benches.forEach(function (b) { drawBenchAt(c, b[0], b[1]); });
+    P.picnics.forEach(function (p) { drawPicnic(c, p); });
+    P.lamps.forEach(function (lp) {
+      c.fillStyle = "rgba(30,25,15,0.25)";
+      c.beginPath(); c.arc(lp[0] + 3, lp[1] + 4, 6, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#2e2a26";
+      c.beginPath(); c.arc(lp[0], lp[1], 4.6, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#e8c95a";
+      c.beginPath(); c.arc(lp[0], lp[1], 2.6, 0, Math.PI * 2); c.fill();
+    });
+    // Flower beds at two corners.
+    drawBush(c, P.x + 26, P.y + 24, true);
+    drawBush(c, P.x + P.w - 26, P.y + P.h - 24, true);
+  }
+  // The playground in motion (TW-1242): swings sway and the
+  // merry-go-round turns, slowly, the way park equipment
+  // moves when a breeze and a kid have been at it. Drawn in
+  // the dynamic layer over the static frames.
+  function drawPlaygroundDynamic(t) {
+    SWINGS.forEach(function (sw) {
+      var ang = Math.sin(t * 1.5 + sw.ph) * 0.42;
+      var sx = sw.px + Math.sin(ang) * sw.len;
+      var sy = sw.py + Math.cos(ang) * sw.len;
+      ctx.fillStyle = "rgba(24,32,14,0.20)";
+      ctx.beginPath(); ctx.ellipse(sx, sw.py + sw.len + 9, 13, 5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(38,34,30,0.85)"; ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(sw.px - 5, sw.py); ctx.lineTo(sx - 6, sy);
+      ctx.moveTo(sw.px + 5, sw.py); ctx.lineTo(sx + 6, sy);
+      ctx.stroke();
+      ctx.fillStyle = "#7d5a13";
+      ctx.fillRect(sx - 9, sy, 18, 5);
+      ctx.fillStyle = "rgba(255,255,255,0.16)";
+      ctx.fillRect(sx - 9, sy, 18, 1.8);
+    });
+    MERRIES.forEach(function (m) {
+      ctx.save();
+      ctx.translate(m.x, m.y);
+      ctx.rotate(t * 0.55);
+      ctx.fillStyle = "#b3392e";
+      ctx.beginPath(); ctx.arc(0, 0, m.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.arc(0, 0, m.r - 4, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = "#54443a"; ctx.lineWidth = 3.4;
+      for (var ha = 0; ha < 4; ha++) {
+        var a = ha * Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * 6, Math.sin(a) * 6);
+        ctx.lineTo(Math.cos(a) * (m.r - 3), Math.sin(a) * (m.r - 3));
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#54443a";
+      ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    });
+  }
   function renderStatic() {
     var c = staticC.getContext("2d");
     seed = 20261120;
     drawGrassBase(c);
+    drawMountains(c);
+    drawRiver(c);
     // Tailgate lawn: a lighter green, kept grass.
     c.fillStyle = "rgba(255,255,220,0.07)";
     c.fillRect(1640, 220, 560, 640);
@@ -1191,6 +1559,11 @@
     // Dirt path: church door to the road sidewalk.
     c.fillStyle = "#c2ab84";
     c.fillRect(CHURCH.door[0] - 10, CHURCH.y + CHURCH.h, 20, 440);
+    // The bridge carries the road over the river.
+    drawBridge(c);
+    // The parks and their playgrounds.
+    drawPark(c, PARK_MAIN);
+    drawPark(c, PARK_WEST);
     // Buildings.
     Object.keys(HOUSES).forEach(function (k) { drawHouse(c, HOUSES[k]); });
     drawChurch(c);
@@ -1310,10 +1683,28 @@
   (function renderMinimap() {
     var c = miniC.getContext("2d"), s = 200 / W;
     c.fillStyle = "#5f8a30"; c.fillRect(0, 0, 200, 150);
+    // The horizon and the river frame the map (TW-1242).
+    c.fillStyle = "#8b96ad";
+    c.fillRect(0, 0, 200, MTN_N * s); c.fillRect(0, 0, MTN_W * s, 1040 * s);
+    c.strokeStyle = "#3e6f8e"; c.lineWidth = 5; c.lineJoin = "round";
+    c.beginPath();
+    for (var mx = 0; mx <= W; mx += 80) {
+      var my = riverY(mx) * s;
+      if (mx === 0) c.moveTo(0, my); else c.lineTo(mx * s, my);
+    }
+    c.stroke();
+    c.fillStyle = "#55565a";
+    c.fillRect(BRIDGE.x0 * s, (riverY(940) - 52) * s, (BRIDGE.x1 - BRIDGE.x0) * s, 104 * s);
     c.fillStyle = "#55565a";
     c.fillRect(880 * s, 0, 120 * s, 150); c.fillRect(0, 1080 * s, 200, 120 * s);
     c.fillStyle = "#b5684f"; c.fillRect(120 * s, 1560 * s, 2960 * s, 200 * s);
     c.fillStyle = "#6f9c3c"; c.fillRect(1640 * s, 220 * s, 560 * s, 640 * s);
+    // The parks read as kept greens, playgrounds as gold dots.
+    c.fillStyle = "#77a83e";
+    c.fillRect(PARK_MAIN.x * s, PARK_MAIN.y * s, PARK_MAIN.w * s, PARK_MAIN.h * s);
+    c.fillRect(PARK_WEST.x * s, PARK_WEST.y * s, PARK_WEST.w * s, PARK_WEST.h * s);
+    c.fillStyle = "#e3a81c";
+    c.fillRect(1824 * s, 1352 * s, 4, 4); c.fillRect(282 * s, 736 * s, 4, 4);
     c.fillStyle = "#c9bda3";
     c.beginPath(); c.ellipse(STADIUM.cx * s, STADIUM.cy * s, STADIUM.rx * s, STADIUM.ry * s, 0, 0, Math.PI * 2); c.fill();
     c.fillStyle = "#517821";
@@ -1786,6 +2177,22 @@
       ctx.drawImage(staticC, ix, iy, iw, ih, ix, iy, iw, ih);
       if (saturday) ctx.drawImage(satC, ix, iy, iw, ih, ix, iy, iw, ih);
     }
+    // The river runs (TW-1242): light streaks drifting
+    // downstream, clipped to the water. Slow and steady,
+    // ambient motion like the grill smoke.
+    ctx.save();
+    riverBandPath(ctx, 40);
+    ctx.clip();
+    for (var wi = 0; wi < 30; wi++) {
+      var wx = ((wi * 211 + t * 42) % (W + 240)) - 120;
+      var wy = riverY(wx) + Math.sin(wi * 2.7) * 22;
+      ctx.fillStyle = "rgba(220,238,248," + (0.10 + (wi % 3) * 0.04).toFixed(3) + ")";
+      ctx.beginPath(); ctx.ellipse(wx, wy, 26, 3.2, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+    // Playground motion: swings swaying, the merry-go-round
+    // turning, under whoever is passing.
+    drawPlaygroundDynamic(t);
     // The moving car, and the Model T on its loop (TW-1241).
     drawCarShape(ctx, car.x, car.y, car.heading, "#8a3324", 54, 27);
     drawEraCar(ctx, modelt.x, modelt.y, modelt.heading, "modelt");
@@ -1822,6 +2229,7 @@
       };
       Object.keys(HOUSES).forEach(function (k) { glow(HOUSES[k].door[0], HOUSES[k].door[1], 30); });
       LAMPS.forEach(function (lx) { glow(lx, 1544, 40); glow(lx, 1784, 40); });
+      PARK_LAMPS.forEach(function (lp) { glow(lp[0], lp[1], 34); });
       ctx.fillStyle = "rgba(255,226,150,0.95)";
       Object.keys(HOUSES).forEach(function (k) {
         ctx.beginPath(); ctx.arc(HOUSES[k].door[0], HOUSES[k].door[1], 3.4, 0, Math.PI * 2); ctx.fill();
@@ -1829,6 +2237,9 @@
       LAMPS.forEach(function (lx) {
         ctx.beginPath(); ctx.arc(lx, 1544, 3.4, 0, Math.PI * 2); ctx.fill();
         ctx.beginPath(); ctx.arc(lx, 1784, 3.4, 0, Math.PI * 2); ctx.fill();
+      });
+      PARK_LAMPS.forEach(function (lp) {
+        ctx.beginPath(); ctx.arc(lp[0], lp[1], 3.4, 0, Math.PI * 2); ctx.fill();
       });
       if (saturday) {
         // Stadium lights, flickering a little, as he asked.
