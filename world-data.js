@@ -55,6 +55,23 @@
 // across #54331d (deep dark brown) to #a9744a (warm medium
 // brown); the generic crowd and spectator pool draws from the
 // same range.
+//
+// Transport (TW-1241): the founder asked where the horse and
+// buggies are in daily life. A figure whose young-adulthood
+// decade (birth year plus 25, the world's own era figuring)
+// predates the automobile travels their rounds by horse and
+// buggy: the rig works the roads, stops at the filling
+// station, and parks at the gates on Saturday. Transport is a
+// presentation field like kit or hat, never a fact: it is
+// assigned from the years the pack carries (James J Hammond,
+// born 1865, young adulthood in the 1890s; Dora Weathers, born
+// 1895, young adulthood in the 1910s on a farm 8.5 miles out
+// of Bristow, where the family's own account puts horse
+// transport in daily use). Both years are Probable in the
+// pack, and the assignment asserts nothing on any card; the
+// dress law is untouched. Later eras' vehicles (a Model T, a
+// sedan of the fifties) live in the world as ambient and
+// parked life in world.js, the way the street carried them.
 
 window.LGCY_WORLD_PEOPLE = [
   { id: "elouise-morris", name: "Elouise Morris", born: 1915, bornStatus: "documented", died: 2011, diedStatus: "documented",
@@ -95,7 +112,7 @@ window.LGCY_WORLD_PEOPLE = [
     saturday: { role: "stands" } },
   { id: "dora-weathers", name: "Dora Weathers", born: 1895, bornStatus: "probable", died: 1976, diedStatus: "probable",
     line: "Jackson line", gender: "f",
-    present: { kit: "#6d4a63", kitDark: "#523649", hat: null, hatColor: null, hair: "short", skin: "#a9744a", hairColor: "#6b6156", hairTexture: "curly", build: "average", glasses: false, photo: null, speed: 26, prop: "basket" },
+    present: { kit: "#6d4a63", kitDark: "#523649", hat: null, hatColor: null, hair: "short", skin: "#a9744a", hairColor: "#6b6156", hairTexture: "curly", build: "average", glasses: false, photo: null, speed: 26, prop: "basket", transport: "buggy" },
     home: "h1", rounds: ["church", "store", "plazaW", "home"],
     lines: ["Good to see you, Justynn.", "Hi Justynn! How's it going?", "You eating right, Justynn?"],
     saturday: { role: "tailgate" } },
@@ -113,7 +130,7 @@ window.LGCY_WORLD_PEOPLE = [
     saturday: { role: "gates" } },
   { id: "james-j-hammond", name: "James J Hammond", born: 1865, bornStatus: "probable", died: null, diedStatus: "unknown",
     line: "Hammond line", gender: "m",
-    present: { kit: "#43484e", kitDark: "#30343a", hat: null, hatColor: null, hair: "short-gray", skin: "#684628", hairColor: "#d6cfc0", hairTexture: "straight", build: "slim", glasses: false, photo: null, speed: 23, prop: "cane" },
+    present: { kit: "#43484e", kitDark: "#30343a", hat: null, hatColor: null, hair: "short-gray", skin: "#684628", hairColor: "#d6cfc0", hairTexture: "straight", build: "slim", glasses: false, photo: null, speed: 23, prop: "cane", transport: "buggy" },
     home: "h1", rounds: ["plazaW", "church", "home"],
     lines: ["Well now. Justynn.", "Good to see you, boy.", "How's it going, Justynn?"],
     saturday: { role: "stands" } }
