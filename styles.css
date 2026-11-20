@@ -1297,7 +1297,8 @@ body.home .demo-banner { position: relative; z-index: 2; }
 }
 .world-zoom button:hover { background: #f2ead8; }
 .world-caption {
-  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start;
+  gap: 16px;
   margin-top: 10px; color: var(--ink-soft); font-size: 0.95rem;
 }
 .world-caption-hint { font-style: italic; }
@@ -1309,4 +1310,5 @@ body.home .demo-banner { position: relative; z-index: 2; }
   .world-stage { height: 64vh; }
   #world-minimap { width: 128px; height: 96px; }
   .world-bubble { font-size: 13.5px; max-width: 190px; }
+  .world-caption { grid-template-columns: 1fr; }
 }
