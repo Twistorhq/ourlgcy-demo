@@ -1,0 +1,97 @@
+{
+ "clicks": [
+  {
+   "id": "troy-wright",
+   "state_at_click": "walk",
+   "attempts": 1,
+   "landed_url": "person.html?id=troy-wright",
+   "h1": "Troy Wright",
+   "ok": true
+  },
+  {
+   "id": "oddie-criner-gooden",
+   "state_at_click": "walk",
+   "attempts": 1,
+   "landed_url": "person.html?id=oddie-criner-gooden",
+   "h1": "Oddie Lee Criner Gooden",
+   "ok": true
+  },
+  {
+   "id": "curtis-franklin-hammond",
+   "state_at_click": "walk",
+   "attempts": 1,
+   "landed_url": "person.html?id=curtis-franklin-hammond",
+   "h1": "Curtis Franklin Hammond",
+   "ok": true
+  },
+  {
+   "id": "melvin-andrew-gooden",
+   "state_at_click": "walk",
+   "attempts": 1,
+   "landed_url": "person.html?id=melvin-andrew-gooden",
+   "h1": "Melvin Andrew Gooden",
+   "ok": true
+  },
+  {
+   "id": "dora-weathers",
+   "state_at_click": "walkFromRig",
+   "attempts": 1,
+   "landed_url": "person.html?id=dora-weathers",
+   "h1": "Dora Weathers",
+   "ok": true
+  }
+ ],
+ "dwelling": {
+  "id": "emma-jean-jackson",
+  "state_at_click": "dwell",
+  "landed_url": "person.html?id=emma-jean-jackson",
+  "h1": "Emma Jean Jackson",
+  "ok": true
+ },
+ "roster": {
+  "landed_url": "person.html?id=troy-wright",
+  "h1": "Troy Wright",
+  "ok": true
+ },
+ "buggy": {
+  "mid_round": {
+   "rig": {
+    "state": "rolling",
+    "x": 940,
+    "y": 1153,
+    "stop": "h1",
+    "paused": false
+   },
+   "fig_state": "ride"
+  },
+  "station_stop": {
+   "speaker": "James J Hammond",
+   "line": "It runs with no horse at all?",
+   "rig": {
+    "state": "rolling",
+    "x": 708,
+    "y": 988,
+    "stop": "h1",
+    "paused": true
+   }
+  },
+  "station_ok": true
+ },
+ "saturday_rigs": {
+  "dora-weathers": {
+   "state": "parked",
+   "x": 2336,
+   "y": 905,
+   "stop": "gate",
+   "paused": false
+  },
+  "james-j-hammond": {
+   "state": "parked",
+   "x": 2758,
+   "y": 905,
+   "stop": "gate",
+   "paused": false
+  }
+ },
+ "page_errors": []
+}
