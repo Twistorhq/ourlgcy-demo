@@ -1289,15 +1289,27 @@
 
   /* ============================ camera ============================= */
   var view = { w: 960, h: 540 };
-  var zoomParam = parseFloat(params.get("zoom") || "1");
-  var zoom = isNaN(zoomParam) ? 1 : Math.min(2.2, Math.max(0.6, zoomParam));
+  // Zoom law (founder, TW-1238): the camera angle is the
+  // references' overhead angle at EVERY level; zoom changes
+  // scale only, never angle. The closest clamp is the hard stop,
+  // set so the framing matches reference-2 (figures large, plaza
+  // detail readable). The default sits between that max and the
+  // wide end, where figures read as people.
+  var ZOOM_MIN = 0.45, ZOOM_MAX = 2.2, ZOOM_DEFAULT = 1.2;
+  var zoomParam = parseFloat(params.get("zoom") || String(ZOOM_DEFAULT));
+  var zoom = isNaN(zoomParam) ? ZOOM_DEFAULT : Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomParam));
+  var targetZoom = zoom;
+  var dpr = 1;
   var cam = { x: player.x, y: player.y };
   var followId = null;
+  function clampZoom(z) { return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z)); }
   function resize() {
     var r = stage.getBoundingClientRect();
-    canvas.width = Math.max(320, Math.floor(r.width));
-    canvas.height = Math.max(320, Math.floor(r.height));
-    view.w = canvas.width; view.h = canvas.height;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    view.w = Math.max(320, Math.floor(r.width));
+    view.h = Math.max(320, Math.floor(r.height));
+    canvas.width = Math.floor(view.w * dpr);
+    canvas.height = Math.floor(view.h * dpr);
   }
   window.addEventListener("resize", resize);
 
@@ -1353,9 +1365,10 @@
   }
 
   function drawScene(t, dt) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     var vw = view.w / zoom, vh = view.h / zoom;
     var sx = cam.x - vw / 2, sy = cam.y - vh / 2;
-    ctx.fillStyle = "#3c5a2a";
+    ctx.fillStyle = "#466324";
     ctx.fillRect(0, 0, view.w, view.h);
     ctx.save();
     ctx.scale(zoom, zoom);
@@ -1438,6 +1451,9 @@
     var dt = Math.min(0.05, now - last);
     last = now;
     elapsed += dt;
+    // Zoom eases toward its target; scale only, the angle holds.
+    zoom += (targetZoom - zoom) * Math.min(1, dt * 9);
+    if (Math.abs(targetZoom - zoom) < 0.001) zoom = targetZoom;
 
     // Player.
     var keys = keyState;
@@ -1530,6 +1546,7 @@
     else if (k === "arrowdown" || k === "s") keyState.down = false;
   });
   canvas.addEventListener("click", function (e) {
+    if (pinched) { pinched = false; return; }
     var r = canvas.getBoundingClientRect();
     var sx = e.clientX - r.left, sy = e.clientY - r.top;
     var wx = cam.x + (sx - view.w / 2) / zoom;
@@ -1548,8 +1565,37 @@
   });
   var zoomIn = document.getElementById("world-zoom-in");
   var zoomOut = document.getElementById("world-zoom-out");
-  if (zoomIn) zoomIn.addEventListener("click", function () { zoom = Math.min(2.2, zoom * 1.2); });
-  if (zoomOut) zoomOut.addEventListener("click", function () { zoom = Math.max(0.6, zoom / 1.2); });
+  if (zoomIn) zoomIn.addEventListener("click", function () { targetZoom = clampZoom(targetZoom * 1.25); });
+  if (zoomOut) zoomOut.addEventListener("click", function () { targetZoom = clampZoom(targetZoom / 1.25); });
+  // Mouse wheel: zoom about the center; the camera stays on the
+  // player, so the world scales in place.
+  canvas.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    targetZoom = clampZoom(targetZoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12));
+  }, { passive: false });
+  // Pinch: two pointers set the scale by their spread.
+  var pointers = {}, pinchD0 = 0, pinchZoom0 = 1, pinched = false;
+  canvas.addEventListener("pointerdown", function (e) {
+    pointers[e.pointerId] = [e.clientX, e.clientY];
+    var ps = Object.values(pointers);
+    if (ps.length === 2) {
+      pinchD0 = Math.hypot(ps[0][0] - ps[1][0], ps[0][1] - ps[1][1]);
+      pinchZoom0 = targetZoom;
+      pinched = true;
+    }
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!pointers[e.pointerId]) return;
+    pointers[e.pointerId] = [e.clientX, e.clientY];
+    var ps = Object.values(pointers);
+    if (ps.length === 2 && pinchD0 > 0) {
+      var d = Math.hypot(ps[0][0] - ps[1][0], ps[0][1] - ps[1][1]);
+      targetZoom = clampZoom(pinchZoom0 * d / pinchD0);
+    }
+  });
+  function pointerEnd(e) { delete pointers[e.pointerId]; }
+  canvas.addEventListener("pointerup", pointerEnd);
+  canvas.addEventListener("pointercancel", pointerEnd);
 
   /* --------------------------- caption ----------------------------- */
   if (clockEl) {
@@ -1568,6 +1614,7 @@
     state: function () {
       return {
         hour: hour, phase: phase, saturday: saturday, zoom: zoom,
+        targetZoom: targetZoom, zoomMin: ZOOM_MIN, zoomMax: ZOOM_MAX, dpr: dpr,
         player: { x: Math.round(player.x), y: Math.round(player.y), moving: player.moving },
         cam: { x: Math.round(cam.x), y: Math.round(cam.y) },
         greetCount: greetCount,
