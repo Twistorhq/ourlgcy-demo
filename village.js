@@ -251,14 +251,23 @@
     s2: { x: 405, y: 558, kind: "street" },
     s3: { x: 630, y: 562, kind: "street" },
     s4: { x: 865, y: 558, kind: "street" },
-    s5: { x: 1084, y: 550, kind: "street" }
+    s5w: { x: 996, y: 552, kind: "street" },
+    bx: { x: 1180, y: 484, kind: "street" },
+    fx: { x: 1180, y: 606, kind: "street" }
   };
+  // The brick round detours around the filling station: east
+  // along the back lane (bx), down the town's east edge (fx),
+  // and west along the front walk to the garden, joining the
+  // street at s5w. The direct door-to-street line crossed the
+  // station canopy and its pumps, planting feet on both; no
+  // walker path crosses the station footprint now. bx, fx and
+  // s5w are street points: villagers pass through, never idle.
   var EDGES = {
-    cabin: ["s1"], church: ["s2"], house: ["s3"], store: ["s4"], brick: ["s5"],
-    well: ["s3"], stall: ["s4"], garden: ["s5"], bench: ["s1", "s2"], oak: ["s1"],
+    cabin: ["s1"], church: ["s2"], house: ["s3"], store: ["s4"], brick: ["bx"],
+    well: ["s3"], stall: ["s4"], garden: ["fx", "s5w"], bench: ["s1", "s2"], oak: ["s1"],
     s1: ["cabin", "bench", "oak", "s2"], s2: ["church", "bench", "s1", "s3"],
-    s3: ["house", "well", "s2", "s4"], s4: ["store", "stall", "s3", "s5"],
-    s5: ["brick", "garden", "s4"]
+    s3: ["house", "well", "s2", "s4"], s4: ["store", "stall", "s3", "s5w"],
+    s5w: ["garden", "s4"], bx: ["brick", "fx"], fx: ["bx", "garden"]
   };
 
   function route(from, to) {
