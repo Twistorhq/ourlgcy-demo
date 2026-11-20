@@ -1,0 +1,165 @@
+{
+ "state": {
+  "mode": "roam",
+  "tier": "A",
+  "phase": "midday",
+  "walkers": 14,
+  "roster": [
+   {
+    "id": "amos",
+    "born": 1831,
+    "bornStatus": "documented",
+    "died": 1901,
+    "diedStatus": "documented",
+    "frozenAge": 70,
+    "kit": "coat",
+    "eraText": "Drawn from the documented birth year, 1831: frock coat and waistcoat, wide-brim hat, and cane of the 1850s. Kept at 70, the age they were when they passed in 1901, while the village year moves on."
+   },
+   {
+    "id": "celia",
+    "born": 1836,
+    "bornStatus": "documented",
+    "died": 1912,
+    "diedStatus": "documented",
+    "frozenAge": 76,
+    "kit": "gown",
+    "eraText": "Drawn from the documented birth year, 1836: long gown, bonnet, and market basket of the 1860s. Kept at 76, the age they were when they passed in 1912, while the village year moves on."
+   },
+   {
+    "id": "ruth",
+    "born": 1858,
+    "bornStatus": "documented",
+    "died": 1939,
+    "diedStatus": "documented",
+    "frozenAge": 81,
+    "kit": "gown",
+    "eraText": "Drawn from the documented birth year, 1858: long gown, wide-brim hat of the 1880s. Kept at 81, the age they were when they passed in 1939, while the village year moves on."
+   },
+   {
+    "id": "henry",
+    "born": 1861,
+    "bornStatus": "documented",
+    "died": 1940,
+    "diedStatus": "documented",
+    "frozenAge": 79,
+    "kit": "suit",
+    "eraText": "Drawn from the documented birth year, 1861: suit, bowler of the 1880s. Kept at 79, the age they were when they passed in 1940, while the village year moves on."
+   },
+   {
+    "id": "della",
+    "born": 1864,
+    "bornStatus": "documented",
+    "died": 1945,
+    "diedStatus": "documented",
+    "frozenAge": 81,
+    "kit": "gown",
+    "eraText": "Drawn from the documented birth year, 1864: long gown, wide-brim hat, and book of the 1880s. Kept at 81, the age they were when they passed in 1945, while the village year moves on."
+   },
+   {
+    "id": "moses",
+    "born": 1867,
+    "bornStatus": "documented",
+    "died": 1951,
+    "diedStatus": "documented",
+    "frozenAge": 84,
+    "kit": "suit",
+    "eraText": "Drawn from the documented birth year, 1867: suit, bowler, and cane of the 1890s. Kept at 84, the age they were when they passed in 1951, while the village year moves on."
+   },
+   {
+    "id": "ada",
+    "born": 1883,
+    "bornStatus": "documented",
+    "died": 1962,
+    "diedStatus": "documented",
+    "frozenAge": 79,
+    "kit": "blouseSkirt",
+    "eraText": "Drawn from the documented birth year, 1883: blouse and long skirt, wide-brim hat of the 1900s. Kept at 79, the age they were when they passed in 1962, while the village year moves on."
+   },
+   {
+    "id": "booker",
+    "born": 1890,
+    "bornStatus": "documented",
+    "died": 1971,
+    "diedStatus": "documented",
+    "frozenAge": 81,
+    "kit": "jacket",
+    "eraText": "Drawn from the documented birth year, 1890: jacket, flat cap of the 1910s. Kept at 81, the age they were when they passed in 1971, while the village year moves on."
+   },
+   {
+    "id": "lena",
+    "born": 1929,
+    "bornStatus": "documented",
+    "died": 2019,
+    "diedStatus": "documented",
+    "frozenAge": 90,
+    "kit": "dress50s",
+    "eraText": "Drawn from the documented birth year, 1929: full-skirt dress of the 1950s. Kept at 90, the age they were when they passed in 2019, while the village year moves on."
+   },
+   {
+    "id": "emmett",
+    "born": 1930,
+    "bornStatus": "documented",
+    "died": 2015,
+    "diedStatus": "documented",
+    "frozenAge": 85,
+    "kit": "shirt",
+    "eraText": "Drawn from the documented birth year, 1930: shirt and slacks, fedora of the 1950s. Kept at 85, the age they were when they passed in 2015, while the village year moves on."
+   },
+   {
+    "id": "sadie",
+    "born": 1956,
+    "bornStatus": "documented",
+    "died": null,
+    "diedStatus": "unknown",
+    "frozenAge": null,
+    "kit": "modernF",
+    "eraText": "Drawn from the documented birth year, 1956: blouse and straight trousers of the 1980s."
+   },
+   {
+    "id": "jordan",
+    "born": 1972,
+    "bornStatus": "documented",
+    "died": null,
+    "diedStatus": "unknown",
+    "frozenAge": null,
+    "kit": "jacketModern",
+    "eraText": "Drawn from the documented birth year, 1972: jacket of the 1990s."
+   },
+   {
+    "id": "amara",
+    "born": 1985,
+    "bornStatus": "documented",
+    "died": null,
+    "diedStatus": "unknown",
+    "frozenAge": null,
+    "kit": "modernDress",
+    "eraText": "Drawn from the documented birth year, 1985: plain modern dress of the 2010s."
+   },
+   {
+    "id": "xavier",
+    "born": 2001,
+    "bornStatus": "documented",
+    "died": null,
+    "diedStatus": "unknown",
+    "frozenAge": null,
+    "kit": "hoodie",
+    "eraText": "Drawn from the documented birth year, 2001: hoodie and jeans of the 2020s."
+   }
+  ],
+  "speechCount": 4,
+  "parallax": true,
+  "hour": 12,
+  "transport": [
+   "buggy",
+   "modelt",
+   "sedan",
+   "suv"
+  ],
+  "visible": true,
+  "onScreen": true,
+  "raf": 341,
+  "desiredOut": 14,
+  "time": 5.866400000000014
+ },
+ "pageerrors": []
+}

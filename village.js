@@ -1,4 +1,5 @@
-// Our LGCY Community tab: the ink village layer (TW-1077).
+// Our LGCY Community tab: the papercraft village layer
+// (TW-1077, papercraft rebuild TW-1227).
 //
 // Fail-closed contract, mirrored from gl/buck.js on the home page:
 // the drawn village and the roster stand on their own in
@@ -16,10 +17,23 @@
 // all, is never presented as settled: the figure stays
 // era-neutral and the roster labels the year for what it is.
 //
+// Frozen-age law (TW-1227): a villager is kept at the age they
+// were when they passed, forever, while the village itself lives
+// in the viewer's current year. The frozen age derives only from
+// documented born and died years in the record; it grays the
+// figure and is named on the roster. The figures are abstract
+// papercraft people by design: paper shapes, no likenesses.
+//
+// The village keeps the viewer's real hours: the phase, the
+// light, how many villagers are out, and how much traffic the
+// road carries are all functions of the browser's current hour.
+//
 // QA overrides, in the spirit of ?gl=force-a on the home page:
 //   ?village=still                 composed still, no roaming
 //   ?village=dawn|morning|midday|afternoon|dusk|night
 //                                  hold the village at that hour
+//   ?village=0..23                 hold the village at that hour
+//                                  of the clock (phase + density)
 // State for inspection: window.__lgcyVillage.
 
 (function () {
@@ -39,6 +53,11 @@
   var params = new URLSearchParams(window.location.search);
   var forceStill = params.get("village") === "still";
   var forcePhase = params.get("village");
+  var forceHour = null;
+  if (forcePhase && /^\d{1,2}$/.test(forcePhase)) {
+    var fh = parseInt(forcePhase, 10);
+    if (fh >= 0 && fh <= 23) forceHour = fh;
+  }
 
   var state = {
     mode: "off", // off | still | roam
@@ -126,6 +145,24 @@
     var kit = documented ? pres.kit || "neutral" : "neutral";
     var hat = documented ? pres.hat || null : null;
     var prop = documented ? pres.prop || null : null;
+    // Frozen age: derived only when BOTH the birth year and the
+    // passing year are documented. The figure is then rendered
+    // at that age forever: silver hair past 65, a child's
+    // stature under 18. Anything less documented keeps no frozen
+    // age and renders as before.
+    var frozenAge = null;
+    if (documented && rec.diedStatus === "documented" && typeof rec.died === "number") {
+      var fa = rec.died - rec.born;
+      if (fa >= 0 && fa <= 115) frozenAge = fa;
+    }
+    var hair = pres.hair || "short";
+    if (frozenAge !== null && frozenAge >= 65) {
+      if (hair === "short") hair = "gray";
+      else if (hair === "bun") hair = "bun-gray";
+      else if (hair === "long") hair = "long-gray";
+    }
+    var scale = pres.scale || 1.0;
+    if (frozenAge !== null && frozenAge < 18) scale *= 0.78;
     var eraText;
     if (documented) {
       eraText =
@@ -139,11 +176,19 @@
         "The record carries no documented birth year for this figure, " +
         "so the dress stays era-neutral.";
     }
+    if (frozenAge !== null) {
+      eraText +=
+        " Kept at " + frozenAge + ", the age they were when they passed" +
+        " in " + rec.died + ", while the village year moves on.";
+    }
     return {
       id: rec.id,
       name: rec.name,
       born: typeof rec.born === "number" ? rec.born : null,
       bornStatus: rec.bornStatus || "unknown",
+      died: typeof rec.died === "number" ? rec.died : null,
+      diedStatus: rec.diedStatus || "unknown",
+      frozenAge: frozenAge,
       documented: documented,
       line: rec.line || "",
       relatives: rec.relatives || "",
@@ -152,11 +197,11 @@
       prop: prop,
       apron: documented ? !!pres.apron : false,
       accent: pres.accent || "#454e47",
-      hair: pres.hair || "short",
+      hair: hair,
       home: home,
       routeStops: stops,
       speed: pres.speed || 30,
-      scale: pres.scale || 1.0,
+      scale: scale,
       yearPhrase: yearPhrase(rec, documented),
       eraText: eraText
     };
@@ -168,6 +213,7 @@
   state.roster = PEOPLE.map(function (p) {
     return {
       id: p.id, born: p.born, bornStatus: p.bornStatus,
+      died: p.died, diedStatus: p.diedStatus, frozenAge: p.frozenAge,
       kit: p.kit, eraText: p.eraText
     };
   });
@@ -196,8 +242,8 @@
     house: { x: 634, y: 482, kind: "door" },
     store: { x: 869, y: 484, kind: "door" },
     brick: { x: 1094, y: 482, kind: "door" },
-    well: { x: 600, y: 548, kind: "gather" },
-    stall: { x: 905, y: 554, kind: "gather" },
+    well: { x: 555, y: 548, kind: "gather" },
+    stall: { x: 963, y: 554, kind: "gather" },
     garden: { x: 1066, y: 608, kind: "work" },
     bench: { x: 300, y: 602, kind: "rest" },
     oak: { x: 96, y: 564, kind: "rest" },
@@ -205,14 +251,23 @@
     s2: { x: 405, y: 558, kind: "street" },
     s3: { x: 630, y: 562, kind: "street" },
     s4: { x: 865, y: 558, kind: "street" },
-    s5: { x: 1084, y: 550, kind: "street" }
+    s5w: { x: 996, y: 552, kind: "street" },
+    bx: { x: 1180, y: 484, kind: "street" },
+    fx: { x: 1180, y: 606, kind: "street" }
   };
+  // The brick round detours around the filling station: east
+  // along the back lane (bx), down the town's east edge (fx),
+  // and west along the front walk to the garden, joining the
+  // street at s5w. The direct door-to-street line crossed the
+  // station canopy and its pumps, planting feet on both; no
+  // walker path crosses the station footprint now. bx, fx and
+  // s5w are street points: villagers pass through, never idle.
   var EDGES = {
-    cabin: ["s1"], church: ["s2"], house: ["s3"], store: ["s4"], brick: ["s5"],
-    well: ["s3"], stall: ["s4"], garden: ["s5"], bench: ["s1", "s2"], oak: ["s1"],
+    cabin: ["s1"], church: ["s2"], house: ["s3"], store: ["s4"], brick: ["bx"],
+    well: ["s3"], stall: ["s4"], garden: ["fx", "s5w"], bench: ["s1", "s2"], oak: ["s1"],
     s1: ["cabin", "bench", "oak", "s2"], s2: ["church", "bench", "s1", "s3"],
-    s3: ["house", "well", "s2", "s4"], s4: ["store", "stall", "s3", "s5"],
-    s5: ["brick", "garden", "s4"]
+    s3: ["house", "well", "s2", "s4"], s4: ["store", "stall", "s3", "s5w"],
+    s5w: ["garden", "s4"], bx: ["brick", "fx"], fx: ["bx", "garden"]
   };
 
   function route(from, to) {
@@ -297,74 +352,100 @@
   }
   function basketMarkup() {
     return (
+      '<path d="M-8.7 4.7 h21 l-3.2 12.5 h-14.6 z" fill="rgba(43,32,18,0.15)" stroke="none"/>' +
       '<path d="M-7.5 1 a7.5 6 0 0 1 15 0" fill="none" stroke="' + INK + '" stroke-width="2"/>' +
       '<path d="M-10.5 2.5 h21 l-3.2 12.5 h-14.6 z" fill="' + BASKET + '" stroke="' + INK + '" stroke-width="2" stroke-linejoin="round"/>' +
       '<path d="M-9 7.5 h18.5 M-8 11.5 h16.5" stroke="' + INK + '" stroke-width="1.2" opacity="0.55"/>'
     );
+  }
+  // Papercraft layering (TW-1227): every filled shape in a
+  // figure is two sheets of paper, the shape itself and a copy
+  // offset down-right in translucent warm brown, so the figure
+  // reads as cut paper stacked on the scene. The copies are
+  // static markup; the TW-1156 rig moves exactly as before.
+  function psh(d) {
+    return '<path d="' + d + '" fill="rgba(43,32,18,0.15)" stroke="none" transform="translate(1.8 2.2)"/>';
   }
   function torso(p) {
     var a = p.accent;
     var s = 'stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"';
     switch (p.kit) {
       case "coat":
-        return '<path d="M-11 -80 L-13 -36 L-6 -36 L-4 -52 L4 -52 L6 -36 L13 -36 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-11 -80 L-13 -36 L13 -36 L11 -80 Z") +
+          '<path d="M-11 -80 L-13 -36 L-6 -36 L-4 -52 L4 -52 L6 -36 L13 -36 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M-4.5 -80 L0 -64 L4.5 -80 L4.5 -72 L0 -58 L-4.5 -72 Z" fill="' + PAPER + '" ' + s + '/>' +
           '<path d="M0 -58 L0 -40" stroke="' + INK + '" stroke-width="1.6"/>';
       case "suit":
-        return '<path d="M-11 -80 L-12 -42 L12 -42 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-11 -80 L-12 -42 L12 -42 L11 -80 Z") +
+          '<path d="M-11 -80 L-12 -42 L12 -42 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M-4.5 -80 L0 -62 L4.5 -80 L4.5 -70 L0 -56 L-4.5 -70 Z" fill="' + PAPER + '" ' + s + '/>';
       case "jacket":
-        return '<path d="M-11 -79 L-12 -46 L12 -46 L11 -79 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-11 -79 L-12 -46 L12 -46 L11 -79 Z") +
+          '<path d="M-11 -79 L-12 -46 L12 -46 L11 -79 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M0 -79 L0 -48" stroke="' + INK + '" stroke-width="1.8"/>';
       case "jacketModern":
-        return '<path d="M-11 -80 L-12 -46 L12 -46 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-11 -80 L-12 -46 L12 -46 L11 -80 Z") +
+          '<path d="M-11 -80 L-12 -46 L12 -46 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M-4 -80 L0 -60 L4 -80 Z" fill="' + PAPER + '" ' + s + '/>' +
           '<path d="M-4 -80 L-6 -46 M4 -80 L6 -46" fill="none" stroke="' + INK + '" stroke-width="1.6"/>';
       case "shirt":
-        return '<path d="M-10 -80 L-11 -48 L11 -48 L10 -80 Z" fill="' + PAPER + '" ' + s + '/>' +
+        return psh("M-10 -80 L-11 -48 L11 -48 L10 -80 Z") +
+          '<path d="M-10 -80 L-11 -48 L11 -48 L10 -80 Z" fill="' + PAPER + '" ' + s + '/>' +
           '<path d="M-3 -80 L0 -70 L3 -80" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
       case "hoodie":
-        return '<path d="M-11 -80 L-12 -46 L12 -46 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-11 -80 L-12 -46 L12 -46 L11 -80 Z") +
+          '<path d="M-11 -80 L-12 -46 L12 -46 L11 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<rect x="-6.5" y="-58" width="13" height="8.5" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
       case "gown":
-        return '<path d="M-9 -80 C -10.5 -68, -11.5 -60, -12 -53 L12 -53 C 11.5 -60, 10.5 -68, 9 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-9 -80 C -10.5 -68, -11.5 -60, -12 -53 L12 -53 C 11.5 -60, 10.5 -68, 9 -80 Z") +
+          '<path d="M-9 -80 C -10.5 -68, -11.5 -60, -12 -53 L12 -53 C 11.5 -60, 10.5 -68, 9 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<g class="wk-skirt" data-pivot="-53">' +
+          psh("M-12 -53 C -15 -36, -17.5 -20, -19 -7 L19 -7 C 17.5 -20, 15 -36, 12 -53 Z") +
           '<path d="M-12 -53 C -15 -36, -17.5 -20, -19 -7 L19 -7 C 17.5 -20, 15 -36, 12 -53 Z" fill="' + a + '" ' + s + '/>' +
           (p.apron ? '<path d="M-7.5 -51 L7.5 -51 L10.5 -11 L-10.5 -11 Z" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8" opacity="0.92"/>' : "") +
           "</g>" +
           '<path d="M-11 -53.5 C -4 -50, 4 -50, 11 -53.5" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
       case "blouseSkirt":
-        return '<path d="M-10 -80 L-11 -55 L11 -55 L10 -80 Z" fill="' + PAPER + '" ' + s + '/>' +
+        return psh("M-10 -80 L-11 -55 L11 -55 L10 -80 Z") +
+          '<path d="M-10 -80 L-11 -55 L11 -55 L10 -80 Z" fill="' + PAPER + '" ' + s + '/>' +
           '<g class="wk-skirt" data-pivot="-55">' +
+          psh("M-11 -55 C -14 -38, -16 -22, -17 -8 L17 -8 C 16 -22, 14 -38, 11 -55 Z") +
           '<path d="M-11 -55 C -14 -38, -16 -22, -17 -8 L17 -8 C 16 -22, 14 -38, 11 -55 Z" fill="' + a + '" ' + s + "/>" +
           "</g>";
       case "dress50s":
-        return '<path d="M-9 -80 L-10 -57 L10 -57 L9 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-9 -80 L-10 -57 L10 -57 L9 -80 Z") +
+          '<path d="M-9 -80 L-10 -57 L10 -57 L9 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<g class="wk-skirt" data-pivot="-57">' +
+          psh("M-10 -57 C -18 -46, -20 -36, -21 -27 L21 -27 C 20 -36, 18 -46, 10 -57 Z") +
           '<path d="M-10 -57 C -18 -46, -20 -36, -21 -27 L21 -27 C 20 -36, 18 -46, 10 -57 Z" fill="' + a + '" ' + s + "/>" +
           "</g>";
       case "modernDress":
-        return '<path d="M-9 -80 L-10 -56 L10 -56 L9 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-9 -80 L-10 -56 L10 -56 L9 -80 Z") +
+          '<path d="M-9 -80 L-10 -56 L10 -56 L9 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<g class="wk-skirt" data-pivot="-56">' +
+          psh("M-10 -56 C -14 -44, -15 -36, -15.5 -29 L15.5 -29 C 15 -36, 14 -44, 10 -56 Z") +
           '<path d="M-10 -56 C -14 -44, -15 -36, -15.5 -29 L15.5 -29 C 15 -36, 14 -44, 10 -56 Z" fill="' + a + '" ' + s + "/>" +
           "</g>";
       case "modernF":
-        return '<path d="M-10 -80 L-11 -48 L11 -48 L10 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-10 -80 L-11 -48 L11 -48 L10 -80 Z") +
+          '<path d="M-10 -80 L-11 -48 L11 -48 L10 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M-6 -80 L0 -68 L6 -80" fill="none" stroke="' + INK + '" stroke-width="1.8"/>';
       case "neutral":
-        return '<path d="M-10 -80 L-11 -44 L11 -44 L10 -80 Z" fill="' + a + '" ' + s + '/>' +
+        return psh("M-10 -80 L-11 -44 L11 -44 L10 -80 Z") +
+          '<path d="M-10 -80 L-11 -44 L11 -44 L10 -80 Z" fill="' + a + '" ' + s + '/>' +
           '<path d="M-11 -50 L11 -50" stroke="' + INK + '" stroke-width="1.8"/>';
     }
     return "";
   }
   function head(p) {
-    var hairFill = p.hair === "gray" || p.hair === "bun-gray" ? "#b9b2a0" : INK;
+    var hairFill = p.hair === "gray" || p.hair === "bun-gray" || p.hair === "long-gray" ? "#b9b2a0" : INK;
     var out = "";
     if (p.kit === "hoodie") {
       out += '<path d="M-11.5 -76 a11.5 13.5 0 0 1 23 0 l0 9 -23 0 Z" fill="' + p.accent + '" stroke="' + INK + '" stroke-width="2.2"/>';
     }
+    out += '<circle cx="1.8" cy="-86.6" r="8" fill="rgba(43,32,18,0.14)"/>';
     out += '<circle cx="0" cy="-89" r="8" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="2.2"/>';
-    if (p.hair === "long") {
+    if (p.hair === "long" || p.hair === "long-gray") {
       out += '<path d="M-8 -90 a8 8.5 0 0 1 16 0 l1.5 14 -4.5 0 -1 -10 a5.5 5 0 0 0 -8 0 l-1 10 -4.5 0 Z" fill="' + hairFill + '"/>';
     } else {
       out += '<path d="M-8 -90.5 a8 8 0 0 1 16 0 Z" fill="' + hairFill + '"/>';
@@ -399,26 +480,29 @@
   function figureMarkup(p) {
     var bare = p.kit === "dress50s" || p.kit === "modernDress";
     function legPair(side) {
+      var shadow = '<path class="wk-leg' + side + 's" fill="none" stroke="rgba(43,32,18,0.15)" stroke-width="' + (SW_LIMB + 3.2) + '" stroke-linecap="round" stroke-linejoin="round" transform="translate(1.3 1.8)"/>';
       var under = bare
         ? '<path class="wk-leg' + side + 'u" fill="none" stroke="' + INK + '" stroke-width="6.6" stroke-linecap="round" stroke-linejoin="round"/>'
         : "";
       var main = bare
         ? '<path class="wk-leg' + side + 'p" fill="none" stroke="' + PAPER + '" stroke-width="4.3" stroke-linecap="round" stroke-linejoin="round"/>'
         : '<path class="wk-leg' + side + 'p" fill="none" stroke="' + INK + '" stroke-width="' + SW_LIMB + '" stroke-linecap="round" stroke-linejoin="round"/>';
-      return under + main;
+      return shadow + under + main;
     }
     function armG(side) {
       return (
         '<g class="wk-arm' + side + '">' +
+        '<path class="wk-arm' + side + 's" fill="none" stroke="rgba(43,32,18,0.15)" stroke-width="' + (SW_LIMB + 3.2) + '" stroke-linecap="round" stroke-linejoin="round" transform="translate(1.2 1.6)"/>' +
         '<path class="wk-arm' + side + 'p" fill="none" stroke="' + p.accent + '" stroke-width="' + SW_LIMB + '" stroke-linecap="round" stroke-linejoin="round"/>' +
         '<circle class="wk-hand' + side + '" r="2.6" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.4"/>' +
         "</g>"
       );
     }
     var book = p.prop === "book"
-      ? '<g class="wk-book"><rect x="-8" y="-71" width="16" height="11.5" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="2"/><path d="M0 -71 v11.5" stroke="' + INK + '" stroke-width="1.4"/></g>'
+      ? '<g class="wk-book"><rect x="-6.2" y="-68.8" width="16" height="11.5" fill="rgba(43,32,18,0.15)"/><rect x="-8" y="-71" width="16" height="11.5" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="2"/><path d="M0 -71 v11.5" stroke="' + INK + '" stroke-width="1.4"/></g>'
       : "";
     return (
+      '<ellipse class="wk-shadow" cx="0" cy="2.5" rx="17" ry="4.2" fill="rgba(43,32,18,0.20)"/>' +
       '<ellipse class="wk-ring" cx="0" cy="1.5" rx="21" ry="5" fill="none" stroke="#b9872c" stroke-width="2.4" opacity="0"/>' +
       '<g class="wk-flip">' +
       '<g class="wk-legs">' + legPair("l") + legPair("r") +
@@ -582,6 +666,7 @@
   function buggyMarkup() {
     var legStyle = 'fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"';
     return (
+      '<circle class="v-headlight" cx="20" cy="-52" r="11" fill="#f7e3a1"/>' +
       '<path d="M78 -54 C 68 -48, 67 -36, 72 -27" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>' +
       '<g class="v-legs-a"><path d="M106 -36 L108 -16 L106 0 M112 -36 L110 -18 L112 0 M82 -36 L80 -16 L82 0 M88 -36 L90 -18 L88 0" ' + legStyle + "/></g>" +
       '<g class="v-legs-b" style="display:none"><path d="M106 -36 L100 -18 L102 0 M112 -36 L116 -14 L114 0 M82 -36 L88 -18 L86 0 M88 -36 L82 -14 L84 0" ' + legStyle + "/></g>" +
@@ -603,6 +688,7 @@
   }
   function modeltMarkup() {
     return (
+      '<path class="v-headlight" d="M113 -52 L170 -42 L170 -29 L113 -41 Z" fill="#f7e3a1"/>' +
       '<path d="M6 -60 L6 -24 L88 -24 L88 -60 Z" fill="#454e47" stroke="' + INK + '" stroke-width="2.4"/>' +
       '<rect x="15" y="-56" width="20" height="14" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8"/>' +
       '<rect x="43" y="-56" width="20" height="14" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8"/>' +
@@ -620,6 +706,7 @@
   }
   function sedanMarkup() {
     return (
+      '<path class="v-headlight" d="M139 -33 L198 -24 L198 -12 L138 -25 Z" fill="#f7e3a1"/>' +
       '<path d="M4 -36 C 4 -42, 10 -44, 20 -44 L36 -44 C 46 -56, 60 -60, 76 -60 L94 -60 C 106 -60, 116 -52, 126 -44 L134 -42 C 140 -40, 141 -32, 139 -27 L137 -21 L6 -21 C 3 -26, 3 -31, 4 -36 Z" fill="#7d5a13" stroke="' + INK + '" stroke-width="2.4"/>' +
       '<path d="M42 -46 C 50 -54, 60 -57, 74 -57 L90 -57 C 98 -56, 104 -51, 109 -46 Z" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8"/>' +
       '<path d="M74 -57 L74 -46" stroke="' + INK + '" stroke-width="1.6"/>' +
@@ -632,6 +719,7 @@
   }
   function suvMarkup() {
     return (
+      '<path class="v-headlight" d="M125 -39 L184 -30 L184 -18 L124 -30 Z" fill="#f7e3a1"/>' +
       '<path d="M6 -54 C 6 -60, 12 -62, 20 -62 L94 -62 C 106 -62, 116 -56, 123 -46 L126 -36 C 127 -29, 124 -23, 117 -23 L9 -23 C 5 -31, 4 -45, 6 -54 Z" fill="#2c5240" stroke="' + INK + '" stroke-width="2.4"/>' +
       '<path d="M15 -58 L50 -58 L50 -38 L13 -38 Z" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8"/>' +
       '<path d="M56 -58 L90 -58 C 98 -58, 104 -51, 108 -38 L56 -38 Z" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="1.8"/>' +
@@ -650,13 +738,31 @@
     g.setAttribute("class", "v-vehicle");
     g.style.display = "none";
     g.innerHTML = kind === "buggy" ? buggyMarkup() : kind === "modelt" ? modeltMarkup() : kind === "sedan" ? sedanMarkup() : suvMarkup();
+    var sh = document.createElementNS(SVGNS, "ellipse");
+    sh.setAttribute("cx", (VEH_LEN[kind] / 2).toFixed(0));
+    sh.setAttribute("cy", "2.5");
+    sh.setAttribute("rx", (VEH_LEN[kind] / 2).toFixed(0));
+    sh.setAttribute("ry", "4.5");
+    sh.setAttribute("fill", "rgba(43,32,18,0.18)");
+    g.insertBefore(sh, g.firstChild);
     vehLayer.appendChild(g);
     return {
       kind: kind, el: g, active: false, x: 0, y: 0, dir: 1, scale: 1,
-      speed: VEH_SPEED[kind], len: VEH_LEN[kind], wheelA: 0, legT: 0,
+      speed: VEH_SPEED[kind], len: VEH_LEN[kind], wheelA: 0, legT: 0, sayCool: 0,
       wheels: g.querySelectorAll(".v-wheel"),
       legsA: g.querySelector(".v-legs-a"), legsB: g.querySelector(".v-legs-b")
     };
+  }
+
+  // How long the road rests between vehicles, by phase: the
+  // street is busy at midday and near silent at night.
+  var VEH_GAP = {
+    dawn: [16, 26], morning: [8, 14], midday: [6, 11],
+    afternoon: [7, 12], dusk: [11, 18], night: [26, 44]
+  };
+  function nextVehGap() {
+    var g = VEH_GAP[state.phase] || VEH_GAP.midday;
+    return g[0] + Math.random() * (g[1] - g[0]);
   }
 
   /* ---------------- Walkers ---------------- */
@@ -682,7 +788,7 @@
     var a = document.createElementNS(SVGNS, "a");
     a.setAttribute("href", "person.html");
     a.setAttribute("class", "walker");
-    a.setAttribute("aria-label", person.name + ", " + person.yearPhrase + ". Open their profile.");
+    a.setAttribute("aria-label", person.name + ", " + person.yearPhrase + (person.frozenAge !== null ? ", kept at the age of " + person.frozenAge : "") + ". Open their profile.");
     a.setAttribute("data-kit", person.kit);
     a.setAttribute("data-status", person.bornStatus);
     var g = document.createElementNS(SVGNS, "g");
@@ -695,8 +801,10 @@
       headEl: g.querySelector(".wk-head"),
       legLP: g.querySelector(".wk-leglp"), legLU: g.querySelector(".wk-leglu"),
       legRP: g.querySelector(".wk-legrp"), legRU: g.querySelector(".wk-legru"),
+      legLS: g.querySelector(".wk-legls"), legRS: g.querySelector(".wk-legrs"),
       armLP: g.querySelector(".wk-armlp"), handL: g.querySelector(".wk-handl"),
       armRP: g.querySelector(".wk-armrp"), handR: g.querySelector(".wk-handr"),
+      armLS: g.querySelector(".wk-armls"), armRS: g.querySelector(".wk-armrs"),
       shoeL: g.querySelector(".wk-shoel"), shoeR: g.querySelector(".wk-shoer"),
       basketEl: g.querySelector(".wk-basket"), caneEl: g.querySelector(".wk-cane"),
       skirtEl: g.querySelector(".wk-skirt"),
@@ -745,18 +853,22 @@
     var hipY = HIP_Y + bobY;
     var pathEl = side === "l" ? w.legLP : w.legRP;
     var underEl = side === "l" ? w.legLU : w.legRU;
+    var shadowEl = side === "l" ? w.legLS : w.legRS;
     if (!pathEl) return;
     if (w.person.kit === "gown" || w.person.kit === "blouseSkirt") {
       // Covered by the skirt: only an ankle steps out from
       // under the hem, driven by the same planted foot.
       var hemY = w.person.kit === "gown" ? -8 : -9;
-      pathEl.setAttribute("d", "M" + (fp.x * 0.55).toFixed(1) + " " + hemY + " L" + fp.x.toFixed(1) + " " + fp.y.toFixed(1));
+      var ankleD = "M" + (fp.x * 0.55).toFixed(1) + " " + hemY + " L" + fp.x.toFixed(1) + " " + fp.y.toFixed(1);
+      pathEl.setAttribute("d", ankleD);
+      if (shadowEl) shadowEl.setAttribute("d", ankleD);
       if (underEl) underEl.setAttribute("d", "");
       return;
     }
     var knee = solve2(hipX, hipY, fp.x, fp.y, THIGH, SHIN, "fwd");
     var d = limbPath(hipX, hipY, knee.x, knee.y, fp.x, fp.y);
     pathEl.setAttribute("d", d);
+    if (shadowEl) shadowEl.setAttribute("d", d);
     if (underEl) underEl.setAttribute("d", d);
   }
   function poseShoe(el, fp) {
@@ -797,7 +909,10 @@
       var sway = 2.2 * Math.sin(w.idleT * 0.85 + w.idx * 1.7 + (side === "r" ? 0.6 : 0));
       pts = armFK(sx, SH_Y, sway, 12);
     }
-    pathEl.setAttribute("d", limbPath(sx, SH_Y, pts.ex, pts.ey, pts.hx, pts.hy));
+    var armD = limbPath(sx, SH_Y, pts.ex, pts.ey, pts.hx, pts.hy);
+    pathEl.setAttribute("d", armD);
+    var armShadow = side === "l" ? w.armLS : w.armRS;
+    if (armShadow) armShadow.setAttribute("d", armD);
     if (handEl) {
       handEl.setAttribute("cx", pts.hx.toFixed(1));
       handEl.setAttribute("cy", pts.hy.toFixed(1));
@@ -949,6 +1064,12 @@
   function decide(w) {
     var stops = w.person.routeStops;
     var next;
+    if (w.retire) {
+      // Sent home by the hour (or by the governor): home, and in.
+      if (w.node === w.person.home) { goInside(w); return; }
+      startWalk(w, w.person.home);
+      return;
+    }
     if (state.phase === "night" && !NIGHT_KEEPERS[w.person.id]) {
       if (w.node === w.person.home) { goInside(w); return; }
       startWalk(w, w.person.home);
@@ -1062,20 +1183,6 @@
     pose(w);
   }
 
-  function retireWalkers() {
-    for (var i = 0; i < walkers.length; i++) {
-      var w = walkers[i];
-      if (NIGHT_KEEPERS[w.person.id] || w.inside) continue;
-      w.retire = true;
-      if (w.mode === "idle" && !w.goingIn) {
-        if (w.node === w.person.home) goInside(w);
-        else startWalk(w, w.person.home);
-      }
-    }
-  }
-  function releaseWalkers() {
-    for (var i = 0; i < walkers.length; i++) walkers[i].retire = false;
-  }
   function thinOut() {
     var sent = 0;
     for (var i = 0; i < walkers.length && sent < 4; i++) {
@@ -1139,10 +1246,11 @@
         v.legsB.style.display = showA ? "none" : "";
       }
       v.el.setAttribute("transform", "translate(" + v.x.toFixed(1) + " " + v.y + ") scale(" + v.dir * v.scale + " " + v.scale + ")");
+      if (v.kind === "buggy") buggySpeechCheck(v);
       if ((v.dir === 1 && v.x > 1240) || (v.dir === -1 && v.x < -10)) {
         v.active = false;
         v.el.style.display = "none";
-        vehTimer = 7 + Math.random() * 12;
+        vehTimer = nextVehGap();
       }
     }
   }
@@ -1161,6 +1269,186 @@
     }
   }
 
+  /* ---------------- Era-quirk speech ----------------
+     The village is a time encapsulation: every ancestor lives
+     at the age they passed, in a street the current year keeps
+     adding to. When someone passes a thing from a generation
+     not their own, they say so. The trigger is data, not
+     script: a walker's era is their documented birth year plus
+     25 (the same figuring as their dress), each landmark and
+     vehicle carries the era it belongs to, and a gap of 45
+     years or more between the two is what makes it strange
+     enough to remark on. Era-neutral figures (no documented
+     year) never remark: the record does not settle their era,
+     so the village does not invent one. Lines are written per
+     era pairing, warm and wondering, never mocking. */
+
+  var LANDMARKS = [
+    { id: "gas", x: 1060, y: 560, era: 1935, kind: "gas" },
+    { id: "store", x: 869, y: 490, era: 1915, kind: "store" },
+    { id: "stall", x: 963, y: 554, era: 1905, kind: "stall" },
+    { id: "well", x: 555, y: 548, era: 1840, kind: "well" }
+  ];
+  var VEHICLE_ERA = { buggy: 1890, modelt: 1920, sedan: 1975, suv: 2005 };
+  var SPEECH = {
+    oldSeesNew: {
+      gas: [
+        "What is that?",
+        "It runs with no horse at all?",
+        "They feed it from a pump?",
+        "Well, I never in my days.",
+        "Is it safe to stand near?"
+      ],
+      suv: [
+        "What is that contraption?",
+        "No horses? None at all?",
+        "It goes all by itself!",
+        "Mercy, look at it go."
+      ],
+      sedan: [
+        "What is that long thing?",
+        "A carriage with no horse?",
+        "It hums instead of clopping."
+      ],
+      modelt: [
+        "A carriage with no horse?",
+        "What is that racket?",
+        "It starts with a crank?"
+      ],
+      store: ["The store has glass like a greenhouse now."],
+      generic: ["Well, I never.", "Times do change.", "Would you look at that."]
+    },
+    newSeesOld: {
+      buggy: [
+        "A real horse and buggy!",
+        "They still take the buggy out.",
+        "Slower, but it gets there.",
+        "Look, an actual horse!"
+      ],
+      well: [
+        "Folks drew every drop by hand here.",
+        "Imagine hauling your water home."
+      ],
+      stall: ["A market stall, just like the stories."],
+      generic: ["So that is how they did it.", "From another time, right here."]
+    }
+  };
+
+  var bubbleLayer = document.getElementById("v-bubbles");
+  var activeBubbles = 0;
+  // The texts currently on screen. A line that is still
+  // displayed is never shown twice at once: pickLine's guard
+  // only stops consecutive repeats, so the choke point here
+  // refuses any text already in this set, for walker speech
+  // and the buggy's driver alike. A refused pick simply does
+  // not speak this tick; the next pick moves to another line.
+  var activeTexts = {};
+  state.speechCount = 0;
+  state.showBubble = function (x, y, text) { return showBubble(x, y, text); };
+
+  function showBubble(x, y, text) {
+    if (!bubbleLayer || activeBubbles >= 2) return false;
+    if (activeTexts[text]) return false;
+    activeTexts[text] = true;
+    var wpx = Math.round(text.length * 6.9 + 26);
+    var g = document.createElementNS(SVGNS, "g");
+    g.setAttribute("class", "v-bubble");
+    g.setAttribute("transform", "translate(" + x.toFixed(1) + " " + y.toFixed(1) + ")");
+    var inner = document.createElementNS(SVGNS, "g");
+    inner.setAttribute("class", "v-bubble-in");
+    inner.innerHTML =
+      '<rect class="v-bubble-box" x="' + (-wpx / 2) + '" y="-36" width="' + wpx + '" height="28" rx="9"></rect>' +
+      '<polygon class="v-bubble-tail" points="-6,-9 6,-9 0,-1"></polygon>' +
+      '<text y="-17">' + text + "</text>";
+    g.appendChild(inner);
+    bubbleLayer.appendChild(g);
+    activeBubbles++;
+    state.speechCount++;
+    window.setTimeout(function () {
+      inner.setAttribute("class", "v-bubble-out");
+      window.setTimeout(function () {
+        if (g.parentNode) g.parentNode.removeChild(g);
+        activeBubbles = Math.max(0, activeBubbles - 1);
+        delete activeTexts[text];
+      }, 420);
+    }, 3400);
+    return true;
+  }
+  var lastLineGlobal = null;
+  function pickLine(w, setName, kind) {
+    var set = SPEECH[setName];
+    var lines = set[kind] || set.generic;
+    var line = lines[(Math.random() * lines.length) | 0];
+    if ((line === w.lastLine || line === lastLineGlobal) && lines.length > 1) {
+      line = lines[(lines.indexOf(line) + 1) % lines.length];
+    }
+    if (line === lastLineGlobal && lines.length > 2) {
+      line = lines[(lines.indexOf(line) + 1) % lines.length];
+    }
+    w.lastLine = line;
+    lastLineGlobal = line;
+    return line;
+  }
+  function eraRemark(w, objEra, kind) {
+    var era = w.person.born + 25;
+    var diff = objEra - era;
+    if (diff >= 45) return pickLine(w, "oldSeesNew", kind);
+    if (diff <= -45) return pickLine(w, "newSeesOld", kind);
+    return null;
+  }
+  var sayAcc = 0;
+  function speechStep(dt) {
+    sayAcc += dt;
+    if (sayAcc < 0.3) return;
+    sayAcc = 0;
+    if (state.mode !== "roam") return;
+    var now = state.time || 0;
+    for (var i = 0; i < walkers.length; i++) {
+      var w = walkers[i];
+      if (w.inside || w.goingIn || w.fade < 0.6) continue;
+      if (!w.person.documented) continue;
+      if (now < (w.sayCool || 0)) continue;
+      var spoken = false;
+      for (var j = 0; j < LANDMARKS.length; j++) {
+        var lm = LANDMARKS[j];
+        if (Math.abs(w.x - lm.x) < 62 && Math.abs(w.y - lm.y) < 74) {
+          var line = eraRemark(w, lm.era, lm.kind);
+          if (line && showBubble(w.x, w.y - 122 * depthScale(w.y) * w.person.scale, line)) spoken = true;
+          break;
+        }
+      }
+      if (!spoken) {
+        for (var k = 0; k < vehicles.length; k++) {
+          var v = vehicles[k];
+          if (!v.active) continue;
+          var cx = v.x + v.dir * v.scale * (v.len / 2);
+          if (Math.abs(w.x - cx) < 58 && Math.abs(w.y - v.y) < 52) {
+            var line2 = eraRemark(w, VEHICLE_ERA[v.kind], v.kind);
+            if (line2 && showBubble(w.x, w.y - 122 * depthScale(w.y) * w.person.scale, line2)) spoken = true;
+            break;
+          }
+        }
+      }
+      if (spoken) w.sayCool = now + 11 + Math.random() * 9;
+    }
+  }
+  // The founder's example, wired as data: the buggy's driver is
+  // a person of the buggy's own era, and the filling station is
+  // not. When the buggy passes the pumps, the driver marvels.
+  function buggySpeechCheck(v) {
+    if (state.mode !== "roam") return;
+    var now = state.time || 0;
+    if (now < (v.sayCool || 0)) return;
+    var driverX = v.x + v.dir * v.scale * 26;
+    if (Math.abs(driverX - 1060) < 42) {
+      var lines = SPEECH.oldSeesNew.gas;
+      var line = lines[(Math.random() * lines.length) | 0];
+      if (showBubble(driverX, v.y - 98 * v.scale, line)) {
+        v.sayCool = now + 24;
+      }
+    }
+  }
+
   /* ---------------- The hour: day phases ---------------- */
 
   var PHASES = {
@@ -1171,7 +1459,9 @@
     dusk: { label: "Dusk in the village. Lamps come on, and everyone drifts home.", tint: "#a84c16", opacity: 0.2, lit: true },
     night: { label: "Night in the village. Most everyone is home.", tint: "#142a1f", opacity: 0.48, lit: true }
   };
-  var FORCED_PHASE = forcePhase && PHASES[forcePhase] ? forcePhase : null;
+  var FORCED_PHASE = forceHour !== null
+    ? phaseForHour(forceHour)
+    : (forcePhase && PHASES[forcePhase] ? forcePhase : null);
 
   // The hour-to-phase mapping, kept pure so the harness can
   // assert the unforced mapping at the boundary hours. Night is
@@ -1184,15 +1474,88 @@
     if (h < 18) return "afternoon";
     return "dusk";
   }
+  function currentHour() {
+    return forceHour !== null ? forceHour : new Date().getHours();
+  }
   function phaseFromClock() {
-    return phaseForHour(new Date().getHours());
+    return phaseForHour(currentHour());
   }
   state.phaseForHour = phaseForHour;
+  state.currentHour = currentHour;
+
+  // How much of the village is out, by phase: the density of
+  // the street is a function of the viewer's hour. Midday the
+  // whole roster is out on errands; at night only the keepers
+  // remain. Traffic density follows the same curve (VEH_GAP).
+  var PHASE_ACTIVITY = {
+    dawn: 0.4, morning: 0.85, midday: 1.0,
+    afternoon: 0.9, dusk: 0.55, night: 0.16
+  };
+  state.activityForPhase = function (name) {
+    return PHASE_ACTIVITY[name];
+  };
+  function keeperCount() {
+    var n = 0;
+    for (var id in NIGHT_KEEPERS) if (NIGHT_KEEPERS[id]) n++;
+    return n;
+  }
+  function desiredOut(name) {
+    if (name === "night") return keeperCount();
+    return Math.max(3, Math.round(PEOPLE.length * (PHASE_ACTIVITY[name] || 1)));
+  }
+  state.desiredOutForPhase = desiredOut;
+  // Bring the street to the phase's density: send the excess
+  // home (they walk, they do not vanish) and let the missing
+  // out of their doors. Called on every phase change and once
+  // at startup, so opening the page at 2am opens a quiet street.
+  function adjustPopulation(name) {
+    if (state.mode !== "roam") return;
+    var want = desiredOut(name);
+    state.desiredOut = want;
+    var out = [];
+    var i, w;
+    for (i = 0; i < walkers.length; i++) {
+      w = walkers[i];
+      if (!w.inside && !w.goingIn) out.push(w);
+    }
+    if (out.length > want) {
+      var need = out.length - want;
+      out.sort(function (a, b) {
+        var ka = NIGHT_KEEPERS[a.person.id] ? 1 : 0;
+        var kb = NIGHT_KEEPERS[b.person.id] ? 1 : 0;
+        return ka - kb;
+      });
+      for (i = 0; i < out.length && need > 0; i++) {
+        w = out[i];
+        if (w.retire) { need--; continue; }
+        w.retire = true;
+        need--;
+        if (w.mode === "idle") {
+          if (w.node === w.person.home) goInside(w);
+          else startWalk(w, w.person.home);
+        }
+      }
+    } else if (out.length < want) {
+      var deficit = want - out.length;
+      for (i = 0; i < walkers.length; i++) walkers[i].retire = false;
+      for (i = 0; i < walkers.length && deficit > 0; i++) {
+        w = walkers[i];
+        if (w.inside && !w.goingIn) {
+          exitHouse(w);
+          deficit--;
+        }
+      }
+    } else {
+      for (i = 0; i < walkers.length; i++) {
+        if (!walkers[i].inside) walkers[i].retire = false;
+      }
+    }
+  }
   function applyPhase(name) {
     var ph = PHASES[name];
     if (!ph) return;
-    var wasNight = state.phase === "night";
     state.phase = name;
+    state.hour = currentHour();
     svg.setAttribute("data-phase", name);
     var rect = document.getElementById("v-phase-rect");
     if (rect) {
@@ -1203,8 +1566,7 @@
     for (var i = 0; i < wins.length; i++) wins[i].classList.toggle("lit", ph.lit);
     var clock = document.getElementById("village-clock");
     if (clock) clock.textContent = ph.label;
-    if (name === "night" && state.mode === "roam") retireWalkers();
-    if (name !== "night" && wasNight) releaseWalkers();
+    adjustPopulation(name);
   }
 
   /* ---------------- Roster ---------------- */
@@ -1222,10 +1584,11 @@
       var a = document.createElement("a");
       a.className = "roster-btn";
       a.href = "person.html";
-      a.setAttribute("aria-label", p.name + ", " + p.yearPhrase + ", " + p.line + ". Open their profile.");
+      a.setAttribute("aria-label", p.name + ", " + p.yearPhrase + ", " + p.line + (p.frozenAge !== null ? ", kept at the age of " + p.frozenAge : "") + ". Open their profile.");
       var meta =
         p.yearPhrase.charAt(0).toUpperCase() + p.yearPhrase.slice(1) +
-        " · " + p.line + (p.relatives ? " · " + p.relatives : "");
+        " · " + p.line + (p.relatives ? " · " + p.relatives : "") +
+        (p.frozenAge !== null ? " · Age kept at " + p.frozenAge : "");
       a.innerHTML =
         '<span class="roster-name">' + p.name + "</span>" +
         '<span class="roster-meta">' + meta + "</span>";
@@ -1255,7 +1618,7 @@
     { x: 574, y: 548, f: 1 }, { x: 872, y: 488, f: -1 },
     { x: 628, y: 548, f: -1 }, { x: 408, y: 560, f: 1 },
     { x: 1062, y: 610, f: -1 }, { x: 648, y: 568, f: -1 },
-    { x: 610, y: 488, f: 1 }, { x: 1096, y: 488, f: -1 },
+    { x: 610, y: 488, f: 1 }, { x: 1120, y: 614, f: -1 },
     { x: 902, y: 556, f: 1 }, { x: 946, y: 562, f: 1 },
     { x: 1004, y: 558, f: -1 }, { x: 100, y: 566, f: 1 }
   ];
@@ -1302,8 +1665,10 @@
       if (avg > 0.04) { freezeAll(); return; }
       if (avg > 0.026 && state.tier === "A") { state.tier = "B"; thinOut(); }
     }
+    state.time = (state.time || 0) + dt;
     for (var i = 0; i < walkers.length; i++) stepWalker(walkers[i], dt);
     stepVehicles(dt);
+    speechStep(dt);
   }
 
   /* ---------------- Fit and init ---------------- */
@@ -1314,10 +1679,38 @@
     else svg.setAttribute("viewBox", "0 0 1200 675");
   }
 
+  // The world is stacked paper; looking across it leans the
+  // stack a little, near layers traveling farther than far
+  // ones. Pointer only, and never under reduced motion.
+  function initParallax() {
+    if (REDUCED) return;
+    var layers = [
+      { el: document.getElementById("v-layer-far"), fx: 10, fy: 3 },
+      { el: document.getElementById("v-layer-mid"), fx: 5, fy: 1.6 },
+      { el: document.getElementById("v-layer-fore"), fx: 14, fy: 4.5 }
+    ].filter(function (l) { return !!l.el; });
+    if (!layers.length) return;
+    state.parallax = true;
+    stage.addEventListener("pointermove", function (e) {
+      var r = stage.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var nx = (e.clientX - r.left) / r.width - 0.5;
+      var ny = (e.clientY - r.top) / r.height - 0.5;
+      for (var i = 0; i < layers.length; i++) {
+        var l = layers[i];
+        l.el.style.transform = "translate(" + (nx * l.fx).toFixed(1) + "px, " + (ny * l.fy).toFixed(1) + "px)";
+      }
+    });
+    stage.addEventListener("pointerleave", function () {
+      for (var i = 0; i < layers.length; i++) layers[i].el.style.transform = "";
+    });
+  }
+
   function init() {
     if (!PEOPLE.length) throw new Error("no villager data");
     fitView();
     window.addEventListener("resize", fitView);
+    initParallax();
     PEOPLE.forEach(function (p, i) {
       p.routeD = pathFromPoints(routePoints(p.routeStops));
       var w = makeWalker(p, i);
@@ -1353,6 +1746,7 @@
       new IntersectionObserver(function (entries) { state.onScreen = entries[0].isIntersecting; }, { threshold: 0.04 }).observe(stage);
     }
     if (params.get("traffic")) vehTimer = 0.5;
+    else vehTimer = nextVehGap() * 0.4;
     state.raf = window.requestAnimationFrame(function (ts) {
       lastTs = ts;
       state.raf = window.requestAnimationFrame(loop);
@@ -1360,7 +1754,7 @@
     if (!FORCED_PHASE) {
       window.setInterval(function () { applyPhase(phaseFromClock()); }, 45000);
     }
-    if (state.phase === "night") retireWalkers();
+    adjustPopulation(state.phase);
   }
 
   try {

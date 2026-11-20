@@ -1,0 +1,63 @@
+t=   0.0s bubbles=["Imagine hauling your water home."]
+t=   0.5s bubbles=["Imagine hauling your water home."]
+t=   1.0s bubbles=["Imagine hauling your water home."]
+t=  16.6s bubbles=["Folks drew every drop by hand here."]
+t=  17.1s bubbles=["Folks drew every drop by hand here."]
+t=  17.5s bubbles=["Folks drew every drop by hand here."]
+t=  17.9s bubbles=["Folks drew every drop by hand here."]
+t=  18.3s bubbles=["Folks drew every drop by hand here."]
+t=  18.8s bubbles=["Folks drew every drop by hand here."]
+t=  19.2s bubbles=["Folks drew every drop by hand here."]
+t=  19.6s bubbles=["Folks drew every drop by hand here."]
+t=  20.0s bubbles=["Folks drew every drop by hand here."]
+t=  39.4s bubbles=["Imagine hauling your water home."]
+t=  39.9s bubbles=["Imagine hauling your water home."]
+t=  40.3s bubbles=["Imagine hauling your water home."]
+t=  40.8s bubbles=["Imagine hauling your water home."]
+t=  41.2s bubbles=["Imagine hauling your water home."]
+t=  41.6s bubbles=["Imagine hauling your water home."]
+t=  42.1s bubbles=["Imagine hauling your water home."]
+t=  42.5s bubbles=["Imagine hauling your water home."]
+t=  43.0s bubbles=["Imagine hauling your water home."]
+t=  51.5s bubbles=["Folks drew every drop by hand here."]
+t=  52.0s bubbles=["Folks drew every drop by hand here."]
+t=  52.4s bubbles=["Folks drew every drop by hand here."]
+t=  52.9s bubbles=["Folks drew every drop by hand here."]
+t=  53.3s bubbles=["Folks drew every drop by hand here."]
+t=  53.7s bubbles=["Folks drew every drop by hand here."]
+t=  54.2s bubbles=["Folks drew every drop by hand here."]
+t=  54.6s bubbles=["Folks drew every drop by hand here."]
+t=  55.0s bubbles=["Folks drew every drop by hand here."]
+t=  57.6s bubbles=["It runs with no horse at all?"]
+t=  58.1s bubbles=["It runs with no horse at all?"]
+t=  58.5s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  58.9s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  59.3s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  59.8s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  60.2s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  60.6s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  61.0s bubbles=["It runs with no horse at all?", "Imagine hauling your water home."]
+t=  61.5s bubbles=["Imagine hauling your water home."]
+t=  61.9s bubbles=["Imagine hauling your water home."]
+t=  70.5s bubbles=["Folks drew every drop by hand here."]
+t=  70.9s bubbles=["Folks drew every drop by hand here."]
+t=  71.3s bubbles=["Folks drew every drop by hand here."]
+t=  71.8s bubbles=["Folks drew every drop by hand here."]
+t=  72.2s bubbles=["Folks drew every drop by hand here."]
+t=  72.6s bubbles=["Folks drew every drop by hand here."]
+t=  73.0s bubbles=["Folks drew every drop by hand here."]
+t=  73.5s bubbles=["Folks drew every drop by hand here."]
+t=  73.9s bubbles=["Folks drew every drop by hand here."]
+{
+ "seconds": 75,
+ "samples": 172,
+ "violations": [],
+ "distinctLinesSeen": [
+  "Folks drew every drop by hand here.",
+  "Imagine hauling your water home.",
+  "It runs with no horse at all?"
+ ],
+ "maxSimultaneous": 2,
+ "speechCountDelta": 6,
+ "pageerrors": []
+}

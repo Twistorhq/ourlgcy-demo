@@ -1,0 +1,22 @@
+{
+ "dawn": {
+  "phase": "dawn",
+  "hour": 6,
+  "desiredOut": 6,
+  "expectedDesired": 6,
+  "errors": []
+ },
+ "keptAgeOnRoster": 10,
+ "rosterCount": 14,
+ "middaySpeechCount": 2,
+ "clickTarget": {
+  "x": 1086.0799560546875,
+  "y": 679.283203125,
+  "href": "person.html"
+ },
+ "clickLandsOn": "person.html",
+ "still": {
+  "mode": "still",
+  "walkers": 14
+ }
+}

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Community: the village under the oak · Our LGCY</title>
-<meta name="description" content="The ink ancestors of the fictional sample family, roaming their village under the oak in the Our LGCY demo preview. No real family data.">
+<title>Community: a papercraft village · Our LGCY</title>
+<meta name="description" content="The ancestors of the fictional sample family as papercraft people in a paper village of their own, keeping the viewer's real hours in the Our LGCY demo preview. No real family data.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -30,143 +30,318 @@
 <div class="demo-banner" role="note">
   <div class="wrap">
     <strong>Demo preview.</strong>
-    <span>The villagers below belong to the fictional sample family from the home tree. Each one is dressed from their documented sample birth year. No real family data appears here.</span>
+    <span>The villagers below belong to the fictional sample family from the home tree. Each one is dressed from their documented sample birth year and kept at the age they were when they passed. No real family data appears here.</span>
   </div>
 </div>
 
 <main id="main">
   <div class="wrap">
     <div class="page-head">
-      <p class="eyebrow">The village under the oak</p>
+      <p class="eyebrow">A village of paper, kept in the present day</p>
       <h1>Community</h1>
-      <p class="lede">Below the tree, the family lives. The sample ancestors keep a village day under the oak, each on their own round between the homeplace, the church, the store, and the well, getting there the way their years allowed. Tap a villager to open their profile.</p>
+      <p class="lede">The family steps off the tree and into a place of their own: a papercraft village street, built of layered paper, where the sample ancestors keep their rounds between the homeplace, the church, the store, and the well. The village runs on your hours, not theirs: come at midday and the street bustles; come at night and most everyone is home. Each villager stays the age they were when they passed, living that age in today's world, and now and then someone marvels at what another generation left on their street. Tap a villager to open their profile.</p>
     </div>
 
-    <figure class="village-figure">
+        <figure class="village-figure">
       <div class="village-stage" id="village-stage">
-        <svg class="village-svg" id="village-svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet" role="img" aria-label="An ink drawn village under the great oak: a log cabin, a church, a farmhouse, a store, and a brick house along a dirt street, with a well, a market stall, and a garden.">
-          <image href="assets/oak-tree.jpg" x="0" y="0" width="1200" height="675" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></image>
-          <rect class="v-phase-rect" id="v-phase-rect" x="0" y="0" width="1200" height="675" fill="#142a1f" opacity="0"></rect>
-          <g class="v-sky" aria-hidden="true">
+        <svg class="village-svg" id="village-svg" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A papercraft village street in its own world: layered paper houses, a church, a store, and a filling station along a road with era-true traffic, where the family's ancestors keep their rounds at the age they were when they passed.">
+          <defs>
+            <linearGradient id="v-skygrad" x1="0" y1="0" x2="0" y2="1">
+              <stop class="sky-a" offset="0"></stop>
+              <stop class="sky-b" offset="0.55"></stop>
+              <stop class="sky-c" offset="1"></stop>
+            </linearGradient>
+            <filter id="v-grain" x="0" y="0" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"></feTurbulence>
+              <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.23  0 0 0 0 0.16  0 0 0 0 0.07  0 0 0 0.55 0"></feColorMatrix>
+            </filter>
+            <filter id="v-paperlift" x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="1.6" dy="2.4" stdDeviation="1.1" flood-color="#2b2012" flood-opacity="0.30"></feDropShadow>
+            </filter>
+          </defs>
+
+          <rect class="v-skyrect" x="0" y="0" width="1200" height="675" fill="url(#v-skygrad)"></rect>
+
+          <g id="v-layer-sky" aria-hidden="true">
+            <g class="v-stars">
+              <circle cx="80" cy="60" r="2.2"></circle><circle cx="210" cy="130" r="1.7"></circle>
+              <circle cx="330" cy="48" r="2.5"></circle><circle cx="452" cy="110" r="1.6"></circle>
+              <circle cx="560" cy="66" r="2.1"></circle><circle cx="668" cy="150" r="1.7"></circle>
+              <circle cx="742" cy="42" r="2.4"></circle><circle cx="838" cy="96" r="1.6"></circle>
+              <circle cx="950" cy="150" r="2"></circle><circle cx="1030" cy="180" r="1.7"></circle>
+              <circle cx="140" cy="210" r="1.6"></circle><circle cx="520" cy="190" r="1.8"></circle>
+              <circle cx="1150" cy="70" r="2.2"></circle><circle cx="262" cy="250" r="1.5"></circle>
+              <path d="M392 168 l3.4 6.8 6.8 3.4 -6.8 3.4 -3.4 6.8 -3.4 -6.8 -6.8 -3.4 6.8 -3.4 z"></path>
+              <path d="M896 200 l2.8 5.6 5.6 2.8 -5.6 2.8 -2.8 5.6 -2.8 -5.6 -5.6 -2.8 5.6 -2.8 z"></path>
+            </g>
             <g class="v-sun">
-              <circle cx="1086" cy="76" r="25"></circle>
-              <path d="M1086 38v-12M1086 126v-12M1048 76h-12M1136 76h-12M1059 49l-9-9M1122 103l-9-9M1113 49l9-9M1050 103l9-9"></path>
+              <circle cx="1089" cy="79" r="30" class="v-sun-shadow"></circle>
+              <circle cx="1086" cy="76" r="30" class="v-sun-ring"></circle>
+              <circle cx="1086" cy="76" r="22" class="v-sun-disc"></circle>
+              <circle cx="1086" cy="76" r="13" class="v-sun-core"></circle>
             </g>
-            <path class="v-moon" d="M1104 52a30 30 0 1 0 14 50a24 24 0 1 1-14-50z"></path>
-          </g>
-          <path class="v-clearing" d="M0 418 C 200 396, 420 422, 640 406 C 860 392, 1040 416, 1200 402 L1200 675 L0 675 Z"></path>
-          <g class="v-paths" aria-hidden="true">
-            <path class="v-path-main" d="M30 566 C 260 536, 430 584, 640 560 C 850 536, 1010 580, 1170 552"></path>
-            <path class="v-path-spur" d="M164 474 L170 548 M400 474 L405 552 M634 476 L630 556 M869 478 L864 552 M1094 476 L1084 546 M618 556 L604 532 M866 554 L902 542 M1084 548 L1066 606 M300 588 L240 560 M170 548 L96 556"></path>
-          </g>
-          <g class="v-buildings">
-            <g class="v-bld">
-              <polygon class="v-roof" points="48,364 160,298 272,364"></polygon>
-              <rect class="v-logs" x="70" y="362" width="180" height="108"></rect>
-              <path class="v-loglines" d="M70 380h180M70 398h180M70 416h180M70 434h180M70 452h180"></path>
-              <rect class="v-chimney" x="212" y="306" width="22" height="42"></rect>
-              <rect class="v-win" x="92" y="386" width="26" height="30"></rect>
-              <rect class="v-win" x="196" y="386" width="26" height="30"></rect>
-              <rect class="v-door" x="148" y="406" width="32" height="64"></rect>
-              <path class="v-porch" d="M138 406h54M144 406v-12M184 406v-12M136 394h58"></path>
+            <g class="v-moon">
+              <path class="v-moon-shadow" d="M1107 55a30 30 0 1 0 14 50a24 24 0 1 1-14-50z"></path>
+              <path d="M1104 52a30 30 0 1 0 14 50a24 24 0 1 1-14-50z"></path>
             </g>
-            <g class="v-bld">
-              <polygon class="v-roof" points="382,268 400,232 418,268"></polygon>
-              <path class="v-cross" d="M400 214v20M391 220h18"></path>
-              <rect class="v-body-w" x="386" y="266" width="28" height="66"></rect>
-              <polygon class="v-roof" points="330,336 400,296 470,336"></polygon>
-              <rect class="v-body-w" x="345" y="334" width="110" height="136"></rect>
-              <path class="v-win-arch" d="M388 408 v-34 a12 12 0 0 1 24 0 v34 z"></path>
-              <rect class="v-door" x="388" y="416" width="24" height="54"></rect>
+            <g class="v-cloud" style="animation-delay:-6s">
+              <path class="v-cloud-shadow" transform="translate(184 96)" d="M0 0 a17 13 0 0 1 15-12 a23 17 0 0 1 40-5 a17 13 0 0 1 15 17 z"></path>
+              <path transform="translate(180 90)" d="M0 0 a17 13 0 0 1 15-12 a23 17 0 0 1 40-5 a17 13 0 0 1 15 17 z"></path>
             </g>
-            <g class="v-bld">
-              <rect class="v-chimney" x="676" y="292" width="22" height="44"></rect>
-              <polygon class="v-roof" points="524,350 634,284 746,350"></polygon>
-              <rect class="v-body-w" x="546" y="348" width="178" height="122"></rect>
-              <rect class="v-win" x="566" y="366" width="24" height="28"></rect>
-              <rect class="v-win" x="612" y="366" width="24" height="28"></rect>
-              <rect class="v-win" x="668" y="366" width="24" height="28"></rect>
-              <path class="v-porch" d="M546 428h178M560 428v42M634 428v42M708 428v42M540 428h190"></path>
-              <rect class="v-door" x="620" y="410" width="28" height="60"></rect>
-              <rect class="v-win" x="566" y="410" width="24" height="28"></rect>
-              <rect class="v-win" x="680" y="410" width="24" height="28"></rect>
+            <g class="v-cloud" style="animation-delay:-17s">
+              <path class="v-cloud-shadow" transform="translate(628 66) scale(0.85)" d="M0 0 a17 13 0 0 1 15-12 a23 17 0 0 1 40-5 a17 13 0 0 1 15 17 z"></path>
+              <path transform="translate(624 60) scale(0.85)" d="M0 0 a17 13 0 0 1 15-12 a23 17 0 0 1 40-5 a17 13 0 0 1 15 17 z"></path>
             </g>
-            <g class="v-bld">
-              <rect class="v-body-w" x="796" y="330" width="152" height="140"></rect>
-              <rect class="v-sign" x="822" y="342" width="100" height="24"></rect>
-              <text class="v-sign-text" x="872" y="359" text-anchor="middle">STORE</text>
-              <polygon class="v-awning" points="796,404 948,404 934,428 810,428"></polygon>
-              <rect class="v-win" x="898" y="378" width="38" height="44"></rect>
-              <rect class="v-door" x="856" y="408" width="28" height="62"></rect>
-              <path class="v-porch" d="M812 428v42M932 428v42"></path>
-            </g>
-            <g class="v-bld">
-              <polygon class="v-roof" points="1000,352 1094,296 1188,352"></polygon>
-              <rect class="v-body-brick" x="1016" y="350" width="156" height="120"></rect>
-              <path class="v-bricklines" d="M1016 378h156M1016 406h156M1016 434h156M1055 350v28M1110 378v28M1066 406v28M1136 434v28"></path>
-              <rect class="v-win" x="1036" y="368" width="24" height="30"></rect>
-              <rect class="v-win" x="1128" y="368" width="24" height="30"></rect>
-              <rect class="v-door" x="1080" y="408" width="28" height="62"></rect>
-              <rect class="v-win" x="1036" y="416" width="22" height="26"></rect>
-              <rect class="v-win" x="1130" y="416" width="22" height="26"></rect>
+            <g class="v-cloud" style="animation-delay:-11s">
+              <path class="v-cloud-shadow" transform="translate(884 140) scale(1.1)" d="M0 0 a17 13 0 0 1 15-12 a23 17 0 0 1 40-5 a17 13 0 0 1 15 17 z"></path>
+              <path transform="translate(880 134) scale(1.1)" d="M0 0 a17 13 0 0 1 15-12 a23 17 0 0 1 40-5 a17 13 0 0 1 15 17 z"></path>
             </g>
           </g>
-          <g class="v-props" aria-hidden="true">
-            <g class="v-well" transform="translate(600 540) scale(1.2) translate(-600 -540)">
-              <path d="M566 470 l34-26 34 26 Z" style="fill:#2c5240"></path>
-              <path d="M574 470v40M626 470v40"></path>
-              <rect x="560" y="506" width="80" height="30" style="fill:#a49a86"></rect>
-              <path d="M560 516h80M560 526h80M586 506v30M614 506v30"></path>
-              <path d="M600 470v14M592 484h16v10h-16z"></path>
+
+          <g id="v-layer-far" aria-hidden="true">
+            <path class="v-hills" d="M0 318 C 200 268, 380 300, 560 278 C 760 254, 940 292, 1200 262 L1200 480 L0 480 Z"></path>
+            <g class="v-far-town">
+              <path d="M52 470 v-34 h44 v34 M60 436 l18-14 18 14"></path>
+              <path d="M238 470 v-28 h38 v28 M245 442 l12-11 12 11"></path>
+              <path d="M486 470 v-38 h52 v38 M496 432 l16-13 16 13"></path>
+              <path d="M742 470 v-30 h42 v30 M750 440 l13-11 13 11"></path>
+              <path d="M986 470 v-34 h46 v34 M994 436 l15-12 15 12"></path>
             </g>
-            <g class="v-stall">
-              <path d="M852 546v-64M958 546v-64"></path>
-              <polygon class="v-awning" points="842,486 905,458 968,486"></polygon>
-              <rect x="850" y="518" width="110" height="10"></rect>
-              <rect x="852" y="528" width="106" height="18" style="fill:#e6d7b8"></rect>
-              <path d="M862 528v18M948 528v18M876 500h14v12h-14zM904 498h14v14h-14zM930 502h12v10h-12z"></path>
+            <rect class="v-far-ground" x="0" y="438" width="1200" height="42"></rect>
+          </g>
+
+          <g class="v-ground" aria-hidden="true">
+            <rect class="v-grass" x="0" y="470" width="1200" height="205"></rect>
+            <path class="v-spurs" d="M164 472 L170 522 M400 472 L405 522 M634 474 L630 522 M869 476 L864 522 M1094 474 L1176 480 L1176 600 L1072 602 M555 522 L555 540 M963 522 L960 540 M300 560 L300 596"></path>
+            <rect class="v-walk-far" x="0" y="502" width="1200" height="15"></rect>
+            <rect class="v-road" x="0" y="530" width="1200" height="86"></rect>
+            <rect class="v-road-edge" x="0" y="530" width="1200" height="4"></rect>
+            <rect class="v-road-edge" x="0" y="612" width="1200" height="4"></rect>
+            <path class="v-dashes" d="M-10 573 H1210"></path>
+            <g class="v-crosswalk">
+              <rect x="892" y="537" width="7" height="72"></rect><rect x="906" y="537" width="7" height="72"></rect>
+              <rect x="920" y="537" width="7" height="72"></rect><rect x="934" y="537" width="7" height="72"></rect>
+              <rect x="948" y="537" width="7" height="72"></rect>
             </g>
-            <g class="v-bench">
-              <path d="M272 572h68M272 581h68M278 566v26M334 566v26M270 592h72M280 592v15M332 592v15"></path>
+            <rect class="v-walk-near" x="0" y="616" width="1200" height="13"></rect>
+          </g>
+
+          <g id="v-layer-mid">
+            <g class="v-buildings">
+              <g class="v-bld">
+                <g class="v-psh" transform="translate(6 7)">
+                  <polygon points="48,364 160,298 272,364"></polygon>
+                  <rect x="70" y="362" width="180" height="108"></rect>
+                  <rect x="212" y="306" width="22" height="42"></rect>
+                </g>
+                <polygon class="v-roof" points="48,364 160,298 272,364"></polygon>
+                <rect class="v-logs" x="70" y="362" width="180" height="108"></rect>
+                <path class="v-loglines" d="M70 380h180M70 398h180M70 416h180M70 434h180M70 452h180"></path>
+                <rect class="v-chimney" x="212" y="306" width="22" height="42"></rect>
+                <rect class="v-win" x="92" y="386" width="26" height="30"></rect>
+                <rect class="v-win" x="196" y="386" width="26" height="30"></rect>
+                <rect class="v-door" x="148" y="406" width="32" height="64"></rect>
+                <path class="v-porch" d="M138 406h54M144 406v-12M184 406v-12M136 394h58"></path>
+              </g>
+              <g class="v-bld">
+                <g class="v-psh" transform="translate(6 7)">
+                  <polygon points="382,268 400,232 418,268"></polygon>
+                  <rect x="386" y="266" width="28" height="66"></rect>
+                  <polygon points="330,336 400,296 470,336"></polygon>
+                  <rect x="345" y="334" width="110" height="136"></rect>
+                </g>
+                <polygon class="v-roof" points="382,268 400,232 418,268"></polygon>
+                <path class="v-cross" d="M400 214v20M391 220h18"></path>
+                <rect class="v-body-w" x="386" y="266" width="28" height="66"></rect>
+                <polygon class="v-roof" points="330,336 400,296 470,336"></polygon>
+                <rect class="v-body-w" x="345" y="334" width="110" height="136"></rect>
+                <path class="v-win-arch" d="M388 408 v-34 a12 12 0 0 1 24 0 v34 z"></path>
+                <rect class="v-door" x="388" y="416" width="24" height="54"></rect>
+              </g>
+              <g class="v-bld">
+                <g class="v-psh" transform="translate(6 7)">
+                  <rect x="676" y="292" width="22" height="44"></rect>
+                  <polygon points="524,350 634,284 746,350"></polygon>
+                  <rect x="546" y="348" width="178" height="122"></rect>
+                </g>
+                <rect class="v-chimney" x="676" y="292" width="22" height="44"></rect>
+                <polygon class="v-roof" points="524,350 634,284 746,350"></polygon>
+                <rect class="v-body-w" x="546" y="348" width="178" height="122"></rect>
+                <rect class="v-win" x="566" y="366" width="24" height="28"></rect>
+                <rect class="v-win" x="612" y="366" width="24" height="28"></rect>
+                <rect class="v-win" x="668" y="366" width="24" height="28"></rect>
+                <path class="v-porch" d="M546 428h178M560 428v42M634 428v42M708 428v42M540 428h190"></path>
+                <rect class="v-door" x="620" y="410" width="28" height="60"></rect>
+                <rect class="v-win" x="566" y="410" width="24" height="28"></rect>
+                <rect class="v-win" x="680" y="410" width="24" height="28"></rect>
+              </g>
+              <g class="v-bld">
+                <g class="v-psh" transform="translate(6 7)">
+                  <rect x="796" y="330" width="152" height="140"></rect>
+                </g>
+                <rect class="v-body-w" x="796" y="330" width="152" height="140"></rect>
+                <rect class="v-sign" x="822" y="342" width="100" height="24"></rect>
+                <text class="v-sign-text" x="872" y="359" text-anchor="middle">STORE</text>
+                <polygon class="v-awning-shadow" points="800,408 952,408 938,432 814,432"></polygon>
+                <polygon class="v-awning" points="796,404 948,404 934,428 810,428"></polygon>
+                <rect class="v-win" x="898" y="378" width="38" height="44"></rect>
+                <rect class="v-door" x="856" y="408" width="28" height="62"></rect>
+                <path class="v-porch" d="M812 428v42M932 428v42"></path>
+              </g>
+              <g class="v-bld">
+                <g class="v-psh" transform="translate(6 7)">
+                  <polygon points="1000,352 1094,296 1188,352"></polygon>
+                  <rect x="1016" y="350" width="156" height="120"></rect>
+                </g>
+                <polygon class="v-roof" points="1000,352 1094,296 1188,352"></polygon>
+                <rect class="v-body-brick" x="1016" y="350" width="156" height="120"></rect>
+                <path class="v-bricklines" d="M1016 378h156M1016 406h156M1016 434h156M1055 350v28M1110 378v28M1066 406v28M1136 434v28"></path>
+                <rect class="v-win" x="1036" y="368" width="24" height="30"></rect>
+                <rect class="v-win" x="1128" y="368" width="24" height="30"></rect>
+                <rect class="v-door" x="1080" y="408" width="28" height="62"></rect>
+                <rect class="v-win" x="1036" y="416" width="22" height="26"></rect>
+                <rect class="v-win" x="1130" y="416" width="22" height="26"></rect>
+              </g>
             </g>
-            <g class="v-garden">
-              <path d="M992 612h168M992 632h168M992 652h168"></path>
-              <path class="v-sprouts" d="M1010 612c-2-8-6-10-10-12M1010 612c0-8 3-12 8-14M1046 612c-2-8-6-10-10-12M1046 612c0-8 3-12 8-14M1082 612c-2-8-6-10-10-12M1082 612c0-8 3-12 8-14M1118 612c-2-8-6-10-10-12M1118 612c0-8 3-12 8-14M1028 632c-2-8-6-10-10-12M1028 632c0-8 3-12 8-14M1064 632c-2-8-6-10-10-12M1064 632c0-8 3-12 8-14M1100 632c-2-8-6-10-10-12M1100 632c0-8 3-12 8-14M1136 632c-2-8-6-10-10-12M1136 632c0-8 3-12 8-14"></path>
-            </g>
-            <g class="v-fence">
-              <path d="M292 512h216M292 524h216M306 500v36M348 500v36M390 500v36M432 500v36M474 500v36"></path>
+              <g class="v-well">
+                <ellipse cx="555" cy="544" rx="52" ry="6" fill="rgba(43,32,18,0.15)" stroke="none"></ellipse>
+                <g class="v-psh" transform="translate(4 5)">
+                  <polygon points="513,480 555,452 597,480"></polygon>
+                  <rect x="515" y="512" width="80" height="30"></rect>
+                </g>
+                <rect class="v-trunk" x="526" y="476" width="6" height="40"></rect>
+                <rect class="v-trunk" x="578" y="476" width="6" height="40"></rect>
+                <polygon class="v-roof-sm" points="513,480 555,452 597,480"></polygon>
+                <rect class="v-well-base" x="515" y="512" width="80" height="30"></rect>
+                <path class="v-well-lines" d="M515 522h80M515 532h80M541 512v30M569 512v30"></path>
+                <path class="v-well-lines" d="M555 480v12M548 492h14v10h-14z"></path>
+              </g>
+              <g class="v-stall">
+                <ellipse cx="963" cy="532" rx="66" ry="6" fill="rgba(43,32,18,0.15)" stroke="none"></ellipse>
+                <g class="v-psh" transform="translate(4 5)">
+                  <polygon points="900,488 963,464 1026,488"></polygon>
+                </g>
+                <rect class="v-trunk" x="912" y="486" width="6" height="44"></rect>
+                <rect class="v-trunk" x="1008" y="486" width="6" height="44"></rect>
+                <polygon class="v-awning" points="900,488 963,464 1026,488"></polygon>
+                <path class="v-stall-goods" d="M934 492h14v14h-14zM962 490h14v16h-14zM988 494h12v12h-12z"></path>
+                <rect class="v-stall-top" x="908" y="506" width="110" height="9"></rect>
+                <rect class="v-stall-body" x="910" y="515" width="106" height="15"></rect>
+              </g>
+
+          </g>
+
+          <g id="v-layer-fore">
+            <g class="v-props" aria-hidden="true">
+              <g class="v-tree">
+                <g class="v-psh" transform="translate(4 5)">
+                  <circle cx="519" cy="436" r="27"></circle><circle cx="496" cy="452" r="19"></circle><circle cx="543" cy="452" r="19"></circle>
+                </g>
+                <rect class="v-trunk" x="515" y="458" width="9" height="58"></rect>
+                <circle class="v-leaf" cx="519" cy="436" r="27"></circle>
+                <circle class="v-leaf" cx="496" cy="452" r="19"></circle>
+                <circle class="v-leaf" cx="543" cy="452" r="19"></circle>
+                <circle class="v-leaf-hi" cx="508" cy="426" r="12"></circle>
+              </g>
+              <g class="v-tree">
+                <g class="v-psh" transform="translate(4 5)">
+                  <circle cx="768" cy="442" r="23"></circle><circle cx="748" cy="456" r="16"></circle><circle cx="789" cy="456" r="16"></circle>
+                </g>
+                <rect class="v-trunk" x="764" y="460" width="8" height="56"></rect>
+                <circle class="v-leaf" cx="768" cy="442" r="23"></circle>
+                <circle class="v-leaf" cx="748" cy="456" r="16"></circle>
+                <circle class="v-leaf" cx="789" cy="456" r="16"></circle>
+                <circle class="v-leaf-hi" cx="759" cy="433" r="10"></circle>
+              </g>
+              <g class="v-bench">
+                <rect class="v-bench-wood" x="272" y="570" width="68" height="7"></rect>
+                <rect class="v-bench-wood" x="272" y="581" width="68" height="6"></rect>
+                <path d="M278 577v28M334 577v28M280 605h52"></path>
+              </g>
+              <g class="v-fence">
+                <rect x="292" y="508" width="216" height="5"></rect>
+                <rect x="292" y="520" width="216" height="5"></rect>
+                <rect x="303" y="498" width="6" height="38"></rect>
+                <rect x="345" y="498" width="6" height="38"></rect>
+                <rect x="387" y="498" width="6" height="38"></rect>
+                <rect x="429" y="498" width="6" height="38"></rect>
+                <rect x="471" y="498" width="6" height="38"></rect>
+              </g>
+              <g class="v-garden">
+                <rect class="v-soil" x="996" y="624" width="168" height="44"></rect>
+                <path d="M996 639h168M996 654h168"></path>
+                <path class="v-sprouts" d="M1012 639c-2-8-6-10-10-12M1012 639c0-8 3-12 8-14M1048 639c-2-8-6-10-10-12M1048 639c0-8 3-12 8-14M1084 639c-2-8-6-10-10-12M1084 639c0-8 3-12 8-14M1120 639c-2-8-6-10-10-12M1120 639c0-8 3-12 8-14M1030 654c-2-8-6-10-10-12M1030 654c0-8 3-12 8-14M1066 654c-2-8-6-10-10-12M1066 654c0-8 3-12 8-14M1102 654c-2-8-6-10-10-12M1102 654c0-8 3-12 8-14M1138 654c-2-8-6-10-10-12M1138 654c0-8 3-12 8-14"></path>
+              </g>
+              <g class="v-gas" transform="translate(0 30)">
+                <rect class="v-psh" x="1110" y="430" width="92" height="30" rx="4" transform="translate(4 5)"></rect>
+                <rect class="v-gas-post" x="1150" y="454" width="5" height="112"></rect>
+                <rect class="v-gas-sign" x="1106" y="426" width="92" height="30" rx="4"></rect>
+                <text class="v-gas-sign-text" x="1152" y="447" text-anchor="middle">GAS</text>
+                <g class="v-psh" transform="translate(5 6)">
+                  <rect x="1024" y="472" width="132" height="15"></rect>
+                  <rect x="1100" y="496" width="54" height="70"></rect>
+                </g>
+                <rect class="v-gas-kiosk" x="1100" y="496" width="54" height="70"></rect>
+                <rect class="v-gas-kiosk-roof" x="1096" y="488" width="62" height="10"></rect>
+                <rect class="v-win" x="1110" y="508" width="20" height="20"></rect>
+                <rect class="v-door" x="1138" y="522" width="12" height="44"></rect>
+                <rect class="v-gas-canopy" x="1024" y="472" width="132" height="13"></rect>
+                <rect class="v-gas-trim" x="1024" y="485" width="132" height="5"></rect>
+                <rect class="v-gas-post" x="1042" y="490" width="7" height="76"></rect>
+                <rect class="v-gas-post" x="1131" y="490" width="7" height="76"></rect>
+                <g class="v-pump">
+                  <rect x="1054" y="514" width="20" height="46" rx="3"></rect>
+                  <rect class="v-pump-face" x="1058" y="520" width="12" height="14"></rect>
+                  <path d="M1074 524 c6 2 7 8 6 16"></path>
+                </g>
+                <g class="v-pump">
+                  <rect x="1082" y="514" width="20" height="46" rx="3"></rect>
+                  <rect class="v-pump-face" x="1086" y="520" width="12" height="14"></rect>
+                  <path d="M1102 524 c6 2 7 8 6 16"></path>
+                </g>
+                <rect class="v-gas-island" x="1046" y="560" width="64" height="6"></rect>
+              </g>
             </g>
           </g>
+
+          <rect class="v-phase-rect" id="v-phase-rect" x="0" y="0" width="1200" height="675" fill="#142a1f" opacity="0"></rect>
+
           <g class="v-waypoints" aria-hidden="true">
             <g class="v-waypoint">
               <path d="M274 470v-24"></path>
+              <rect class="v-wp-shadow" x="213" y="416" width="128" height="34" rx="4"></rect>
               <rect x="210" y="412" width="128" height="34" rx="4"></rect>
               <text x="274" y="427" text-anchor="middle">THE HOMEPLACE</text>
               <text x="274" y="441" text-anchor="middle" class="v-waypoint-sub">the 1850s round</text>
             </g>
             <g class="v-waypoint">
               <path d="M484 470v-24"></path>
+              <rect class="v-wp-shadow" x="427" y="416" width="120" height="34" rx="4"></rect>
               <rect x="424" y="412" width="120" height="34" rx="4"></rect>
               <text x="484" y="427" text-anchor="middle">CHURCH</text>
               <text x="484" y="441" text-anchor="middle" class="v-waypoint-sub">the 1880s round</text>
             </g>
             <g class="v-waypoint">
               <path d="M780 474v-24"></path>
+              <rect class="v-wp-shadow" x="719" y="420" width="128" height="34" rx="4"></rect>
               <rect x="716" y="416" width="128" height="34" rx="4"></rect>
               <text x="780" y="431" text-anchor="middle">THE STORE</text>
               <text x="780" y="445" text-anchor="middle" class="v-waypoint-sub">the 1910s round</text>
             </g>
             <g class="v-waypoint">
-              <path d="M1120 540v-24"></path>
-              <rect x="1046" y="482" width="148" height="34" rx="4"></rect>
-              <text x="1120" y="497" text-anchor="middle">TO TOWN</text>
-              <text x="1120" y="511" text-anchor="middle" class="v-waypoint-sub">the road out, every era</text>
+              <path d="M110 500v-24"></path>
+              <rect class="v-wp-shadow" x="49" y="450" width="148" height="34" rx="4"></rect>
+              <rect x="46" y="446" width="148" height="34" rx="4"></rect>
+              <text x="110" y="461" text-anchor="middle">TO TOWN</text>
+              <text x="110" y="475" text-anchor="middle" class="v-waypoint-sub">the road out, every era</text>
             </g>
           </g>
           <path id="v-route-hl-bg" d="" fill="none" stroke="#f3d98b" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" opacity="0" pointer-events="none"></path>
           <path id="v-route-hl" d="" fill="none" stroke="#b9872c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0" pointer-events="none"></path>
           <g id="v-vehicles"></g>
           <g id="v-walkers"></g>
+          <rect class="v-grain-rect" x="0" y="0" width="1200" height="675" filter="url(#v-grain)" opacity="0.05" pointer-events="none" aria-hidden="true"></rect>
+          <g id="v-bubbles" aria-hidden="true"></g>
         </svg>
       </div>
       <figcaption class="village-caption">
@@ -180,7 +355,7 @@
 
     <section class="village-roster" aria-labelledby="roster-title">
       <h2 id="roster-title">Who lives here</h2>
-      <p>Dress, tools, transport, and dwellings follow documented years: each figure is drawn for the decade of their young adulthood, figured from the birth year on their tree card, and the village keeps to each era's way of getting there, horse and buggy for the oldest rounds, early motorcars, then sedans, then today's plain sport utility shapes, none of them branded. Where a record gives no year, a figure stays era-neutral. Four rounds cross the village: the homeplace round, the church round, the store round, and the road to town. The buildings are era-typical for the family's span, not tied to one person's record.</p>
+      <p>Dress, tools, transport, and dwellings follow documented years: each figure is drawn for the decade of their young adulthood, figured from the birth year on their tree card, and the village keeps to each era's way of getting there, horse and buggy for the oldest rounds, early motorcars, then sedans, then today's plain sport utility shapes, none of them branded. Where a record gives no year, a figure stays era-neutral. Four rounds cross the village: the homeplace round, the church round, the store round, and the road to town. The buildings are era-typical for the family's span, not tied to one person's record. The street itself lives in the current year and keeps your current time: its light, its crowds, and its traffic all follow the hour on your clock. And each ancestor is kept at the age they were when they passed: that age never advances, even as the village year does.</p>
       <!-- Roster floor: this list is rendered statically from the
            same records in villagers-data.js, so it stands when
            village.js is blocked or JavaScript is off. When the
@@ -188,34 +363,34 @@
            those records; the two never duplicate. -->
       <ul class="roster-list" id="roster-list">
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Amos Shote, born 1831, The founding couple. Open their profile."><span class="roster-name">Amos Shote</span><span class="roster-meta">Born 1831 · The founding couple · +12 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Amos Shote, born 1831, The founding couple, kept at the age of 70. Open their profile."><span class="roster-name">Amos Shote</span><span class="roster-meta">Born 1831 · The founding couple · +12 relatives · Age kept at 70</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Celia Shote, born 1836, The founding couple. Open their profile."><span class="roster-name">Celia Shote</span><span class="roster-meta">Born 1836 · The founding couple · +9 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Celia Shote, born 1836, The founding couple, kept at the age of 76. Open their profile."><span class="roster-name">Celia Shote</span><span class="roster-meta">Born 1836 · The founding couple · +9 relatives · Age kept at 76</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Ruth Shote, born 1858, Ruth line. Open their profile."><span class="roster-name">Ruth Shote</span><span class="roster-meta">Born 1858 · Ruth line · +21 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Ruth Shote, born 1858, Ruth line, kept at the age of 81. Open their profile."><span class="roster-name">Ruth Shote</span><span class="roster-meta">Born 1858 · Ruth line · +21 relatives · Age kept at 81</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Henry Shote, born 1861, Henry line. Open their profile."><span class="roster-name">Henry Shote</span><span class="roster-meta">Born 1861 · Henry line · +18 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Henry Shote, born 1861, Henry line, kept at the age of 79. Open their profile."><span class="roster-name">Henry Shote</span><span class="roster-meta">Born 1861 · Henry line · +18 relatives · Age kept at 79</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Della Shote, born 1864, Della line. Open their profile."><span class="roster-name">Della Shote</span><span class="roster-meta">Born 1864 · Della line · +15 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Della Shote, born 1864, Della line, kept at the age of 81. Open their profile."><span class="roster-name">Della Shote</span><span class="roster-meta">Born 1864 · Della line · +15 relatives · Age kept at 81</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Moses Shote, born 1867, Moses line. Open their profile."><span class="roster-name">Moses Shote</span><span class="roster-meta">Born 1867 · Moses line · +19 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Moses Shote, born 1867, Moses line, kept at the age of 84. Open their profile."><span class="roster-name">Moses Shote</span><span class="roster-meta">Born 1867 · Moses line · +19 relatives · Age kept at 84</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Ada Shote, born 1883, Ruth line. Open their profile."><span class="roster-name">Ada Shote</span><span class="roster-meta">Born 1883 · Ruth line · +11 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Ada Shote, born 1883, Ruth line, kept at the age of 79. Open their profile."><span class="roster-name">Ada Shote</span><span class="roster-meta">Born 1883 · Ruth line · +11 relatives · Age kept at 79</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Booker Shote, born 1890, Moses line. Open their profile."><span class="roster-name">Booker Shote</span><span class="roster-meta">Born 1890 · Moses line · +13 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Booker Shote, born 1890, Moses line, kept at the age of 81. Open their profile."><span class="roster-name">Booker Shote</span><span class="roster-meta">Born 1890 · Moses line · +13 relatives · Age kept at 81</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Lena Shote, born 1929, Ruth line. Open their profile."><span class="roster-name">Lena Shote</span><span class="roster-meta">Born 1929 · Ruth line · +8 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Lena Shote, born 1929, Ruth line, kept at the age of 90. Open their profile."><span class="roster-name">Lena Shote</span><span class="roster-meta">Born 1929 · Ruth line · +8 relatives · Age kept at 90</span></a>
         </li>
         <li>
-          <a class="roster-btn" href="person.html" aria-label="Emmett Shote, born 1930, Henry line. Open their profile."><span class="roster-name">Emmett Shote</span><span class="roster-meta">Born 1930 · Henry line · +8 relatives</span></a>
+          <a class="roster-btn" href="person.html" aria-label="Emmett Shote, born 1930, Henry line, kept at the age of 85. Open their profile."><span class="roster-name">Emmett Shote</span><span class="roster-meta">Born 1930 · Henry line · +8 relatives · Age kept at 85</span></a>
         </li>
         <li>
           <a class="roster-btn" href="person.html" aria-label="Sadie Shote, born 1956, Ruth line. Open their profile."><span class="roster-name">Sadie Shote</span><span class="roster-meta">Born 1956 · Ruth line · +4 relatives</span></a>
