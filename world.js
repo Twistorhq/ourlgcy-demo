@@ -56,7 +56,19 @@
     h3: { x: 1560, y: 1920, w: 240, h: 170, roof: "#e2d2b0", door: [1680, 1910], side: "n" },
     h4: { x: 2100, y: 1920, w: 240, h: 170, roof: "#d3bd94", door: [2220, 1910], side: "n" },
     h5: { x: 1180, y: 330, w: 240, h: 170, roof: "#dccaa9", door: [1300, 510], side: "s" },
-    h6: { x: 240, y: 1240, w: 240, h: 170, roof: "#c2a678", door: [360, 1420], side: "s" }
+    h6: { x: 240, y: 1240, w: 240, h: 170, roof: "#c2a678", door: [360, 1420], side: "s" },
+    // The neighborhood fills out (TW-1242): background homes
+    // completing the street grid on both sides. h1-h6 are the
+    // roster families' homes (destinations, from the data);
+    // h7-h12 are lived-in street dressing: no roster, no
+    // rounds, drawn with the same house language (varied
+    // footprints, ridge lines, fences, chimneys, yards).
+    h7: { x: 600, y: 1920, w: 220, h: 170, roof: "#cfb489", door: [710, 1910], side: "n", ridge: "ns", fence: true, chim: 0.3 },
+    h8: { x: 2540, y: 1920, w: 240, h: 160, roof: "#e6d7ba", door: [2660, 1910], side: "n", ridge: "hip" },
+    h9: { x: 2900, y: 1920, w: 220, h: 170, roof: "#bfa87e", door: [3010, 1910], side: "n", fence: true, chim: 0.22 },
+    h10: { x: 580, y: 330, w: 230, h: 160, roof: "#d8bf98", door: [695, 500], side: "s", ridge: "ns" },
+    h11: { x: 2660, y: 1270, w: 230, h: 160, roof: "#d9c8a6", door: [2775, 1440], side: "s", ridge: "hip" },
+    h12: { x: 2930, y: 1270, w: 210, h: 150, roof: "#c9ae84", door: [3035, 1430], side: "s", chim: 0.3 }
   };
   var CHURCH = { x: 200, y: 300, w: 320, h: 300, door: [360, 612] };
   var STORE = { x: 1180, y: 1260, w: 340, h: 220, door: [1350, 1248] };
@@ -890,22 +902,54 @@
       c.fillRect(hse.x + 3, sy, hse.w - 6, 2.4);
     }
     speckle(c, hse.x, hse.y, hse.w, hse.h, 240, ["rgba(0,0,0,0.10)", "rgba(255,255,255,0.07)"], 1, 2.4);
-    c.fillStyle = "rgba(0,0,0,0.16)";
-    c.fillRect(hse.x, hse.y + hse.h / 2 - 3, hse.w, 6);
-    c.fillStyle = "rgba(255,255,255,0.13)";
-    c.fillRect(hse.x, hse.y + hse.h / 2 - 9, hse.w, 3);
+    // The ridge line, in the house's own orientation (TW-1242):
+    // an east-west ridge by default, a north-south ridge where
+    // the lot runs the other way, and a hip roof's inset fall
+    // where the roof slopes on every side.
+    if (hse.ridge === "hip") {
+      c.strokeStyle = "rgba(0,0,0,0.13)"; c.lineWidth = 11;
+      c.strokeRect(hse.x + 18, hse.y + 18, hse.w - 36, hse.h - 36);
+      c.strokeStyle = "rgba(255,255,255,0.10)"; c.lineWidth = 3;
+      c.strokeRect(hse.x + 27, hse.y + 27, hse.w - 54, hse.h - 54);
+    } else if (hse.ridge === "ns") {
+      c.fillStyle = "rgba(0,0,0,0.16)";
+      c.fillRect(hse.x + hse.w / 2 - 3, hse.y, 6, hse.h);
+      c.fillStyle = "rgba(255,255,255,0.13)";
+      c.fillRect(hse.x + hse.w / 2 - 9, hse.y, 3, hse.h);
+    } else {
+      c.fillStyle = "rgba(0,0,0,0.16)";
+      c.fillRect(hse.x, hse.y + hse.h / 2 - 3, hse.w, 6);
+      c.fillStyle = "rgba(255,255,255,0.13)";
+      c.fillRect(hse.x, hse.y + hse.h / 2 - 9, hse.w, 3);
+    }
     c.strokeStyle = "rgba(40,30,20,0.35)";
     c.lineWidth = 3; c.strokeRect(hse.x + 1, hse.y + 1, hse.w - 2, hse.h - 2);
+    var chimX = hse.x + hse.w * (hse.chim || 0.68);
     c.fillStyle = "#9c5f43";
-    c.fillRect(hse.x + hse.w * 0.68, hse.y + 14, 22, 30);
+    c.fillRect(chimX, hse.y + 14, 22, 30);
     c.fillStyle = "rgba(0,0,0,0.18)";
-    c.fillRect(hse.x + hse.w * 0.68, hse.y + 40, 22, 4);
+    c.fillRect(chimX, hse.y + 40, 22, 4);
     // Porch at the door side.
     c.fillStyle = "#b09a76";
     if (hse.side === "n") c.fillRect(dx - 34, hse.y - 16, 68, 16);
     else c.fillRect(dx - 34, hse.y + hse.h, 68, 16);
     drawBush(c, hse.x + 16, hse.y + hse.h + 20, true);
     drawBush(c, hse.x + hse.w - 16, hse.y - 18, false);
+    // A picket fence along the front yard where the lot has
+    // one (TW-1242), with a gate gap at the walkway.
+    if (hse.fence) {
+      var fy = hse.side === "n" ? hse.y - 30 : hse.y + hse.h + 30;
+      c.strokeStyle = "rgba(216,203,166,0.9)"; c.lineWidth = 2.4;
+      c.beginPath();
+      c.moveTo(hse.x - 28, fy); c.lineTo(dx - 15, fy);
+      c.moveTo(dx + 15, fy); c.lineTo(hse.x + hse.w + 28, fy);
+      c.stroke();
+      c.fillStyle = "#d8cba6";
+      for (var fx = hse.x - 28; fx <= hse.x + hse.w + 28; fx += 17) {
+        if (Math.abs(fx - dx) < 16) continue;
+        c.fillRect(fx - 1.6, fy - 5, 3.2, 10);
+      }
+    }
   }
   function drawChurch(c) {
     paperShadow(c, CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h);
