@@ -243,7 +243,7 @@
     store: { x: 869, y: 484, kind: "door" },
     brick: { x: 1094, y: 482, kind: "door" },
     well: { x: 600, y: 548, kind: "gather" },
-    stall: { x: 905, y: 554, kind: "gather" },
+    stall: { x: 963, y: 554, kind: "gather" },
     garden: { x: 1066, y: 608, kind: "work" },
     bench: { x: 300, y: 602, kind: "rest" },
     oak: { x: 96, y: 564, kind: "rest" },
@@ -1277,7 +1277,7 @@
   var LANDMARKS = [
     { id: "gas", x: 1060, y: 560, era: 1935, kind: "gas" },
     { id: "store", x: 869, y: 490, era: 1915, kind: "store" },
-    { id: "stall", x: 905, y: 554, era: 1905, kind: "stall" },
+    { id: "stall", x: 963, y: 554, era: 1905, kind: "stall" },
     { id: "well", x: 600, y: 548, era: 1840, kind: "well" }
   ];
   var VEHICLE_ERA = { buggy: 1890, modelt: 1920, sedan: 1975, suv: 2005 };
