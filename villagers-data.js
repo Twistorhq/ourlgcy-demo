@@ -24,27 +24,39 @@
 // birth year plus 25. Presentation fields (kit, hat, prop, hair,
 // accent, pace, scale) are drawing choices for the figure, never
 // facts, and they are only used when the year is documented.
+//
+// Frozen-age law (TW-1227, founder direction Nov 20 2026): a
+// person is kept at the age they were when they passed, forever,
+// while the world around them stays in the current year. died
+// and diedStatus carry the passing year under the same status
+// law as born/bornStatus. The frozen age is derived ONLY when
+// both years are documented (frozenAge = died - born); the
+// village renders the figure at that age (graying, stature) and
+// the roster names it. A record with no documented passing year
+// keeps no frozen age: the figure is drawn as before. This field
+// pair is part of the record schema on purpose, so the law
+// survives later card and intake work untouched.
 
 window.LGCY_VILLAGERS = [
-  { id: "amos", name: "Amos Shote", born: 1831, bornStatus: "documented", line: "The founding couple", relatives: "+12 relatives",
+  { id: "amos", name: "Amos Shote", born: 1831, bornStatus: "documented", died: 1901, diedStatus: "documented", line: "The founding couple", relatives: "+12 relatives",
     present: { kit: "coat", hat: "brim", prop: "cane", hair: "gray", accent: "#2c5240", speed: 24, scale: 1.0 } },
-  { id: "celia", name: "Celia Shote", born: 1836, bornStatus: "documented", line: "The founding couple", relatives: "+9 relatives",
+  { id: "celia", name: "Celia Shote", born: 1836, bornStatus: "documented", died: 1912, diedStatus: "documented", line: "The founding couple", relatives: "+9 relatives",
     present: { kit: "gown", hat: "bonnet", prop: "basket", apron: true, hair: "bun-gray", accent: "#7c2d26", speed: 24, scale: 0.98 } },
-  { id: "ruth", name: "Ruth Shote", born: 1858, bornStatus: "documented", line: "Ruth line", relatives: "+21 relatives",
+  { id: "ruth", name: "Ruth Shote", born: 1858, bornStatus: "documented", died: 1939, diedStatus: "documented", line: "Ruth line", relatives: "+21 relatives",
     present: { kit: "gown", hat: "brim", prop: null, hair: "bun", accent: "#2c5240", speed: 27, scale: 1.0 } },
-  { id: "henry", name: "Henry Shote", born: 1861, bornStatus: "documented", line: "Henry line", relatives: "+18 relatives",
+  { id: "henry", name: "Henry Shote", born: 1861, bornStatus: "documented", died: 1940, diedStatus: "documented", line: "Henry line", relatives: "+18 relatives",
     present: { kit: "suit", hat: "bowler", prop: null, hair: "short", accent: "#454e47", speed: 29, scale: 1.02 } },
-  { id: "della", name: "Della Shote", born: 1864, bornStatus: "documented", line: "Della line", relatives: "+15 relatives",
+  { id: "della", name: "Della Shote", born: 1864, bornStatus: "documented", died: 1945, diedStatus: "documented", line: "Della line", relatives: "+15 relatives",
     present: { kit: "gown", hat: "brim", prop: "book", hair: "bun", accent: "#a84c16", speed: 27, scale: 0.99 } },
-  { id: "moses", name: "Moses Shote", born: 1867, bornStatus: "documented", line: "Moses line", relatives: "+19 relatives",
+  { id: "moses", name: "Moses Shote", born: 1867, bornStatus: "documented", died: 1951, diedStatus: "documented", line: "Moses line", relatives: "+19 relatives",
     present: { kit: "suit", hat: "bowler", prop: "cane", hair: "gray", accent: "#454e47", speed: 28, scale: 1.01 } },
-  { id: "ada", name: "Ada Shote", born: 1883, bornStatus: "documented", line: "Ruth line", relatives: "+11 relatives",
+  { id: "ada", name: "Ada Shote", born: 1883, bornStatus: "documented", died: 1962, diedStatus: "documented", line: "Ruth line", relatives: "+11 relatives",
     present: { kit: "blouseSkirt", hat: "brim", prop: null, hair: "long", accent: "#7d5a13", speed: 30, scale: 0.97 } },
-  { id: "booker", name: "Booker Shote", born: 1890, bornStatus: "documented", line: "Moses line", relatives: "+13 relatives",
+  { id: "booker", name: "Booker Shote", born: 1890, bornStatus: "documented", died: 1971, diedStatus: "documented", line: "Moses line", relatives: "+13 relatives",
     present: { kit: "jacket", hat: "cap", prop: null, hair: "short", accent: "#a84c16", speed: 34, scale: 1.0 } },
-  { id: "lena", name: "Lena Shote", born: 1929, bornStatus: "documented", line: "Ruth line", relatives: "+8 relatives",
+  { id: "lena", name: "Lena Shote", born: 1929, bornStatus: "documented", died: 2019, diedStatus: "documented", line: "Ruth line", relatives: "+8 relatives",
     present: { kit: "dress50s", hat: null, prop: null, hair: "bun", accent: "#7c2d26", speed: 29, scale: 0.98 } },
-  { id: "emmett", name: "Emmett Shote", born: 1930, bornStatus: "documented", line: "Henry line", relatives: "+8 relatives",
+  { id: "emmett", name: "Emmett Shote", born: 1930, bornStatus: "documented", died: 2015, diedStatus: "documented", line: "Henry line", relatives: "+8 relatives",
     present: { kit: "shirt", hat: "fedora", prop: null, hair: "short", accent: "#2c5240", speed: 31, scale: 1.01 } },
   { id: "sadie", name: "Sadie Shote", born: 1956, bornStatus: "documented", line: "Ruth line", relatives: "+4 relatives",
     present: { kit: "modernF", hat: null, prop: null, hair: "long", accent: "#7d5a13", speed: 33, scale: 0.99 } },

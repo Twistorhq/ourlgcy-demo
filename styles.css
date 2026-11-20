@@ -1006,66 +1006,195 @@ body.home .demo-banner { position: relative; z-index: 2; }
    carries every cited fact for its people, which runs long. */
 .src.lead { background: #f2e3c2; color: #6b4d12; }
 .cp-list { max-height: min(52vh, 420px); overflow-y: auto; }
-/* ============ Community tab: the ink village (TW-1077) ============ */
+/* ============ Community tab: the papercraft village (TW-1077, TW-1227) ============
+   The Community world is a place of its own, built like a paper
+   diorama: flat paper shapes in stacked layers, each layer
+   throwing a soft offset shadow onto the one beneath, a grain
+   over everything, and no photographic backdrop. The sky, the
+   light, and the street's bustle all follow the viewer's real
+   hour; the phase is named on the svg as data-phase. */
 .village-figure { margin: 26px 0 10px; }
 .village-stage {
   border: 2px solid var(--pine);
   border-radius: 14px;
   overflow: hidden;
-  background: var(--pine-deep);
+  background: #87a06c;
   line-height: 0;
 }
 .village-svg { width: 100%; height: auto; display: block; }
 .village-svg .v-phase-rect { transition: opacity 0.9s ease; }
-.village-svg .v-clearing { fill: #37543f; opacity: 0.97; }
-.village-svg .v-path-main,
-.village-svg .v-path-spur {
-  fill: none; stroke: #9a7d52; stroke-linecap: round;
+
+/* The paper layer shadow: a copy of a shape, offset down-right,
+   in warm translucent brown. Everything built of paper casts it. */
+.village-svg .v-psh, .village-svg .v-psh * { fill: rgba(74, 52, 32, 0.16); stroke: none; }
+
+/* Sky: three gradient stops recolored per phase. */
+.village-svg .sky-a, .village-svg .sky-b, .village-svg .sky-c { transition: stop-color 1.1s ease; }
+.village-svg .sky-a { stop-color: #a8d4e6; }
+.village-svg .sky-b { stop-color: #e8f0d8; }
+.village-svg .sky-c { stop-color: #fbeec9; }
+.village-svg[data-phase="dawn"] .sky-a { stop-color: #7f86b8; }
+.village-svg[data-phase="dawn"] .sky-b { stop-color: #e8a56b; }
+.village-svg[data-phase="dawn"] .sky-c { stop-color: #f7d98b; }
+.village-svg[data-phase="midday"] .sky-a { stop-color: #bfe3ef; }
+.village-svg[data-phase="midday"] .sky-b { stop-color: #dff2f4; }
+.village-svg[data-phase="midday"] .sky-c { stop-color: #f7ecd2; }
+.village-svg[data-phase="afternoon"] .sky-a { stop-color: #a5d2e8; }
+.village-svg[data-phase="afternoon"] .sky-b { stop-color: #e6efdb; }
+.village-svg[data-phase="afternoon"] .sky-c { stop-color: #f3e3bb; }
+.village-svg[data-phase="dusk"] .sky-a { stop-color: #565d8f; }
+.village-svg[data-phase="dusk"] .sky-b { stop-color: #c96f3f; }
+.village-svg[data-phase="dusk"] .sky-c { stop-color: #e8a56b; }
+.village-svg[data-phase="night"] .sky-a { stop-color: #131c33; }
+.village-svg[data-phase="night"] .sky-b { stop-color: #22304d; }
+.village-svg[data-phase="night"] .sky-c { stop-color: #2e405c; }
+
+.village-svg .v-stars { opacity: 0; transition: opacity 1.1s ease; }
+.village-svg .v-stars circle, .village-svg .v-stars path { fill: #f7efdb; stroke: none; }
+.village-svg[data-phase="dusk"] .v-stars { opacity: 0.35; }
+.village-svg[data-phase="night"] .v-stars { opacity: 0.9; }
+.village-svg .v-sun-shadow { fill: rgba(74, 52, 32, 0.14); }
+.village-svg .v-sun-ring { fill: #f0c94e; }
+.village-svg .v-sun-disc { fill: #f3d98b; }
+.village-svg .v-sun-core { fill: #f7e3a1; }
+.village-svg[data-phase="night"] .v-sun { display: none; }
+.village-svg[data-phase="dusk"] .v-sun { opacity: 0.55; }
+.village-svg[data-phase="dawn"] .v-sun { opacity: 0.8; }
+.village-svg .v-moon { display: none; }
+.village-svg .v-moon path { fill: #f4ecd9; }
+.village-svg .v-moon .v-moon-shadow { fill: rgba(10, 14, 26, 0.35); }
+.village-svg[data-phase="night"] .v-moon { display: block; }
+.village-svg .v-cloud path { fill: #ffffff; opacity: 0.88; }
+.village-svg .v-cloud .v-cloud-shadow { fill: rgba(70, 90, 120, 0.16); opacity: 1; }
+.village-svg .v-cloud { animation: v-drift 26s ease-in-out infinite alternate; }
+@keyframes v-drift { from { transform: translateX(-13px); } to { transform: translateX(13px); } }
+.village-svg[data-phase="night"] .v-cloud path { opacity: 0.25; }
+
+/* Parallax layers: the world is stacked paper, and the stack
+   leans a little as you look across it. */
+.village-svg #v-layer-far, .village-svg #v-layer-mid, .village-svg #v-layer-fore {
+  transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+  will-change: transform;
 }
-.village-svg .v-path-main { stroke-width: 26; opacity: 0.5; }
-.village-svg .v-path-spur { stroke-width: 11; opacity: 0.42; }
+
+/* Far layer: hills and a distant town, muted paper. */
+.village-svg .v-hills { fill: #a9bfa5; }
+.village-svg .v-far-town path { fill: #93a9b8; opacity: 0.75; }
+.village-svg .v-far-ground { fill: #a3b78f; }
+
+/* Ground and street. */
+.village-svg .v-grass { fill: #8ba46d; }
+.village-svg .v-spurs { fill: none; stroke: #ddd2ba; stroke-width: 9; opacity: 0.5; stroke-linecap: round; }
+.village-svg .v-walk-far, .village-svg .v-walk-near { fill: #ddd2ba; }
+.village-svg .v-road { fill: #6e6860; }
+.village-svg .v-road-edge { fill: #57534c; }
+.village-svg .v-dashes { stroke: #e9e0c9; stroke-width: 5; stroke-dasharray: 36 30; opacity: 0.7; fill: none; }
+.village-svg .v-crosswalk rect { fill: #e9e0c9; opacity: 0.4; }
+
+/* Buildings: paper bodies with a soft edge line, never ink-black. */
 .village-svg .v-buildings path,
 .village-svg .v-buildings rect,
 .village-svg .v-buildings polygon {
-  stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round;
+  stroke: rgba(59, 42, 26, 0.55); stroke-width: 2; stroke-linejoin: round;
 }
-.village-svg .v-body-w { fill: #f7efdb; }
-.village-svg .v-body-brick { fill: #9a5a48; }
-.village-svg .v-logs { fill: #e6d7b8; }
-.village-svg .v-roof { fill: #6b4a2c; }
-.village-svg .v-chimney { fill: #8d8578; }
-.village-svg .v-door { fill: #4a3826; }
-.village-svg .v-win { fill: #f3ead2; }
+.village-svg .v-buildings .v-psh, .village-svg .v-buildings .v-psh * { stroke: none; }
+.village-svg .v-body-w { fill: #f4ecd9; }
+.village-svg .v-body-brick { fill: #b06a4e; }
+.village-svg .v-logs { fill: #e6d3a3; }
+.village-svg .v-roof { fill: #a85f38; }
+.village-svg .v-bld:nth-child(2) .v-roof { fill: #7c8aa0; }
+.village-svg .v-bld:nth-child(3) .v-roof { fill: #96603a; }
+.village-svg .v-bld:nth-child(5) .v-roof { fill: #6e4a35; }
+.village-svg .v-chimney { fill: #9a8f7d; }
+.village-svg .v-door { fill: #6b4a2c; }
+.village-svg .v-win { fill: #f7efdb; }
 .village-svg .v-win.lit { fill: #f0c94e; }
-.village-svg .v-loglines,
-.village-svg .v-bricklines {
-  fill: none; stroke-width: 1.6; opacity: 0.5;
+.village-svg .v-win-arch { fill: #f7efdb; }
+.village-svg .v-loglines, .village-svg .v-bricklines {
+  fill: none; stroke: rgba(59, 42, 26, 0.35); stroke-width: 1.6;
 }
-.village-svg .v-porch,
-.village-svg .v-cross {
-  fill: none; stroke-width: 2.6; stroke-linecap: round;
+.village-svg .v-porch, .village-svg .v-cross {
+  fill: none; stroke: rgba(59, 42, 26, 0.6); stroke-width: 2.4; stroke-linecap: round;
 }
-.village-svg .v-awning { fill: var(--rust); }
-.village-svg .v-sign { fill: var(--paper); }
+.village-svg .v-awning { fill: #b4502e; }
+.village-svg .v-awning-shadow { fill: rgba(74, 52, 32, 0.16); stroke: none; }
+.village-svg .v-sign { fill: #faf3e3; }
 .village-svg .v-sign-text {
   fill: var(--ink); stroke: none;
   font-size: 12.5px; font-weight: 700; letter-spacing: 0.22em;
 }
-.village-svg .v-props path,
-.village-svg .v-props rect,
-.village-svg .v-props polygon {
-  fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+
+/* Foreground props. */
+.village-svg .v-props path {
+  fill: none; stroke: rgba(59, 42, 26, 0.5); stroke-width: 1.8; stroke-linejoin: round;
 }
-.village-svg .v-props .v-awning { fill: var(--rust); }
-.village-svg .v-props .v-sprouts { stroke: #8fae7d; stroke-width: 2.2; }
-.village-svg .v-sun circle { fill: #f3d98b; stroke: var(--ink); stroke-width: 2.4; }
-.village-svg .v-sun path { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; }
-.village-svg .v-moon { fill: #f7efdb; stroke: var(--ink); stroke-width: 2.4; display: none; }
-.village-svg[data-phase="night"] .v-sun { display: none; }
-.village-svg[data-phase="night"] .v-moon { display: block; }
-.village-svg[data-phase="dusk"] .v-sun { opacity: 0.45; }
-.village-svg .v-waypoint path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
-.village-svg .v-waypoint rect { fill: var(--pine); stroke: var(--ink); stroke-width: 2.2; }
+.village-svg .v-props rect,
+.village-svg .v-props polygon,
+.village-svg .v-props circle {
+  stroke: rgba(59, 42, 26, 0.5); stroke-width: 1.8; stroke-linejoin: round;
+}
+.village-svg .v-props .v-psh, .village-svg .v-props .v-psh * { stroke: none; }
+.village-svg .v-trunk { fill: #7a5a38; }
+.village-svg .v-leaf { fill: #5f7f4a; }
+.village-svg .v-leaf-hi { fill: #74925c; stroke: none; }
+.village-svg .v-roof-sm { fill: #96603a; }
+.village-svg .v-well-base { fill: #a49a86; }
+.village-svg .v-well-lines { fill: none; stroke: rgba(59, 42, 26, 0.3); stroke-width: 1.4; }
+.village-svg .v-stall-top { fill: #8a6f4d; }
+.village-svg .v-stall-body { fill: #e6d7b8; }
+.village-svg .v-stall-goods { fill: #d9b380; stroke: rgba(59, 42, 26, 0.4); stroke-width: 1.4; }
+.village-svg .v-bench-wood { fill: #96603a; }
+.village-svg .v-fence rect { fill: #a5825c; stroke: none; }
+.village-svg .v-soil { fill: #7c6a4a; }
+.village-svg .v-sprouts { stroke: #8fae7d; stroke-width: 2.2; fill: none; }
+.village-svg .v-gas-canopy { fill: #ece2c8; }
+.village-svg .v-gas-trim { fill: #b4502e; }
+.village-svg .v-gas-kiosk { fill: #e6d3a3; }
+.village-svg .v-gas-kiosk-roof { fill: #96603a; }
+.village-svg .v-gas-post { fill: #8d8578; }
+.village-svg .v-gas-sign { fill: #b4502e; }
+.village-svg .v-gas-sign-text {
+  fill: #faf3e3; stroke: none;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.3em;
+}
+.village-svg .v-pump rect { fill: #c9532f; }
+.village-svg .v-pump .v-pump-face { fill: #faf3e3; }
+.village-svg .v-pump path { fill: none; }
+.village-svg .v-gas-island { fill: #a49a86; }
+.village-svg .v-win { fill: #f7efdb; }
+.village-svg .v-win.lit { fill: #f0c94e; }
+
+/* Vehicle headlights and the buggy lantern wake at dusk. */
+.village-svg .v-headlight { opacity: 0; transition: opacity 0.9s ease; }
+.village-svg[data-phase="dusk"] .v-headlight,
+.village-svg[data-phase="night"] .v-headlight { opacity: 0.4; }
+
+/* The paper figures ride lifted off the scene on a soft shadow. */
+.village-svg .wk-flip { filter: url(#v-paperlift); }
+.village-svg .walker { cursor: pointer; }
+.village-svg .walker:focus { outline: none; }
+.village-svg .walker:focus-visible .wk-ring { opacity: 1; }
+.village-svg .walker:hover .wk-ring { opacity: 0.55; }
+
+/* Era-quirk speech: a paper bubble with a folded tail, popping
+   in over the speaker and folding away. */
+.village-svg .v-bubble { pointer-events: none; }
+.village-svg .v-bubble .v-bubble-box {
+  fill: #fffdf6; stroke: rgba(59, 42, 26, 0.45); stroke-width: 1.6;
+  filter: drop-shadow(1.5px 2.5px 0 rgba(74, 52, 32, 0.18));
+}
+.village-svg .v-bubble .v-bubble-tail { fill: #fffdf6; stroke: rgba(59, 42, 26, 0.45); stroke-width: 1.6; }
+.village-svg .v-bubble text {
+  fill: #33302a; font-size: 13.5px; font-weight: 600; text-anchor: middle;
+}
+.village-svg .v-bubble-in { animation: v-bubble-in 0.32s cubic-bezier(0.2, 1.4, 0.4, 1) both; transform-box: fill-box; transform-origin: 50% 100%; }
+.village-svg .v-bubble-out { animation: v-bubble-out 0.4s ease-in both; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes v-bubble-in { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes v-bubble-out { from { transform: scale(1); opacity: 1; } to { transform: scale(0.7) translateY(4px); opacity: 0; } }
+
+.village-svg .v-waypoint path { fill: none; stroke: #6b4a2c; stroke-width: 3.4; stroke-linecap: round; }
+.village-svg .v-waypoint rect { fill: #476b52; stroke: rgba(59, 42, 26, 0.4); stroke-width: 1.6; }
+.village-svg .v-waypoint rect.v-wp-shadow { fill: rgba(74, 52, 32, 0.18); stroke: none; }
 .village-svg .v-waypoint text {
   fill: #f7efdb; stroke: none;
   font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
@@ -1073,10 +1202,6 @@ body.home .demo-banner { position: relative; z-index: 2; }
 .village-svg .v-waypoint text.v-waypoint-sub {
   font-size: 10.5px; font-weight: 400; letter-spacing: 0.04em; fill: #e8dfc8;
 }
-.village-svg .walker { cursor: pointer; }
-.village-svg .walker:focus { outline: none; }
-.village-svg .walker:focus-visible .wk-ring { opacity: 1; }
-.village-svg .walker:hover .wk-ring { opacity: 0.55; }
 .village-caption {
   display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: space-between;
   margin-top: 9px; color: var(--ink-soft); font-size: 0.94rem; line-height: 1.45;
@@ -1100,6 +1225,9 @@ body.home .demo-banner { position: relative; z-index: 2; }
 .roster-meta { display: block; color: var(--ink-soft); font-size: 0.9rem; margin-top: 2px; }
 @media (prefers-reduced-motion: reduce) {
   .village-svg .v-phase-rect { transition: none; }
+  .village-svg .v-cloud { animation: none; }
+  .village-svg #v-layer-far, .village-svg #v-layer-mid, .village-svg #v-layer-fore { transition: none; }
+  .village-svg .v-bubble-in, .village-svg .v-bubble-out { animation: none; }
 }
 @media (max-width: 560px) {
   .village-caption { font-size: 0.88rem; }
