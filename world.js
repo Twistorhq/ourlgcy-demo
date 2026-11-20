@@ -60,6 +60,13 @@
   };
   var CHURCH = { x: 200, y: 300, w: 320, h: 300, door: [360, 612] };
   var STORE = { x: 1180, y: 1260, w: 340, h: 220, door: [1350, 1248] };
+  // The filling station (TW-1241): a small lot on the north
+  // side of the east-west road, west of the crossroads: a
+  // concrete pad, a small building, and a pump island a rig
+  // can pull up to. It is the station of the founder's speech
+  // law: a buggy stops at the pumps, the driver marvels, and
+  // the rig rolls on.
+  var STATION = { x: 580, y: 884, w: 252, h: 156, bldg: [596, 896, 104, 58], pumps: [728, 966, 52, 26], stop: [706, 982] };
   var STADIUM = { cx: 2540, cy: 470, rx: 450, ry: 340 };
   var TENTS = [
     { x: 1830, y: 330, a: "#b3392e", b: "#f2ead8" },
@@ -111,6 +118,10 @@
     for (k in HOUSES) blockRect(HOUSES[k].x, HOUSES[k].y, HOUSES[k].w, HOUSES[k].h);
     blockRect(CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h);
     blockRect(STORE.x, STORE.y, STORE.w, STORE.h);
+    blockRect(STATION.bldg[0], STATION.bldg[1], STATION.bldg[2], STATION.bldg[3]);
+    blockRect(STATION.pumps[0], STATION.pumps[1], STATION.pumps[2], STATION.pumps[3]);
+    blockRect(428, 990, 52, 30);   // the parked Model T by the church
+    blockRect(1550, 1212, 60, 28); // the parked sedan at the store
     TENTS.forEach(function (t) { blockRect(t.x - 68, t.y - 50, 136, 100); });
     TREES.forEach(function (t) { blockCircle(t[0], t[1], 13); });
     // Stadium: field blocked; wall ring blocked except the south gate.
@@ -938,6 +949,94 @@
     c.beginPath(); c.roundRect(-len * 0.05, -wid / 2 + 5, len * 0.24, wid - 10, 5); c.fill();
     c.restore();
   }
+  // Era cars (TW-1241): the vehicles of the ancestors' own
+  // decades, drawn as plainly as the modern shapes are: a
+  // Model T (tall, black, narrow, brass lamps) and a sedan of
+  // the fifties (long, rounded, two-tone). Generic shapes, no
+  // badges, the same rule the street kept.
+  function drawEraCar(c, x, y, ang, kind, body) {
+    c.save(); c.translate(x, y); c.rotate(ang);
+    if (kind === "modelt") {
+      c.fillStyle = "rgba(20,20,20,0.28)";
+      c.beginPath(); c.roundRect(-21, -9, 48, 22, 4); c.fill();
+      // Wheels: thin, tall, pale-rimmed.
+      c.fillStyle = "#d8cfc0";
+      [[-16, -12], [14, -12], [-16, 12], [14, 12]].forEach(function (w) {
+        c.beginPath(); c.arc(w[0], w[1], 4.6, 0, Math.PI * 2); c.fill();
+      });
+      c.fillStyle = "#1c1a18";
+      [[-16, -12], [14, -12], [-16, 12], [14, 12]].forEach(function (w) {
+        c.beginPath(); c.arc(w[0], w[1], 2.6, 0, Math.PI * 2); c.fill();
+      });
+      // Hood and tall cabin.
+      c.fillStyle = body || "#232120";
+      c.beginPath(); c.roundRect(-24, -8, 20, 16, 3); c.fill();
+      c.beginPath(); c.roundRect(-4, -11, 26, 22, 4); c.fill();
+      c.fillStyle = "rgba(190,210,225,0.75)";
+      c.fillRect(-2, -9, 4, 18);
+      // Brass lamps.
+      c.fillStyle = "#c9a227";
+      c.beginPath(); c.arc(-24, -7, 2.2, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(-24, 7, 2.2, 0, Math.PI * 2); c.fill();
+    } else { // sedan
+      c.fillStyle = "rgba(20,20,20,0.28)";
+      c.beginPath(); c.roundRect(-27, -11, 58, 26, 10); c.fill();
+      c.fillStyle = "#e8e2cc";
+      [[-19, -13], [17, -13], [-19, 13], [17, 13]].forEach(function (w) {
+        c.beginPath(); c.arc(w[0], w[1], 4.4, 0, Math.PI * 2); c.fill();
+      });
+      c.fillStyle = body || "#33506e";
+      c.beginPath(); c.roundRect(-29, -13, 58, 26, 11); c.fill();
+      c.fillStyle = "rgba(0,0,0,0.22)";
+      c.beginPath(); c.roundRect(-12, -11, 26, 22, 8); c.fill();
+      c.fillStyle = "rgba(190,210,225,0.8)";
+      c.beginPath(); c.roundRect(-11, -9, 9, 18, 4); c.fill();
+      c.beginPath(); c.roundRect(3, -9, 9, 18, 4); c.fill();
+      c.fillStyle = "rgba(255,255,255,0.25)";
+      c.fillRect(-29, -2.4, 58, 2.2); // chrome line
+    }
+    c.restore();
+  }
+  function drawStation(c) {
+    // Pad, building, pump island, and the roadside sign.
+    drawConcrete(c, STATION.x, STATION.y, STATION.w, STATION.h);
+    c.fillStyle = "rgba(120,90,40,0.16)";
+    c.fillRect(STATION.x + 120, STATION.y + 66, 118, 84); // oil-stained drive
+    var b = STATION.bldg;
+    paperShadow(c, b[0], b[1], b[2], b[3]);
+    c.fillStyle = "#a8433a";
+    c.fillRect(b[0], b[1], b[2], b[3]);
+    speckle(c, b[0], b[1], b[2], b[3], 90, ["rgba(0,0,0,0.10)", "rgba(255,240,220,0.08)"], 1, 2);
+    c.strokeStyle = "rgba(40,32,24,0.4)"; c.lineWidth = 3;
+    c.strokeRect(b[0] + 1, b[1] + 1, b[2] - 2, b[3] - 2);
+    c.fillStyle = "#e8ddc4";
+    c.fillRect(b[0] + 8, b[1] + 8, b[2] - 16, 13); // sign band
+    c.fillStyle = "#54443a";
+    c.fillRect(b[0] + b[2] - 26, b[1] + b[3] - 20, 18, 14); // door
+    // Pump island: two pumps on a raised bed.
+    var p = STATION.pumps;
+    c.fillStyle = "#8f8672";
+    c.fillRect(p[0] - 4, p[1] - 4, p[2] + 8, p[3] + 8);
+    [p[0] + 9, p[0] + 33].forEach(function (px) {
+      c.fillStyle = "#b3392e";
+      c.beginPath(); c.roundRect(px, p[1], 11, p[3], 3); c.fill();
+      c.fillStyle = "#e8ddc4";
+      c.beginPath(); c.arc(px + 5.5, p[1] + 8, 3.6, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#26221e";
+      c.fillRect(px + 3.4, p[1] + 15, 4.2, 6);
+    });
+    // Roadside sign: a post and a board that says what it is.
+    c.fillStyle = "#4c3a26";
+    c.fillRect(712, 1046, 5, 14);
+    c.fillStyle = "#e8ddc4";
+    c.beginPath(); c.roundRect(694, 1024, 44, 24, 4); c.fill();
+    c.strokeStyle = "#a8433a"; c.lineWidth = 2;
+    c.beginPath(); c.roundRect(694, 1024, 44, 24, 4); c.stroke();
+    c.fillStyle = "#a8433a";
+    c.font = "bold 15px Georgia, serif";
+    c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText("GAS", 716, 1037);
+  }
   function drawStadium(c) {
     var S = STADIUM;
     // Apron first (under the wall).
@@ -1096,12 +1195,17 @@
     Object.keys(HOUSES).forEach(function (k) { drawHouse(c, HOUSES[k]); });
     drawChurch(c);
     drawStore(c);
+    drawStation(c);
     drawStadium(c);
     // Parked cars on the roads (present-day, unbranded shapes).
     drawCarShape(c, 852, 700, Math.PI / 2, "#7a2d20", 52, 26);
     drawCarShape(c, 1032, 1500, Math.PI / 2, "#33506e", 52, 26);
     drawCarShape(c, 1500, 1052, 0, "#c8c2b4", 52, 26);
     drawCarShape(c, 2900, 1228, 0, "#4c4a6e", 52, 26);
+    // Parked era cars at their era's places (TW-1241): a
+    // Model T by the church path, a fifties sedan at the store.
+    drawEraCar(c, 452, 1006, 0.25, "modelt");
+    drawEraCar(c, 1580, 1226, 0, "sedan", "#7a2d20");
     // Trees and bushes.
     TREES.forEach(function (t) { drawTree(c, t[0], t[1], t[2]); });
     drawBush(c, 640, 1790, true); drawBush(c, 1980, 1535, true); drawBush(c, 2760, 1790, true);
@@ -1175,9 +1279,13 @@
     drawTruck(c, 1680, 330, Math.PI / 2, "#7a2d20");
     drawTruck(c, 1680, 560, Math.PI / 2, "#33506e");
     drawTruck(c, 1680, 770, Math.PI / 2, "#c8c2b4");
-    // Buggies parked outside the gates, horses waiting.
-    drawBuggy(c, 2330, 905, 0.12);
-    drawBuggy(c, 2765, 905, -0.1);
+    // Buggies park outside the gates on Saturday too, but
+    // they are not drawn here anymore (TW-1241): they are the
+    // working rigs of James J Hammond and Dora Weathers, drawn
+    // in the dynamic layer. They ride in from home, park at
+    // these same two spots (2330, 905) and (2765, 905), and
+    // wait while their people are inside: the same two rigs
+    // that work the weekday rounds, never a second pair.
     // The crowd pressing at the gates: full figures at street
     // scale in the home purple and gold (one scale law).
     var gateSpots = [];
@@ -1212,6 +1320,7 @@
     c.beginPath(); c.ellipse(STADIUM.cx * s, STADIUM.cy * s, STADIUM.rx * 0.55 * s, STADIUM.ry * 0.55 * s, 0, 0, Math.PI * 2); c.fill();
     c.fillStyle = "#e8e2cc"; c.fillRect(CHURCH.x * s, CHURCH.y * s, CHURCH.w * s, CHURCH.h * s);
     c.fillStyle = "#8a7a5c"; c.fillRect(STORE.x * s, STORE.y * s, STORE.w * s, STORE.h * s);
+    c.fillStyle = "#cfc8b8"; c.fillRect(STATION.x * s, STATION.y * s, STATION.w * s, STATION.h * s);
     c.fillStyle = "#cbb489";
     Object.keys(HOUSES).forEach(function (k) {
       var hse = HOUSES[k];
@@ -1221,6 +1330,198 @@
 
   renderStatic();
   renderSaturday();
+
+  /* ==================== era transport (TW-1241) =================== */
+  // Horse and buggies belong in the everyday rounds, not only
+  // parked at the Saturday stadium: a figure whose record
+  // carries transport "buggy" (world-data.js) travels between
+  // their round's places by rig. The rig works the roads at a
+  // horse's pace, pulls into the filling station when its road
+  // takes it past the pumps (the driver marvels, per the
+  // speech law: proximity-triggered, one bubble at a time, a
+  // line on screen never repeated at the same moment), parks
+  // at the roadside nearest each destination while the figure
+  // walks the last stretch on foot, and on Saturday parks at
+  // the stadium gates. One rig per buggy figure, the same rig
+  // all week: nothing is double-counted.
+  //
+  // Stops: every place a round can name has a road point (on a
+  // street centerline) and a park point (the roadside beside
+  // it). Streets: "plaza" (the brick street, y 1660), "h" (the
+  // east-west road, y 1140), "v" (the north-south road, x 940),
+  // "apron" (the stadium spur, x 2540). The chain plaza-v-h-
+  // apron with its three junctions routes any stop to any stop.
+  var STOPS = {
+    church: { road: [360, 1140], park: [360, 1182], street: "h" },
+    store: { road: [1350, 1140], park: [1350, 1182], street: "h" },
+    h6: { road: [360, 1140], park: [360, 1182], street: "h" },
+    plazaW: { road: [700, 1660], park: [700, 1622], street: "plaza" },
+    plazaC: { road: [1600, 1660], park: [1600, 1622], street: "plaza" },
+    plazaE: { road: [2400, 1660], park: [2400, 1622], street: "plaza" },
+    h1: { road: [380, 1660], park: [380, 1702], street: "plaza" },
+    h2: { road: [1200, 1660], park: [1200, 1702], street: "plaza" },
+    h3: { road: [1680, 1660], park: [1680, 1702], street: "plaza" },
+    h4: { road: [2220, 1660], park: [2220, 1702], street: "plaza" },
+    h5: { road: [940, 510], park: [900, 510], street: "v" },
+    gate: { road: [2540, 936], park: null, street: "apron" }
+  };
+  var GATE_PARKS = [[2330, 905], [2765, 905]];
+  var STREET_CHAIN = ["plaza", "v", "h", "apron"];
+  var JUNCTIONS = { "plaza|v": [940, 1660], "v|h": [940, 1140], "h|apron": [2540, 1140] };
+  function roadRoute(a, b) {
+    // Waypoints along street centerlines from stop a to stop b.
+    var pts = [];
+    var ai = STREET_CHAIN.indexOf(a.street), bi = STREET_CHAIN.indexOf(b.street);
+    if (ai === bi) { pts.push(b.road); return pts; }
+    var step = ai < bi ? 1 : -1, cur = a;
+    while (STREET_CHAIN.indexOf(cur.street) !== bi) {
+      var ns = STREET_CHAIN[STREET_CHAIN.indexOf(cur.street) + step];
+      var j = JUNCTIONS[cur.street + "|" + ns] || JUNCTIONS[ns + "|" + cur.street];
+      pts.push(j);
+      cur = { road: j, street: ns };
+    }
+    pts.push(b.road);
+    return pts;
+  }
+  // The filling-station lines, carried from the street's
+  // era-quirk set (village.js): an old-sees-new marvel at the
+  // pumps, warm and wondering, never mocking.
+  var GAS_LINES = [
+    "What is that?",
+    "It runs with no horse at all?",
+    "They feed it from a pump?",
+    "Well, I never in my days.",
+    "Is it safe to stand near?"
+  ];
+  var quirkActive = null;
+  var quirkCount = 0;
+  var stationReservedBy = null;
+  function nearStadium(x, y) { return Math.hypot(x - STADIUM.cx, y - STADIUM.cy) < 780; }
+
+  function makeRig(f, gateIdx) {
+    var homeStop = STOPS[f.rec.home];
+    return {
+      fig: f, stopName: f.rec.home, gateIdx: gateIdx,
+      x: homeStop.park[0], y: homeStop.park[1], heading: 0,
+      state: "parked", route: [], routeI: 0, pauseT: 0,
+      stationCd: rr(15, 40), lineI: Math.floor(rr(0, GAS_LINES.length))
+    };
+  }
+  function seatFigure(f) {
+    var rig = f.rig, h = rig.heading;
+    f.x = rig.x + Math.cos(h) * -20;
+    f.y = rig.y + Math.sin(h) * -20;
+    f.heading = h;
+  }
+  function needsRide(f) {
+    if (!f.rig || !f.destName) return false;
+    if (!STOPS[f.destName]) return false;
+    if (f.rig.stopName === f.destName) return false;
+    // Saturday, inside the stadium grounds, is walking country:
+    // the rig waits at the gates while its person moves between
+    // the tailgate, the gates, and the stands on foot.
+    if (saturday && f.destName === "gate" && nearStadium(f.x, f.y)) return false;
+    return true;
+  }
+  function startRide(f, dest) {
+    f.destPending = dest;
+    var rig = f.rig;
+    if (Math.hypot(f.x - rig.x, f.y - rig.y) < 34) { boardRig(f); return; }
+    f.path = findPath(f.x, f.y, rig.x, rig.y);
+    f.pathI = 0;
+    f.state = "walkToRig";
+  }
+  function boardRig(f) {
+    var rig = f.rig;
+    rig.route = buildRideRoute(f, STOPS[rig.stopName], STOPS[f.destName]);
+    rig.routeI = 0;
+    rig.state = "rolling";
+    f.state = "ride";
+    seatFigure(f);
+  }
+  function buildRideRoute(f, from, to) {
+    var rig = f.rig;
+    var pts = roadRoute(from, to).map(function (p) { return { x: p[0], y: p[1] }; });
+    // The station stop: if this leg runs along the east-west
+    // road past the pumps, and the rig is due a marvel, pull
+    // in. One rig in the lot at a time; a long cooldown after.
+    if (rig.stationCd <= 0 && !stationReservedBy) {
+      for (var i = 0; i < pts.length; i++) {
+        var a = i === 0 ? { x: from.road[0], y: from.road[1] } : pts[i - 1];
+        var b = pts[i];
+        // (from.road is a [x, y] pair; the waypoints are {x, y}.)
+        if (a.y === 1140 && b.y === 1140 && Math.min(a.x, b.x) < 712 && Math.max(a.x, b.x) > 712) {
+          var detour = [
+            { x: 712, y: 1140 }, { x: 712, y: 1042 },
+            { x: STATION.stop[0], y: STATION.stop[1], pause: "station" },
+            { x: 712, y: 1042 }, { x: 712, y: 1140 }
+          ];
+          pts = pts.slice(0, i).concat(detour, pts.slice(i));
+          stationReservedBy = rig;
+          break;
+        }
+      }
+    }
+    var park = f.destName === "gate" ? GATE_PARKS[rig.gateIdx] : to.park;
+    pts.push({ x: park[0], y: park[1] });
+    return pts;
+  }
+  function fireStationQuirk(f, now) {
+    if (greetActive || quirkActive) return;
+    var line = GAS_LINES[f.rig.lineI % GAS_LINES.length];
+    if (activeTexts[line]) line = GAS_LINES[(f.rig.lineI + 1) % GAS_LINES.length];
+    if (activeTexts[line]) return;
+    f.rig.lineI++;
+    quirkActive = { fig: f, line: line, until: now + 3.4 };
+    activeTexts[line] = true;
+    quirkCount++;
+    bubbleEl.textContent = line;
+    bubbleEl.classList.add("show");
+    bubbleEl.setAttribute("data-speaker", f.rec.name);
+    if (liveEl) liveEl.textContent = f.rec.name + ": " + line;
+  }
+  function updateRide(f, dt, now) {
+    var rig = f.rig;
+    if (rig.pauseT > 0) {
+      rig.pauseT -= dt;
+      seatFigure(f);
+      if (rig.pauseT <= 0) {
+        rig.routeI++;
+        if (stationReservedBy === rig) stationReservedBy = null;
+        rig.stationCd = 150;
+      }
+      return;
+    }
+    var t = rig.route[rig.routeI];
+    if (!t) { arriveRide(f); return; }
+    var dx = t.x - rig.x, dy = t.y - rig.y, d = Math.hypot(dx, dy);
+    if (d < 7) {
+      if (t.pause === "station") {
+        rig.pauseT = 4.6;
+        fireStationQuirk(f, now);
+      } else rig.routeI++;
+      seatFigure(f);
+      return;
+    }
+    var want = Math.atan2(dy, dx);
+    var diff = want - rig.heading;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    rig.heading += diff * Math.min(1, dt * 3.2);
+    var step = Math.min(d, 58 * dt);
+    rig.x += Math.cos(rig.heading) * step;
+    rig.y += Math.sin(rig.heading) * step;
+    seatFigure(f);
+  }
+  function arriveRide(f) {
+    var rig = f.rig;
+    rig.state = "parked";
+    rig.stopName = f.destName;
+    if (stationReservedBy === rig) stationReservedBy = null;
+    f.state = "walkFromRig";
+    f.path = findPath(f.x, f.y, f.destPending.x, f.destPending.y);
+    f.pathI = 0;
+  }
 
   /* ============================ figures ============================ */
   function frozenAge(rec) {
@@ -1245,6 +1546,12 @@
       greetCd: rr(2, 14), greetedOnce: false, lineI: 0,
       waveT: 0, bob: rr(0, 6), satI: 0, active: true
     };
+    // Era transport (TW-1241): a figure whose record carries
+    // a buggy gets their rig, parked at their home stop.
+    if (rec.present.transport === "buggy") {
+      f.rig = makeRig(f, buggyCount);
+      buggyCount++;
+    }
     // Sprites painted once from the appearance record (TW-1238);
     // a documented Saturday attendee also gets a set in her
     // school colors with the gold sash.
@@ -1258,6 +1565,7 @@
     }
     return f;
   }
+  var buggyCount = 0;
   var npcs = window.LGCY_WORLD_PEOPLE.map(makeFigure);
   npcs.forEach(function (f, i) { f.active = i < outCount; });
   // First-frame life: two relatives are already out on the plaza
@@ -1279,6 +1587,7 @@
 
   function destFor(f) {
     if (saturday) {
+      f.destName = "gate";
       var spots = f.rec.saturday.role === "stands" ? STAND_SPOTS
         : f.rec.saturday.role === "grill" ? [GRILL_SPOT, GATE_SPOTS[2]]
         : f.rec.saturday.role === "gates" ? GATE_SPOTS
@@ -1290,12 +1599,17 @@
     var name = f.rec.rounds[f.roundI % f.rec.rounds.length];
     f.roundI++;
     if (name === "home") {
+      f.destName = f.rec.home;
       var hse = HOUSES[f.rec.home];
       return { x: hse.door[0], y: hse.door[1] };
     }
+    f.destName = name;
     return PLACES[name];
   }
   function sendTo(f, dest) {
+    // A buggy figure rides legs between stops (TW-1241);
+    // everyone else, and every local move, walks.
+    if (needsRide(f)) { startRide(f, dest); return; }
     f.path = findPath(f.x, f.y, dest.x, dest.y);
     f.pathI = 0;
     f.state = "walk";
@@ -1336,7 +1650,7 @@
     return "Good night, Justynn!";
   }
   function tryGreet(f, now) {
-    if (greetActive || now - lastGreetEnd < 1.2 || f.greetCd > 0) return;
+    if (greetActive || quirkActive || now - lastGreetEnd < 1.2 || f.greetCd > 0) return;
     var d = Math.hypot(f.x - player.x, f.y - player.y);
     if (d > 108 || d < 12) return;
     var line = !f.greetedOnce ? timeLine() : f.rec.lines[f.lineI % f.rec.lines.length];
@@ -1358,18 +1672,23 @@
   /* ----------------------------- car ------------------------------- */
   var car = { x: 940, y: 120, heading: Math.PI / 2, wp: 0, speed: 105 };
   var CAR_ROUTE = [[940, 1136], [3050, 1136], [940, 1136], [940, 120]];
-  function updateCar(dt) {
-    var t = CAR_ROUTE[car.wp];
-    var dx = t[0] - car.x, dy = t[1] - car.y, d = Math.hypot(dx, dy);
-    if (d < 8) { car.wp = (car.wp + 1) % CAR_ROUTE.length; return; }
+  // A Model T works the same roads as ambient era life
+  // (TW-1241), on its own shorter loop, at its own pace.
+  var modelt = { x: 1900, y: 1136, heading: Math.PI, wp: 0, speed: 66 };
+  var MODELT_ROUTE = [[940, 1136], [940, 120], [940, 1136], [1900, 1136]];
+  function updateVehicle(v, route, dt) {
+    var t = route[v.wp];
+    var dx = t[0] - v.x, dy = t[1] - v.y, d = Math.hypot(dx, dy);
+    if (d < 8) { v.wp = (v.wp + 1) % route.length; return; }
     var want = Math.atan2(dy, dx);
-    var diff = want - car.heading;
+    var diff = want - v.heading;
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
-    car.heading += diff * Math.min(1, dt * 6);
-    car.x += Math.cos(car.heading) * car.speed * dt;
-    car.y += Math.sin(car.heading) * car.speed * dt;
+    v.heading += diff * Math.min(1, dt * 6);
+    v.x += Math.cos(v.heading) * v.speed * dt;
+    v.y += Math.sin(v.heading) * v.speed * dt;
   }
+  function updateCar(dt) { updateVehicle(car, CAR_ROUTE, dt); }
 
   /* ============================ camera ============================= */
   var view = { w: 960, h: 540 };
@@ -1467,19 +1786,29 @@
       ctx.drawImage(staticC, ix, iy, iw, ih, ix, iy, iw, ih);
       if (saturday) ctx.drawImage(satC, ix, iy, iw, ih, ix, iy, iw, ih);
     }
-    // The moving car.
+    // The moving car, and the Model T on its loop (TW-1241).
     drawCarShape(ctx, car.x, car.y, car.heading, "#8a3324", 54, 27);
+    drawEraCar(ctx, modelt.x, modelt.y, modelt.heading, "modelt");
     if (phase === "night" || phase === "dusk") {
       ctx.fillStyle = "rgba(255,240,190,0.5)";
       var hx = car.x + Math.cos(car.heading) * 30, hy = car.y + Math.sin(car.heading) * 30;
       ctx.beginPath(); ctx.arc(hx - Math.sin(car.heading) * 8, hy + Math.cos(car.heading) * 8, 5, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(hx + Math.sin(car.heading) * 8, hy - Math.cos(car.heading) * 8, 5, 0, Math.PI * 2); ctx.fill();
     }
+    // Parked rigs are world furniture: at a home stop, at a
+    // destination's roadside, or at the stadium gates.
+    npcs.forEach(function (f) {
+      if (f.rig && f.rig.state === "parked") drawBuggy(ctx, f.rig.x, f.rig.y, f.rig.heading);
+    });
     // Figures, sorted by y so lower figures overlap upper ones.
     var figs = npcs.filter(function (f) { return f.active; });
     figs.push(player);
     figs.sort(function (a, b) { return a.y - b.y; });
-    figs.forEach(function (f) { drawFigureShape(ctx, f, t); });
+    figs.forEach(function (f) {
+      // A riding figure's rig draws with them, horse first.
+      if (f.rig && f.state === "ride") drawBuggy(ctx, f.rig.x, f.rig.y, f.rig.heading);
+      drawFigureShape(ctx, f, t);
+    });
     drawSmoke(t, dt);
     // Light by phase.
     if (phase !== "day") {
@@ -1509,9 +1838,11 @@
       }
     }
     ctx.restore();
-    // Speech bubble follows its speaker.
-    if (greetActive) {
-      var bp = worldToScreen(greetActive.fig.x, greetActive.fig.y - 70);
+    // Speech bubble follows its speaker: a greeting, or a
+    // buggy driver marveling at the filling station.
+    var bub = greetActive || quirkActive;
+    if (bub) {
+      var bp = worldToScreen(bub.fig.x, bub.fig.y - 70);
       bubbleEl.style.transform = "translate(" + Math.round(bp[0]) + "px," + Math.round(bp[1]) + "px) translate(-50%,-100%)";
     }
     // Minimap.
@@ -1590,8 +1921,23 @@
           f.state = "dwell";
           f.dwellT = saturday ? rr(16, 34) : rr(4, 10);
         }
+      } else if (f.state === "walkToRig") {
+        if (followPath(f, f.rec.present.speed, dt)) boardRig(f);
+      } else if (f.state === "ride") {
+        updateRide(f, dt, elapsed);
+      } else if (f.state === "walkFromRig") {
+        if (followPath(f, f.rec.present.speed, dt)) {
+          f.state = "dwell";
+          f.dwellT = saturday ? rr(16, 34) : rr(4, 10);
+        }
       }
-      tryGreet(f, elapsed);
+      if (f.rig) f.rig.stationCd -= dt;
+      // Greetings belong to figures on foot at a destination
+      // or on a walking leg, never to a driver mid-ride or on
+      // the way to their rig.
+      if (f.state === "dwell" || f.state === "walk" || f.state === "walkFromRig") {
+        tryGreet(f, elapsed);
+      }
     });
     if (greetActive && elapsed > greetActive.until) {
       delete activeTexts[greetActive.line];
@@ -1599,8 +1945,14 @@
       lastGreetEnd = elapsed;
       bubbleEl.classList.remove("show");
     }
+    if (quirkActive && elapsed > quirkActive.until) {
+      delete activeTexts[quirkActive.line];
+      quirkActive = null;
+      if (!greetActive) bubbleEl.classList.remove("show");
+    }
 
     updateCar(dt);
+    updateVehicle(modelt, MODELT_ROUTE, dt);
 
     // Camera follows the player (or a followed relative, for proof).
     var target = player;
@@ -1642,13 +1994,25 @@
     var sx = e.clientX - r.left, sy = e.clientY - r.top;
     var wx = cam.x + (sx - view.w / 2) / zoom;
     var wy = cam.y + (sy - view.h / 2) / zoom;
-    // A tap on a relative opens their profile, as the street did.
+    // A tap on a relative opens THEIR OWN profile (TW-1241).
+    // The hit test picks the nearest active figure within
+    // reach, and the navigation carries that figure's id:
+    // person.html renders the card for the id it is given.
+    // Before this fix the handler navigated to a bare
+    // "person.html" and threw the hit away; person.html is
+    // the demo's one authored page, Emma Jean Jackson's, so
+    // every figure the founder tapped, moving or dwelling,
+    // resolved to her card.
+    var best = null, bestD = 42;
     for (var i = 0; i < npcs.length; i++) {
       var f = npcs[i];
-      if (f.active && Math.hypot(f.x - wx, f.y - wy) < 36) {
-        location.href = "person.html";
-        return;
-      }
+      if (!f.active) continue;
+      var d = Math.hypot(f.x - wx, f.y - wy);
+      if (d < bestD) { bestD = d; best = f; }
+    }
+    if (best) {
+      location.href = "person.html?id=" + encodeURIComponent(best.rec.id);
+      return;
     }
     var dest = nearestWalkable(wx, wy);
     player.path = findPath(player.x, player.y, dest.x, dest.y);
@@ -1709,8 +2073,17 @@
         player: { x: Math.round(player.x), y: Math.round(player.y), moving: player.moving },
         cam: { x: Math.round(cam.x), y: Math.round(cam.y) },
         greetCount: greetCount,
+        quirkCount: quirkCount,
         npcs: npcs.map(function (f) {
-          return { id: f.rec.id, x: Math.round(f.x), y: Math.round(f.y), state: f.state, active: f.active, era: eraOf(f.rec), frozenAge: frozenAge(f.rec) };
+          return {
+            id: f.rec.id, x: Math.round(f.x), y: Math.round(f.y), state: f.state, active: f.active,
+            era: eraOf(f.rec), frozenAge: frozenAge(f.rec),
+            transport: (f.rec.present && f.rec.present.transport) || null,
+            rig: f.rig ? {
+              state: f.rig.state, x: Math.round(f.rig.x), y: Math.round(f.rig.y),
+              stop: f.rig.stopName, paused: f.rig.pauseT > 0
+            } : null
+          };
         })
       };
     },
@@ -1730,10 +2103,42 @@
       var p = nearestWalkable(x, y);
       f.x = p.x; f.y = p.y; f.path = []; f.pathI = 0;
       f.state = "dwell"; f.dwellT = 30; f.greetCd = 0;
+      if (f.rig) {
+        // The rig waits at the stop nearest the placed figure.
+        var bestName = f.rig.stopName, bestD = Infinity;
+        Object.keys(STOPS).forEach(function (name) {
+          if (name === "gate") return;
+          var s = STOPS[name];
+          var d = Math.hypot(s.park[0] - p.x, s.park[1] - p.y);
+          if (d < bestD) { bestD = d; bestName = name; }
+        });
+        f.rig.stopName = bestName;
+        f.rig.x = STOPS[bestName].park[0];
+        f.rig.y = STOPS[bestName].park[1];
+        f.rig.state = "parked";
+        f.rig.route = []; f.rig.routeI = 0; f.rig.pauseT = 0;
+        if (stationReservedBy === f.rig) stationReservedBy = null;
+      }
     },
     sendNpcTo: function (id, x, y) {
       var f = npcs.find(function (n) { return n.rec.id === id; });
-      if (f) sendTo(f, nearestWalkable(x, y));
+      if (f) { f.destName = null; sendTo(f, nearestWalkable(x, y)); }
+    },
+    sendNpcToPlace: function (id, place) {
+      var f = npcs.find(function (n) { return n.rec.id === id; });
+      if (!f) return;
+      if (place === "home") {
+        f.destName = f.rec.home;
+        var hse = HOUSES[f.rec.home];
+        sendTo(f, { x: hse.door[0], y: hse.door[1] });
+      } else if (PLACES[place]) {
+        f.destName = place;
+        sendTo(f, PLACES[place]);
+      }
+    },
+    primeStation: function (id) {
+      var f = npcs.find(function (n) { return n.rec.id === id; });
+      if (f && f.rig) f.rig.stationCd = 0;
     },
     primeGreet: function (id) {
       var f = npcs.find(function (n) { return n.rec.id === id; });
