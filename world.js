@@ -719,15 +719,19 @@
     var t = f.path[f.pathI];
     var dx = t.x - f.x, dy = t.y - f.y, d = Math.hypot(dx, dy);
     var step = speed * dt;
-    if (d <= Math.max(step, 3)) {
+    if (d <= Math.max(step + 2, 7)) {
       f.x = t.x; f.y = t.y; f.pathI++;
       return f.pathI >= f.path.length;
     }
     var want = Math.atan2(dy, dx);
-    var diff = want - f.heading;
-    while (diff > Math.PI) diff -= Math.PI * 2;
-    while (diff < -Math.PI) diff += Math.PI * 2;
-    f.heading += diff * Math.min(1, dt * 10);
+    if (d < 36) {
+      f.heading = want; // close in: face the point, no pursuit orbit
+    } else {
+      var diff = want - f.heading;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      f.heading += diff * Math.min(1, dt * 10);
+    }
     f.x += Math.cos(f.heading) * step;
     f.y += Math.sin(f.heading) * step;
     f.bob += dt * speed * 0.30;
