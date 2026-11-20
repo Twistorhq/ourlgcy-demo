@@ -1286,9 +1286,11 @@
     speckle(c, 0, 60, W, 58, 700, ["rgba(40,54,26,0.20)", "rgba(140,160,105,0.16)"], 1, 2.4);
     // West edge: the same country, lower: foothills running
     // down to the east-west road, no snow at this height.
+    // The west strip is narrow, so it stays in sage and olive
+    // greens: the far ridge's blue-gray read as water here.
     var wfar = [[-20, 12], [150, 27], [320, 15], [500, 31], [680, 19], [860, 29], [1060, 17]];
     ridgePath(c, wfar, MTN_W, true);
-    c.fillStyle = "#7e8bab"; c.fill();
+    c.fillStyle = "#6f7f5c"; c.fill();
     var wfoot = [[-20, 41], [180, 53], [360, 39], [540, 55], [720, 43], [900, 56], [1060, 45]];
     ridgePath(c, wfoot, MTN_W, true);
     c.fillStyle = "#5f7346"; c.fill();
