@@ -1,0 +1,53 @@
+{
+ "wide": {
+  "phase": "day",
+  "active": 10
+ },
+ "still": {
+  "player_same": true,
+  "npcs_moved": [
+   "elouise-morris",
+   "oddie-criner-gooden",
+   "melvin-andrew-gooden",
+   "emma-jean-jackson",
+   "willie-bethsaida-anderson",
+   "dora-weathers",
+   "troy-wright",
+   "andrew-jackson-gooden",
+   "james-j-hammond"
+  ]
+ },
+ "walk": {
+  "cam_delta": [
+   -246,
+   -429
+  ],
+  "player_at": {
+   "x": 1336,
+   "y": 1234,
+   "moving": false
+  }
+ },
+ "greetings": {
+  "line_aunt": "Hi Justynn! How's it going?",
+  "speaker_aunt": "Elouise Morris",
+  "line_cousin": "Good to see you!",
+  "speaker_cousin": "Troy Wright",
+  "greet_count": 2
+ },
+ "saturday": {
+  "saturday": true
+ },
+ "follow": {
+  "troy_at": [
+   1940,
+   470
+  ],
+  "state": "dwell"
+ },
+ "night": {
+  "phase": "night",
+  "active": 3
+ },
+ "page_errors": []
+}
