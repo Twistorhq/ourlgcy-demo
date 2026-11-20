@@ -1,0 +1,9 @@
+/home/hatch/workspace/repos/ourlgcy-demo-tw1238/agent-eyes-out/community-world-1440-frames.png  (1611x1188, ~1.5k tokens)
+/home/hatch/workspace/repos/ourlgcy-demo-tw1238/agent-eyes-out/community-world-1440.png  (1440x900, ~1.5k tokens)
+/home/hatch/workspace/repos/ourlgcy-demo-tw1238/agent-eyes-out/community-world-390-frames.png  (1612x994, ~1.5k tokens)
+/home/hatch/workspace/repos/ourlgcy-demo-tw1238/agent-eyes-out/community-world-390.png  (390x844, ~439 tokens)
+community-world@1440 motion: 101 distinct frames over 4406 ms
+  "#world-canvas": no shrink, snap, flicker, disappearance or detour
+community-world@390 motion: 274 distinct frames over 4848 ms
+  "#world-canvas": no shrink, snap, flicker, disappearance or detour
+no page errors, no console errors, no server errors, no horizontal scroll, actions ok

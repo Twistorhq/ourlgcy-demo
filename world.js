@@ -261,6 +261,18 @@
     if (P.hair === "long") {
       g.fillStyle = hc;
       g.beginPath(); g.roundRect(-10.5, -52, 21, 35, 7); g.fill();
+      if (P.hairTexture === "curly") {
+        // Curls: scalloped edges and lit flecks down the fall.
+        for (var cf = 0; cf < 7; cf++) {
+          g.beginPath(); g.arc(-10.5, -46 + cf * 5, 2.6, 0, Math.PI * 2); g.fill();
+          g.beginPath(); g.arc(10.5, -46 + cf * 5, 2.6, 0, Math.PI * 2); g.fill();
+        }
+        for (var cs = 0; cs < 26; cs++) {
+          g.fillStyle = rnd() < 0.5 ? hd : hl; g.globalAlpha = 0.5;
+          g.beginPath(); g.arc(rr(-9, 9), rr(-50, -20), rr(0.7, 1.4), 0, Math.PI * 2); g.fill();
+        }
+        g.globalAlpha = 1; g.fillStyle = hc;
+      }
     }
     // Neck.
     g.fillStyle = shade(P.skin, -14);
@@ -457,6 +469,13 @@
       g.fillStyle = hc;
       g.beginPath(); g.roundRect(-12.6, -46, 4.8, 17, 2.4); g.fill();
       g.beginPath(); g.roundRect(7.8, -46, 4.8, 17, 2.4); g.fill();
+      if (P.hairTexture === "curly") {
+        [-10.2, 10.2].forEach(function (fx) {
+          for (var cf2 = 0; cf2 < 4; cf2++) {
+            g.beginPath(); g.arc(fx, -43 + cf2 * 4.6, 2.5, 0, Math.PI * 2); g.fill();
+          }
+        });
+      }
     } else if (P.hair === "braids") {
       hairCap();
       [-1, 1].forEach(function (side) {
@@ -476,6 +495,12 @@
     } else { // short, short-gray, gray: a textured cap
       hairCap();
       coilySpeckle(0, -46.5, 7.6, 30);
+      if (P.hairTexture === "curly") {
+        g.fillStyle = hc;
+        [-7.5, -4.5, -1.5, 1.5, 4.5, 7.5].forEach(function (sx) {
+          g.beginPath(); g.arc(sx, -41.6, 1.9, 0, Math.PI * 2); g.fill();
+        });
+      }
     }
     }
     // Glasses, where the record carries them (mechanism; the
@@ -586,6 +611,7 @@
     var p = rec.present;
     return {
       skin: p.skin, hair: p.hair, hairColor: p.hairColor || null,
+      hairTexture: p.hairTexture || "straight",
       kit: p.kit, kitDark: p.kitDark, hat: p.hat, hatColor: p.hatColor,
       prop: p.prop, gender: rec.gender, build: p.build || "average",
       glasses: !!p.glasses, sash: false
@@ -600,6 +626,7 @@
       skin: pick(SKIN_TONES),
       hair: pick(["short", "afro", "bun", "long", "braids", "short-gray", "bun-gray", "bald", "short"]),
       hairColor: pick(["#1d130c", "#241a12", "#2e1c10", "#17110b"]),
+      hairTexture: pick(["straight", "curly", "coily", "curly"]),
       kit: kit, kitDark: shade(kit, -26),
       hat: hat, hatColor: pick(["#e8ddc4", "#3d362e", "#4c3a26"]),
       prop: null, gender: gender,
