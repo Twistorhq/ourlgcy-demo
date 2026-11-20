@@ -211,6 +211,394 @@
   var phase = hour >= 22 || hour < 5 ? "night" : hour < 8 ? "dawn" : hour < 17 ? "day" : "dusk";
   var outCount = saturday ? 99 : phase === "day" ? 10 : phase === "dawn" ? 6 : phase === "dusk" ? 7 : 3;
 
+  /* ==================== sprite figures (TW-1238) =================== */
+  // The art pass: figures are pre-rendered sprites, painted once
+  // per appearance by the painter below and blitted each frame.
+  // The painter is the general mechanism, built for the product:
+  // any family's records drive it, and where a photo of a person
+  // has been uploaded, the record's appearance attributes are
+  // derived from that photo (appearanceSource "photo" in the
+  // data) and the same painter consumes them. Sprites stay
+  // abstract either way: hair, dress, build, and gesture carry
+  // the person; a face is skin and shade, never a copied face
+  // (likeness law). One scale everywhere: the same sprite size
+  // walks the street, works the tailgate, and plays on the field;
+  // only the stands are texture, a crowd mass, not figures.
+  var SPR_SS = 3; // supersample: painted at 3x, drawn down crisp
+  var SPR_W = 64, SPR_H = 76, SPR_GX = 32, SPR_GY = 58;
+  var SKIN_TONES = ["#54331d", "#5d3a20", "#6e4525", "#7a4c28", "#835231", "#8a5a34", "#9c6a3e", "#a9744a"];
+  var CROWD_KITS = ["#5b3a8e", "#6d4aa3", "#472b70", "#7a5cb0", "#54357f",
+    "#e3a81c", "#d18f0e", "#f2c14e", "#b87a0a",
+    "#e8ddc4", "#d8cba6", "#f0e6d2", "#b3392e", "#2e6f6a", "#8a5a34", "#4c4a6e"];
+
+  function shade(hex, amt) {
+    var n = parseInt(hex.slice(1), 16);
+    function cl(v) { return Math.min(255, Math.max(0, v)); }
+    return "rgb(" + cl((n >> 16) + amt) + "," + cl(((n >> 8) & 255) + amt) + "," + cl((n & 255) + amt) + ")";
+  }
+  function hairColorOf(P) {
+    if (P.hairColor) return P.hairColor;
+    if (P.hair === "bun-gray" || P.hair === "short-gray" || P.hair === "gray") return "#c9c2b4";
+    return "#241a12";
+  }
+  function capsule(g, x1, y1, x2, y2, w, color) {
+    g.strokeStyle = color; g.lineWidth = w; g.lineCap = "round";
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  }
+
+  // Paint one figure frame. Unit space: origin at the ground
+  // point, y down; the head sits near -43, the feet near +5.
+  // pose: {kind: "idle"|"walk"|"wave"|"cheer", ph: int}
+  function paintFigure(g, P, pose) {
+    var hc = hairColorOf(P), hd = shade(hc.charAt(0) === "#" ? hc : "#241a12", -22), hl = shade(hc.charAt(0) === "#" ? hc : "#241a12", 34);
+    var kit = P.kit, kitD = P.kitDark, pants = shade(P.kitDark, -14);
+    var bw = P.build === "slim" ? 0.88 : P.build === "sturdy" ? 1.15 : 1;
+    var ph = pose.ph || 0;
+    var sL = pose.kind === "walk" ? [2.6, 0, -2.6, 0][ph % 4] : 0;
+    var sR = pose.kind === "walk" ? [-2.6, 0, 2.6, 0][ph % 4] : 0;
+
+    // Long hair falls behind the body before anything else.
+    if (P.hair === "long") {
+      g.fillStyle = hc;
+      g.beginPath(); g.roundRect(-10.5, -52, 21, 35, 7); g.fill();
+    }
+    // Neck.
+    g.fillStyle = shade(P.skin, -14);
+    g.beginPath(); g.roundRect(-3.4, -40, 6.8, 6, 2); g.fill();
+
+    // Legs and shoes; a dress flares over them for the women.
+    function shoe(x, s) {
+      g.fillStyle = "#2b2119";
+      g.beginPath(); g.ellipse(x, 4.6 + s, 4.8, 3.3, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(255,255,255,0.16)";
+      g.beginPath(); g.ellipse(x - 1.2, 3.6 + s, 2, 1.2, 0, 0, Math.PI * 2); g.fill();
+    }
+    if (P.gender === "f") {
+      g.fillStyle = shade(P.skin, -8);
+      g.beginPath(); g.roundRect(-7.6, -9, 5, 12.5, 2); g.fill();
+      g.beginPath(); g.roundRect(2.6, -9, 5, 12.5, 2); g.fill();
+      shoe(-5.2, sL); shoe(5.2, sR);
+      var dress = new Path2D();
+      dress.moveTo(-8.5, -27); dress.lineTo(8.5, -27);
+      dress.lineTo(13.5, -8.5); dress.lineTo(-13.5, -8.5); dress.closePath();
+      g.fillStyle = kit; g.fill(dress);
+      g.save(); g.clip(dress);
+      g.fillStyle = shade(kit, -34); g.globalAlpha = 0.38;
+      g.fillRect(3.5, -27, 10, 19);
+      g.globalAlpha = 0.5; g.strokeStyle = kitD; g.lineWidth = 1.9;
+      [-7, -2.4, 2.4, 7].forEach(function (fx) {
+        g.beginPath(); g.moveTo(fx * 0.5, -25.5); g.lineTo(fx, -10); g.stroke();
+      });
+      g.globalAlpha = 1; g.restore();
+      g.fillStyle = kitD; g.globalAlpha = 0.8;
+      g.fillRect(-13.5, -11.3, 27, 2.8);
+      g.globalAlpha = 1;
+      g.strokeStyle = "rgba(43,26,14,0.25)"; g.lineWidth = 0.9; g.stroke(dress);
+    } else {
+      g.fillStyle = pants;
+      g.beginPath(); g.roundRect(-10, -16, 9, 19.5, 3); g.fill();
+      g.beginPath(); g.roundRect(1, -16, 9, 19.5, 3); g.fill();
+      g.fillStyle = "rgba(0,0,0,0.16)";
+      g.fillRect(-1.2, -15, 2.4, 17);
+      shoe(-5.6, sL); shoe(5.6, sR);
+    }
+
+    // Torso, shaded as a painted form: dark side, lit panel.
+    var torso = new Path2D();
+    torso.ellipse(0, -25, 12.6 * bw, 11.8, 0, 0, Math.PI * 2);
+    g.fillStyle = kit; g.fill(torso);
+    g.save(); g.clip(torso);
+    g.fillStyle = kitD; g.globalAlpha = 0.5;
+    g.fillRect(2.5, -38, 12 * bw, 26);
+    g.fillStyle = shade(kit, 30); g.globalAlpha = 0.45;
+    g.beginPath(); g.ellipse(-4, -27, 4.6, 8.6, 0, 0, Math.PI * 2); g.fill();
+    g.globalAlpha = 1;
+    if (P.sash) {
+      g.fillStyle = "#e3a81c";
+      g.save(); g.translate(0, -25); g.rotate(0.62); g.fillRect(-17, -2.8, 34, 5.6); g.restore();
+    }
+    g.restore();
+    g.strokeStyle = "rgba(43,26,14,0.26)"; g.lineWidth = 0.9; g.stroke(torso);
+    // Collar, buttons, belt: the small tailoring that reads as clothes.
+    g.fillStyle = shade(P.kitDark, -8);
+    g.beginPath(); g.moveTo(-3.6, -36.8); g.lineTo(3.6, -36.8); g.lineTo(0, -32.4); g.closePath(); g.fill();
+    if (P.gender !== "f") {
+      g.fillStyle = "rgba(30,18,8,0.4)";
+      [-29.5, -25, -20.5].forEach(function (by) {
+        g.beginPath(); g.arc(0, by, 0.95, 0, Math.PI * 2); g.fill();
+      });
+      g.fillStyle = "#3a2c1e";
+      g.fillRect(-11 * bw, -17.6, 22 * bw, 3.2);
+      g.fillStyle = "#c9a227";
+      g.fillRect(-1.6, -17.4, 3.2, 2.8);
+    }
+
+    // Arms: two-segment capsules with skin hands. The right arm
+    // waves or cheers on pose; both swing against the legs walking.
+    function arm(side, mode, swing) {
+      var sx = side * 12.2 * bw, sy = -33;
+      g.fillStyle = kit;
+      g.beginPath(); g.arc(sx, sy, 3.6, 0, Math.PI * 2); g.fill();
+      if (mode === "up") {
+        var ex = side * 18.5, ey = -40, hx = side * 21.5, hy = -46.5 + swing;
+        capsule(g, sx, sy, ex, ey, 5.4, kitD);
+        capsule(g, ex, ey, hx, hy, 4.4, shade(P.skin, -6));
+        g.fillStyle = P.skin;
+        g.beginPath(); g.arc(hx, hy, 3, 0, Math.PI * 2); g.fill();
+      } else {
+        var hx2 = side * 15.8 * bw, hy2 = -14.5 + swing;
+        capsule(g, sx, sy, side * 14.8 * bw, -24, 5.6, kit);
+        capsule(g, side * 14.8 * bw, -24, hx2, hy2, 4.6, shade(P.skin, -6));
+        g.fillStyle = P.skin;
+        g.beginPath(); g.arc(hx2, hy2, 2.9, 0, Math.PI * 2); g.fill();
+      }
+    }
+    if (pose.kind === "wave") { arm(-1, "down", 0); arm(1, "up", ph ? -2 : 0.8); }
+    else if (pose.kind === "cheer") { arm(-1, "up", ph ? 1.4 : -1); arm(1, "up", ph ? -1 : 1.4); }
+    else { arm(-1, "down", sR * 0.85); arm(1, "down", sL * 0.85); }
+
+    // Head: ears, face in skin and shade, then hair in its style.
+    g.fillStyle = shade(P.skin, -10);
+    g.beginPath(); g.arc(-9.4, -43, 2, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(9.4, -43, 2, 0, Math.PI * 2); g.fill();
+    var afro = P.hair === "afro";
+    if (afro) {
+      g.fillStyle = hc;
+      g.beginPath(); g.arc(0, -44.5, 12.6, 0, Math.PI * 2); g.fill();
+    }
+    g.fillStyle = P.skin;
+    g.beginPath(); g.arc(0, afro ? -41 : -42.2, afro ? 8.2 : 8.6, 0, Math.PI * 2); g.fill();
+    g.save();
+    g.beginPath(); g.arc(0, afro ? -41 : -42.2, afro ? 8.2 : 8.6, 0, Math.PI * 2); g.clip();
+    g.fillStyle = "rgba(70,35,12,0.15)";
+    g.beginPath(); g.ellipse(0, -37.2, 6.4, 2.6, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,240,210,0.13)";
+    g.beginPath(); g.ellipse(-2.6, -45.4, 3.8, 2, 0, 0, Math.PI * 2); g.fill();
+    g.restore();
+    // Hair over the face's top, by style and texture.
+    function hairCap() {
+      g.save();
+      g.beginPath(); g.arc(0, -42.2, 8.6, 0, Math.PI * 2); g.clip();
+      g.fillStyle = hc;
+      g.fillRect(-10, -53, 20, 12.5);
+      g.restore();
+      g.strokeStyle = hl; g.globalAlpha = 0.6; g.lineWidth = 1.05;
+      [-6.4, -3.4, 3.4, 6.4].forEach(function (rx) {
+        g.beginPath(); g.arc(0, -44.6, Math.abs(rx) + 2.4, Math.PI * 1.18, Math.PI * 1.5); g.stroke();
+      });
+      g.globalAlpha = 1;
+    }
+    function coilySpeckle(cx, cy, r, n) {
+      for (var i = 0; i < n; i++) {
+        var a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * r;
+        g.fillStyle = rnd() < 0.5 ? hd : hl;
+        g.globalAlpha = 0.55;
+        g.beginPath(); g.arc(cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.92, rr(0.6, 1.25), 0, Math.PI * 2); g.fill();
+      }
+      g.globalAlpha = 1;
+    }
+    if (afro) {
+      coilySpeckle(0, -44.5, 11.6, 110);
+      g.fillStyle = hc;
+      [-8, -4.8, -1.6, 1.6, 4.8, 8].forEach(function (bx) {
+        g.beginPath(); g.arc(bx, -35.6, 2.5, 0, Math.PI * 2); g.fill();
+      });
+    } else if (P.hair === "bun" || P.hair === "bun-gray") {
+      hairCap();
+      g.fillStyle = hc;
+      g.beginPath(); g.arc(0, -54.5, 4.1, 0, Math.PI * 2); g.fill();
+      g.fillStyle = hl;
+      g.beginPath(); g.arc(-1.2, -55.8, 1.3, 0, Math.PI * 2); g.fill();
+      if (P.hair === "bun") coilySpeckle(0, -47, 7, 22);
+    } else if (P.hair === "long") {
+      hairCap();
+      g.fillStyle = hc;
+      g.beginPath(); g.roundRect(-12.6, -46, 4.8, 17, 2.4); g.fill();
+      g.beginPath(); g.roundRect(7.8, -46, 4.8, 17, 2.4); g.fill();
+    } else if (P.hair === "braids") {
+      hairCap();
+      [-1, 1].forEach(function (side) {
+        for (var b = 0; b < 5; b++) {
+          g.fillStyle = b % 2 ? hd : hc;
+          g.beginPath(); g.arc(side * (9.4 + b * 0.5), -45 + b * 3.4, 2.15, 0, Math.PI * 2); g.fill();
+        }
+        g.fillStyle = "#c9a227";
+        g.beginPath(); g.arc(side * 11.8, -27.2, 1.5, 0, Math.PI * 2); g.fill();
+      });
+    } else if (P.hair === "bald") {
+      g.fillStyle = hc;
+      g.beginPath(); g.arc(-9.2, -42, 2.4, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(9.2, -42, 2.4, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(255,255,255,0.26)";
+      g.beginPath(); g.ellipse(-3, -47.6, 3.4, 1.7, 0, 0, Math.PI * 2); g.fill();
+    } else { // short, short-gray, gray: a textured cap
+      hairCap();
+      coilySpeckle(0, -46.5, 7.6, 30);
+    }
+    // Glasses, where the record carries them (mechanism; the
+    // attribute comes from a photo or the record, never invented
+    // per figure at render time).
+    if (P.glasses) {
+      g.strokeStyle = "rgba(28,20,14,0.88)"; g.lineWidth = 1.25;
+      g.beginPath(); g.roundRect(-8.1, -46.8, 7, 5.4, 1.6); g.stroke();
+      g.beginPath(); g.roundRect(1.1, -46.8, 7, 5.4, 1.6); g.stroke();
+      g.beginPath(); g.moveTo(-1.1, -44.8); g.lineTo(1.1, -44.8); g.stroke();
+    }
+    // Hats ride on top of everything.
+    if (P.hat === "church") {
+      g.fillStyle = P.hatColor;
+      g.beginPath(); g.ellipse(0, -45, 13.6, 11.6, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "rgba(0,0,0,0.08)";
+      g.beginPath(); g.ellipse(0, -45, 10, 8.6, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = shade(P.hatColor, -14);
+      g.beginPath(); g.ellipse(0, -46, 6.8, 5.8, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#b3392e";
+      g.beginPath(); g.arc(8.6, -50.5, 1.7, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#e3a81c";
+      g.beginPath(); g.arc(10.4, -48.2, 1.3, 0, Math.PI * 2); g.fill();
+    } else if (P.hat === "fedora") {
+      g.fillStyle = P.hatColor;
+      g.beginPath(); g.ellipse(0, -45, 12, 10.2, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = shade(P.hatColor, 10);
+      g.beginPath(); g.ellipse(0, -45.8, 6.6, 5.6, 0, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = "#2e2822"; g.lineWidth = 1.7;
+      g.beginPath(); g.ellipse(0, -45.2, 6.6, 5.6, 0, Math.PI * 0.15, Math.PI * 0.85); g.stroke();
+    } else if (P.hat === "cap") {
+      g.fillStyle = P.hatColor;
+      g.beginPath(); g.arc(0, -44, 9.2, Math.PI, Math.PI * 2); g.fill();
+      g.fillRect(-9.2, -44.8, 18.4, 1.6);
+      g.fillStyle = shade(P.hatColor, -18);
+      g.beginPath(); g.ellipse(0, -36.6, 8.6, 3.1, 0, 0, Math.PI * 2); g.fill();
+    }
+    // Props, held in front.
+    if (P.prop === "plate") {
+      capsule(g, 12.5, -17, 15.8, -12, 4.2, shade(P.skin, -6));
+      g.fillStyle = "#f4efe2";
+      g.beginPath(); g.arc(16.5, -10.5, 6.4, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = "rgba(90,70,40,0.5)"; g.lineWidth = 1;
+      g.beginPath(); g.arc(16.5, -10.5, 6.4, 0, Math.PI * 2); g.stroke();
+      g.strokeStyle = "rgba(90,70,40,0.25)";
+      g.beginPath(); g.arc(16.5, -10.5, 4.4, 0, Math.PI * 2); g.stroke();
+      g.fillStyle = "#b3392e";
+      g.beginPath(); g.arc(14.8, -11.8, 1.7, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#7a4a28";
+      g.beginPath(); g.arc(18, -9.4, 1.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#5d742c";
+      g.beginPath(); g.arc(16.2, -8.6, 1.3, 0, Math.PI * 2); g.fill();
+    } else if (P.prop === "basket") {
+      g.fillStyle = "#a97e46";
+      g.beginPath();
+      g.moveTo(-22, -14.5); g.lineTo(-11, -14.5); g.lineTo(-12.4, -5); g.lineTo(-20.6, -5); g.closePath(); g.fill();
+      g.strokeStyle = "#7d5a13"; g.lineWidth = 1.2;
+      [-11.8, -8.8].forEach(function (by) {
+        g.beginPath(); g.moveTo(-21.4, by); g.lineTo(-11.6, by); g.stroke();
+      });
+      g.beginPath(); g.arc(-16.5, -14.5, 5, Math.PI, Math.PI * 2); g.stroke();
+      g.fillStyle = "#e8ddc4";
+      g.beginPath(); g.moveTo(-21, -14.5); g.lineTo(-12, -14.5); g.lineTo(-16.5, -18.6); g.closePath(); g.fill();
+      g.fillStyle = "#b3392e";
+      g.beginPath(); g.arc(-16.5, -15.4, 1.2, 0, Math.PI * 2); g.fill();
+    } else if (P.prop === "cane") {
+      g.strokeStyle = "#4c3a26"; g.lineWidth = 2.3; g.lineCap = "round";
+      g.beginPath(); g.moveTo(15.8, -13); g.lineTo(19.5, 4.5); g.stroke();
+      g.beginPath(); g.arc(17.4, -14.8, 2.1, Math.PI * 0.9, Math.PI * 1.9); g.stroke();
+    }
+    // Paper grain over the figure, the house texture.
+    for (var gr = 0; gr < 40; gr++) {
+      g.fillStyle = rnd() < 0.5 ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
+      g.beginPath(); g.arc(rr(-16, 16), rr(-56, 8), rr(0.6, 1.1), 0, Math.PI * 2); g.fill();
+    }
+  }
+
+  function makeFrame(P, kind, ph) {
+    var cv = document.createElement("canvas");
+    cv.width = SPR_W * SPR_SS; cv.height = SPR_H * SPR_SS;
+    var g = cv.getContext("2d");
+    g.translate(SPR_GX * SPR_SS, SPR_GY * SPR_SS);
+    g.scale(SPR_SS, SPR_SS);
+    paintFigure(g, P, { kind: kind, ph: ph });
+    return cv;
+  }
+  function makeSpriteSet(P) {
+    return {
+      idle: makeFrame(P, "idle", 0),
+      walk: [makeFrame(P, "walk", 0), makeFrame(P, "walk", 1), makeFrame(P, "walk", 2), makeFrame(P, "walk", 3)],
+      wave: [makeFrame(P, "wave", 0), makeFrame(P, "wave", 1)],
+      cheer: [makeFrame(P, "cheer", 0), makeFrame(P, "cheer", 1)]
+    };
+  }
+  function appearanceOf(rec) {
+    var p = rec.present;
+    return {
+      skin: p.skin, hair: p.hair, hairColor: p.hairColor || null,
+      kit: p.kit, kitDark: p.kitDark, hat: p.hat, hatColor: p.hatColor,
+      prop: p.prop, gender: rec.gender, build: p.build || "average",
+      glasses: !!p.glasses, sash: false
+    };
+  }
+  function genericAppearance() {
+    var kit = pick(CROWD_KITS.concat(["#b3392e", "#2e6f6a", "#33506e", "#a34a28", "#77815f"]));
+    var gender = rnd() < 0.5 ? "f" : "m";
+    var hat = null;
+    if (rnd() < 0.16) hat = gender === "f" ? pick(["church", "cap"]) : pick(["cap", "fedora"]);
+    return {
+      skin: pick(SKIN_TONES),
+      hair: pick(["short", "afro", "bun", "long", "braids", "short-gray", "bun-gray", "bald", "short"]),
+      hairColor: pick(["#1d130c", "#241a12", "#2e1c10", "#17110b"]),
+      kit: kit, kitDark: shade(kit, -26),
+      hat: hat, hatColor: pick(["#e8ddc4", "#3d362e", "#4c3a26"]),
+      prop: null, gender: gender,
+      build: pick(["slim", "average", "average", "sturdy"]),
+      glasses: false, sash: false
+    };
+  }
+  // The soft ground shadow every figure stands on.
+  var shadowImg = (function () {
+    var cv = document.createElement("canvas");
+    cv.width = 104; cv.height = 52;
+    var g = cv.getContext("2d");
+    var gr = g.createRadialGradient(56, 28, 4, 56, 28, 34);
+    gr.addColorStop(0, "rgba(24,32,14,0.36)");
+    gr.addColorStop(0.7, "rgba(24,32,14,0.18)");
+    gr.addColorStop(1, "rgba(24,32,14,0)");
+    g.fillStyle = gr;
+    g.beginPath(); g.ellipse(56, 28, 46, 20, 0, 0, Math.PI * 2); g.fill();
+    return cv;
+  })();
+  function stampImage(c, img, x, y, heading) {
+    c.save();
+    c.translate(x, y);
+    c.drawImage(shadowImg, -26, -6, 52, 26);
+    c.rotate(heading + Math.PI / 2);
+    c.drawImage(img, -SPR_GX, -SPR_GY, SPR_W, SPR_H);
+    c.restore();
+  }
+  // The stands as texture: a tile of heads and shoulders in the
+  // home crowd's purple and gold, repeated until it reads as a
+  // mass, the way the close reference's stands read.
+  var crowdTile = null;
+  function buildCrowdTile() {
+    var cv = document.createElement("canvas");
+    cv.width = 224; cv.height = 224;
+    var g = cv.getContext("2d");
+    g.fillStyle = "#6d5138";
+    g.fillRect(0, 0, 224, 224);
+    var keepSeed = seed; seed = 4242;
+    for (var ry = 0; ry < 224 + 11; ry += 11) {
+      for (var rx = ((ry / 11) % 2 ? 6 : 0); rx < 224 + 11; rx += 11) {
+        var jx = rx + rr(-1.6, 1.6), jy = ry + rr(-1.2, 1.2);
+        g.fillStyle = pick(CROWD_KITS);
+        g.beginPath(); g.ellipse(jx, jy + 3.2, 5.6, 4.4, 0, 0, Math.PI * 2); g.fill();
+        g.fillStyle = pick(SKIN_TONES);
+        g.beginPath(); g.arc(jx, jy, 2.9, 0, Math.PI * 2); g.fill();
+        g.fillStyle = rnd() < 0.24 ? "#c9c2b4" : "#241a12";
+        g.beginPath(); g.arc(jx, jy - 0.7, 2.9, Math.PI, Math.PI * 2); g.fill();
+      }
+    }
+    seed = keepSeed;
+    return cv;
+  }
+
   /* ======================= static world render ===================== */
   var staticC = document.createElement("canvas");
   staticC.width = W; staticC.height = H;
@@ -474,13 +862,24 @@
     // Stands base.
     c.fillStyle = "#b3a58c";
     c.beginPath(); c.ellipse(S.cx, S.cy, S.rx * 0.99, S.ry * 0.99, 0, 0, Math.PI * 2); c.fill();
-    // Crowd: thousands of paper dots in the stands band.
-    for (var i = 0; i < 2600; i++) {
-      var a = rnd() * Math.PI * 2, rad = rr(0.74, 0.965);
-      var px = S.cx + Math.cos(a) * S.rx * rad, py = S.cy + Math.sin(a) * S.ry * rad;
-      c.fillStyle = pick(["#c96a5a", "#e8ddc4", "#5a7a9e", "#e3c95a", "#8a5a34", "#f0e6d2", "#7a9e5a", "#4c4a6e"]);
-      c.beginPath(); c.arc(px, py, rr(1.5, 2.7), 0, Math.PI * 2); c.fill();
+    // Crowd: a generated TEXTURE in the stands band (TW-1238 one
+    // scale law): thousands of heads and shoulders reading as a
+    // mass in the home purple and gold, never dot-figures.
+    if (!crowdTile) crowdTile = buildCrowdTile();
+    c.save();
+    c.beginPath();
+    c.ellipse(S.cx, S.cy, S.rx * 0.985, S.ry * 0.985, 0, 0, Math.PI * 2);
+    c.ellipse(S.cx, S.cy, S.rx * 0.73, S.ry * 0.73, 0, 0, Math.PI * 2, true);
+    c.clip("evenodd");
+    c.fillStyle = c.createPattern(crowdTile, "repeat");
+    c.fillRect(S.cx - S.rx, S.cy - S.ry, S.rx * 2, S.ry * 2);
+    // Tier shading: concentric arcs give the bowl its steps.
+    for (var rb = 0.78; rb < 0.99; rb += 0.05) {
+      c.strokeStyle = "rgba(40,18,48,0.10)";
+      c.lineWidth = 6;
+      c.beginPath(); c.ellipse(S.cx, S.cy, S.rx * rb, S.ry * rb, 0, 0, Math.PI * 2); c.stroke();
     }
+    c.restore();
     // Concourse ring.
     c.fillStyle = "#c9bda3";
     c.beginPath(); c.ellipse(S.cx, S.cy, S.rx * 0.72, S.ry * 0.72, 0, 0, Math.PI * 2); c.fill();
@@ -506,6 +905,28 @@
     [fx + 14, fx + fw - 14].forEach(function (gx) {
       c.beginPath(); c.moveTo(gx, S.cy - 26); c.lineTo(gx, S.cy + 26); c.stroke();
     });
+    // Yard numbers painted on the grass, readable from both sides.
+    c.fillStyle = "rgba(255,255,255,0.88)";
+    c.font = "700 21px Georgia, serif";
+    c.textAlign = "center"; c.textBaseline = "middle";
+    var ynums = ["10", "20", "30", "40", "50", "40", "30", "20", "10"];
+    for (var yn = 0; yn < 9; yn++) {
+      var nx = fx + (yn + 1) * fw / 10;
+      c.fillText(ynums[yn], nx, fy + 27);
+      c.save(); c.translate(nx, fy + fh - 27); c.rotate(Math.PI);
+      c.fillText(ynums[yn], 0, 0); c.restore();
+    }
+    // Players on the field at street scale (one scale law): two
+    // elevens in formation around the line of scrimmage.
+    var homeKit = { skin: "#6e4525", hair: "short", hairColor: "#1d130c", kit: "#f2ead8", kitDark: "#d8cba6", hat: null, hatColor: null, prop: null, gender: "m", build: "average", glasses: false, sash: false };
+    var awayKit = { skin: "#7a4c28", hair: "short", hairColor: "#241a12", kit: "#7a2d20", kitDark: "#5d2117", hat: null, hatColor: null, prop: null, gender: "m", build: "average", glasses: false, sash: false };
+    var homeIdle = makeFrame(homeKit, "idle", 0), homeWalk = makeFrame(homeKit, "walk", 1);
+    var awayIdle = makeFrame(awayKit, "idle", 0), awayWalk = makeFrame(awayKit, "walk", 2);
+    for (var pi = 0; pi < 11; pi++) {
+      var col = pi % 4, rowI = Math.floor(pi / 4);
+      stampImage(c, pi % 3 ? homeIdle : homeWalk, S.cx - 92 + col * 24 + rr(-3, 3), S.cy - 64 + rowI * 64 + rr(-5, 5), 0);
+      stampImage(c, pi % 3 ? awayIdle : awayWalk, S.cx + 92 - col * 24 + rr(-3, 3), S.cy - 64 + rowI * 64 + rr(-5, 5), Math.PI);
+    }
     // Outer wall.
     c.strokeStyle = "#9c5f43"; c.lineWidth = 30;
     c.beginPath(); c.ellipse(S.cx, S.cy, S.rx * 1.0, S.ry * 1.0, 0, 0, Math.PI * 2); c.stroke();
@@ -673,11 +1094,22 @@
     // Buggies parked outside the gates, horses waiting.
     drawBuggy(c, 2330, 905, 0.12);
     drawBuggy(c, 2765, 905, -0.1);
-    // Extra crowd pressing at the gates.
-    for (var i = 0; i < 240; i++) {
-      c.fillStyle = pick(["#c96a5a", "#e8ddc4", "#5a7a9e", "#e3c95a", "#8a5a34", "#f0e6d2"]);
-      c.beginPath(); c.arc(rr(2290, 2790), rr(830, 1010), rr(1.6, 2.8), 0, Math.PI * 2); c.fill();
-    }
+    // The crowd pressing at the gates: full figures at street
+    // scale in the home purple and gold (one scale law).
+    var gateSpots = [];
+    for (var gxx = 2296; gxx <= 2472; gxx += 44)
+      for (var gyy = 856; gyy <= 964; gyy += 42) gateSpots.push([gxx + rr(-9, 9), gyy + rr(-8, 8)]);
+    for (var gx2 = 2608; gx2 <= 2784; gx2 += 44)
+      for (var gy2 = 856; gy2 <= 964; gy2 += 42) gateSpots.push([gx2 + rr(-9, 9), gy2 + rr(-8, 8)]);
+    gateSpots.forEach(function (sp, i) {
+      var app = genericAppearance();
+      if (i % 3) {
+        app.kit = pick(["#5b3a8e", "#6d4aa3", "#e3a81c", "#472b70"]);
+        app.kitDark = shade(app.kit, -26);
+      }
+      var kind = i % 5 === 0 ? "wave" : (i % 4 === 0 ? "cheer" : "idle");
+      stampImage(c, makeFrame(app, kind, i % 2), sp[0], sp[1], Math.PI / 2 + rr(-0.5, 0.5));
+    });
   }
 
   /* ------------------------- minimap base -------------------------- */
@@ -721,7 +1153,7 @@
   }
   function makeFigure(rec, idx) {
     var home = HOUSES[rec.home];
-    return {
+    var f = {
       rec: rec, idx: idx,
       x: home.door[0] + rr(-26, 26), y: home.door[1] + rr(-6, 22),
       heading: rr(0, Math.PI * 2), path: [], pathI: 0,
@@ -729,6 +1161,18 @@
       greetCd: rr(2, 14), greetedOnce: false, lineI: 0,
       waveT: 0, bob: rr(0, 6), satI: 0, active: true
     };
+    // Sprites painted once from the appearance record (TW-1238);
+    // a documented Saturday attendee also gets a set in her
+    // school colors with the gold sash.
+    f.sprites = makeSpriteSet(appearanceOf(rec));
+    if (rec.saturday && rec.saturday.attendee) {
+      var sa = appearanceOf(rec);
+      sa.kit = rec.saturday.colors[0];
+      sa.kitDark = shade(rec.saturday.colors[0], -26);
+      sa.sash = true;
+      f.satSprites = makeSpriteSet(sa);
+    }
+    return f;
   }
   var npcs = window.LGCY_WORLD_PEOPLE.map(makeFigure);
   npcs.forEach(function (f, i) { f.active = i < outCount; });
@@ -747,6 +1191,7 @@
     rec: window.LGCY_WORLD_PLAYER, x: 1600, y: 1660, heading: -Math.PI / 2,
     path: [], pathI: 0, bob: 0, moving: false, idx: 99, state: "idle", isPlayer: true
   };
+  player.sprites = makeSpriteSet(appearanceOf(player.rec));
 
   function destFor(f) {
     if (saturday) {
@@ -809,7 +1254,7 @@
   function tryGreet(f, now) {
     if (greetActive || now - lastGreetEnd < 1.2 || f.greetCd > 0) return;
     var d = Math.hypot(f.x - player.x, f.y - player.y);
-    if (d > 96 || d < 12) return;
+    if (d > 108 || d < 12) return;
     var line = !f.greetedOnce ? timeLine() : f.rec.lines[f.lineI % f.rec.lines.length];
     if (activeTexts[line]) return; // the TW-1227 guard: never twice at once
     f.greetedOnce = true;
@@ -865,123 +1310,30 @@
 
   /* ============================ drawing ============================ */
   function drawFigureShape(c, f, t) {
-    var p = f.rec.present;
     var isPlayer = !!f.isPlayer;
+    var set = (saturday && f.satSprites) ? f.satSprites : f.sprites;
     var walking = f.state === "walk" || (isPlayer && player.moving);
-    var swing = walking ? Math.sin(f.bob) : 0;
-    var bobY = walking ? Math.abs(Math.sin(f.bob)) * 1.6 : Math.sin(t * 1.7 + f.idx * 2.1) * 0.5;
     var cheer = saturday && f.state === "dwell" && f.rec.saturday && f.rec.saturday.role === "stands";
+    var img, bobY = 0;
+    if (f.state === "greet") img = set.wave[Math.floor(t * 5) % 2];
+    else if (cheer) img = set.cheer[Math.floor(t * 3.2 + f.idx) % 2];
+    else if (walking) {
+      img = set.walk[Math.floor(f.bob / 1.85) % 4];
+      bobY = Math.abs(Math.sin(f.bob)) * 1.7;
+    } else img = set.idle;
     c.save();
     c.translate(f.x, f.y);
-    c.scale(1.32, 1.32); // readable at plaza scale, as the gameplay reference draws them
-    // Ground shadow (paper layer offset).
-    c.fillStyle = "rgba(30,35,20,0.28)";
-    c.beginPath(); c.ellipse(3, 6, 15, 10, 0, 0, Math.PI * 2); c.fill();
+    // Soft ground shadow (radial sprite, TW-1238).
+    c.drawImage(shadowImg, -26, -6, 52, 26);
     if (isPlayer) {
       // The ground marker: a gold ring, as both references draw it.
       c.strokeStyle = "#e3a81c"; c.lineWidth = 3;
-      c.beginPath(); c.ellipse(0, 5, 21, 14, 0, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.ellipse(0, 5, 24, 16, 0, 0, Math.PI * 2); c.stroke();
       c.strokeStyle = "rgba(227,168,28,0.45)"; c.lineWidth = 1.6;
-      c.beginPath(); c.ellipse(0, 5, 26, 17, 0, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.ellipse(0, 5, 29, 19, 0, 0, Math.PI * 2); c.stroke();
     }
-    c.rotate(f.heading + Math.PI / 2); // figures are drawn facing up
-    c.translate(0, -bobY);
-    var kit = p.kit, kitDark = p.kitDark;
-    if (saturday && f.rec.saturday && f.rec.saturday.attendee) {
-      kit = f.rec.saturday.colors[0]; kitDark = f.rec.saturday.colors[0];
-    }
-    // Dress/skirt flare for the women, trousers block for the men.
-    c.fillStyle = kitDark;
-    c.beginPath();
-    if (f.rec.gender === "f") c.ellipse(0, 6, 14.5, 12, 0, 0, Math.PI * 2);
-    else c.ellipse(0, 6, 12.5, 11, 0, 0, Math.PI * 2);
-    c.fill();
-    // Feet stepping.
-    c.fillStyle = "#2e2620";
-    var fOff = walking ? swing * 5 : 0;
-    c.beginPath(); c.ellipse(-5.5, 13 + fOff * 0.4, 3.4, 4.6 + Math.abs(fOff) * 0.3, 0, 0, Math.PI * 2); c.fill();
-    c.beginPath(); c.ellipse(5.5, 13 - fOff * 0.4, 3.4, 4.6 + Math.abs(fOff) * 0.3, 0, 0, Math.PI * 2); c.fill();
-    // Arms: swing at the sides; the greeting wave raises the right arm.
-    var waving = f.state === "greet";
-    c.fillStyle = kit;
-    var armSwing = walking ? swing * 4 : 0;
-    c.beginPath(); c.ellipse(-14.5, 1 + armSwing * 0.5, 4, 7.5, 0.25, 0, Math.PI * 2); c.fill();
-    if (waving) {
-      var wa = Math.sin(t * 11) * 0.38;
-      c.save();
-      c.translate(14.5, -2); c.rotate(-2.25 + wa);
-      c.beginPath(); c.ellipse(0, -6, 3.8, 7.5, 0, 0, Math.PI * 2); c.fill();
-      c.fillStyle = p.skin;
-      c.beginPath(); c.arc(0, -13.5, 3.6, 0, Math.PI * 2); c.fill();
-      c.restore();
-    } else if (cheer) {
-      c.save();
-      c.translate(14.5, -2); c.rotate(-2.6 + Math.sin(t * 6 + f.idx) * 0.3);
-      c.beginPath(); c.ellipse(0, -6, 3.8, 7.5, 0, 0, Math.PI * 2); c.fill();
-      c.restore();
-    } else {
-      c.beginPath(); c.ellipse(14.5, 1 - armSwing * 0.5, 4, 7.5, -0.25, 0, Math.PI * 2); c.fill();
-    }
-    // Shoulders / torso.
-    c.fillStyle = kit;
-    c.beginPath(); c.ellipse(0, 0, 13, 11, 0, 0, Math.PI * 2); c.fill();
-    if (saturday && f.rec.saturday && f.rec.saturday.attendee) {
-      c.fillStyle = f.rec.saturday.colors[1];
-      c.fillRect(-2.6, -10, 5.2, 20); // the school's gold sash
-    }
-    // Props.
-    if (p.prop === "plate" || (saturday && f.rec.saturday && f.rec.saturday.plate)) {
-      c.fillStyle = "#f4efe2";
-      c.beginPath(); c.arc(17, 8, 5.6, 0, Math.PI * 2); c.fill();
-      c.strokeStyle = "rgba(90,70,40,0.4)"; c.lineWidth = 1.2;
-      c.beginPath(); c.arc(17, 8, 5.6, 0, Math.PI * 2); c.stroke();
-      c.fillStyle = "#b3392e";
-      c.beginPath(); c.arc(17, 8, 2.4, 0, Math.PI * 2); c.fill();
-    } else if (p.prop === "basket") {
-      c.fillStyle = "#a97e46";
-      c.fillRect(12.5, 4, 10, 8);
-      c.strokeStyle = "#7d5a13"; c.lineWidth = 1.4;
-      c.strokeRect(12.5, 4, 10, 8);
-    } else if (p.prop === "cane") {
-      c.strokeStyle = "#4c3a26"; c.lineWidth = 2.4;
-      c.beginPath(); c.moveTo(16.5, -2); c.lineTo(19, 14); c.stroke();
-    }
-    // Head: hair first (it rings the head from overhead), then face.
-    var hairColor = p.hair === "bun-gray" || p.hair === "gray" || p.hair === "short-gray" ? "#c9c2b4" : "#241a12";
-    if (p.hair === "afro") {
-      c.fillStyle = "#241a12";
-      c.beginPath(); c.arc(0, -1, 10.5, 0, Math.PI * 2); c.fill();
-    }
-    c.fillStyle = hairColor;
-    c.beginPath(); c.arc(0, -1.2, 8.1, 0, Math.PI * 2); c.fill();
-    c.fillStyle = p.skin;
-    c.beginPath(); c.arc(0, 0.6, 6.9, 0, Math.PI * 2); c.fill();
-    if (p.hair === "bun" || p.hair === "bun-gray") {
-      c.fillStyle = hairColor;
-      c.beginPath(); c.arc(0, -8.6, 3.6, 0, Math.PI * 2); c.fill();
-    }
-    if (p.hair === "long") {
-      c.fillStyle = hairColor;
-      c.beginPath(); c.ellipse(0, -3.4, 8.3, 5.4, 0, Math.PI, Math.PI * 2); c.fill();
-    }
-    // Hats ride on top of everything.
-    if (p.hat === "church") {
-      c.fillStyle = p.hatColor;
-      c.beginPath(); c.arc(0, -0.6, 11.6, 0, Math.PI * 2); c.fill();
-      c.fillStyle = "#d8cba6";
-      c.beginPath(); c.arc(0, -0.6, 6.4, 0, Math.PI * 2); c.fill();
-      c.fillStyle = "#b3392e";
-      c.beginPath(); c.arc(7.6, -6.4, 2.6, 0, Math.PI * 2); c.fill();
-    } else if (p.hat === "fedora") {
-      c.fillStyle = p.hatColor;
-      c.beginPath(); c.arc(0, -0.6, 10.6, 0, Math.PI * 2); c.fill();
-      c.fillStyle = "#2e2822";
-      c.beginPath(); c.arc(0, -0.6, 6.2, 0, Math.PI * 2); c.fill();
-    } else if (p.hat === "cap") {
-      c.fillStyle = p.hatColor;
-      c.beginPath(); c.arc(0, -0.8, 7.9, 0, Math.PI * 2); c.fill();
-      c.beginPath(); c.ellipse(0, -8.6, 6.4, 3.2, 0, 0, Math.PI * 2); c.fill();
-    }
+    c.rotate(f.heading + Math.PI / 2); // sprites are painted facing up
+    c.drawImage(img, -SPR_GX, -SPR_GY - bobY, SPR_W, SPR_H);
     c.restore();
   }
 
@@ -1058,7 +1410,7 @@
     ctx.restore();
     // Speech bubble follows its speaker.
     if (greetActive) {
-      var bp = worldToScreen(greetActive.fig.x, greetActive.fig.y - 50);
+      var bp = worldToScreen(greetActive.fig.x, greetActive.fig.y - 70);
       bubbleEl.style.transform = "translate(" + Math.round(bp[0]) + "px," + Math.round(bp[1]) + "px) translate(-50%,-100%)";
     }
     // Minimap.
