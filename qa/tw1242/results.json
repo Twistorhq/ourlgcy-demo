@@ -1,0 +1,30 @@
+{
+ "swing_motion": true,
+ "night_active": 3,
+ "player_bank": {
+  "arrived": true,
+  "samples": 42,
+  "in_band_samples": 3,
+  "band_all_on_bridge": true
+ },
+ "oddie_park": {
+  "x": 2050,
+  "y": 1451,
+  "state": "dwell"
+ },
+ "willie_parkw": {
+  "x": 300,
+  "y": 820,
+  "state": "dwell"
+ },
+ "willie_bank": {
+  "x": 760,
+  "y": 2348,
+  "state": "dwell"
+ },
+ "willie_crossing": {
+  "in_band_samples": 9,
+  "band_all_on_bridge": true
+ },
+ "page_errors": []
+}
