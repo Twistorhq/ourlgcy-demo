@@ -51,12 +51,12 @@
   var TILE = 40, COLS = 80, ROWS = 60, W = 3200, H = 2400;
 
   var HOUSES = {
-    h1: { x: 260, y: 1920, w: 240, h: 170, roof: "#8f8f93", door: [380, 1910], side: "n" },
-    h2: { x: 1080, y: 1920, w: 240, h: 170, roof: "#7e6f63", door: [1200, 1910], side: "n" },
-    h3: { x: 1560, y: 1920, w: 240, h: 170, roof: "#93908a", door: [1680, 1910], side: "n" },
-    h4: { x: 2100, y: 1920, w: 240, h: 170, roof: "#857a70", door: [2220, 1910], side: "n" },
-    h5: { x: 1180, y: 330, w: 240, h: 170, roof: "#8f8f93", door: [1300, 510], side: "s" },
-    h6: { x: 240, y: 1240, w: 240, h: 170, roof: "#7e6f63", door: [360, 1420], side: "s" }
+    h1: { x: 260, y: 1920, w: 240, h: 170, roof: "#d9c8a6", door: [380, 1910], side: "n" },
+    h2: { x: 1080, y: 1920, w: 240, h: 170, roof: "#c9ae84", door: [1200, 1910], side: "n" },
+    h3: { x: 1560, y: 1920, w: 240, h: 170, roof: "#e2d2b0", door: [1680, 1910], side: "n" },
+    h4: { x: 2100, y: 1920, w: 240, h: 170, roof: "#d3bd94", door: [2220, 1910], side: "n" },
+    h5: { x: 1180, y: 330, w: 240, h: 170, roof: "#dccaa9", door: [1300, 510], side: "s" },
+    h6: { x: 240, y: 1240, w: 240, h: 170, roof: "#c2a678", door: [360, 1420], side: "s" }
   };
   var CHURCH = { x: 200, y: 300, w: 320, h: 300, door: [360, 612] };
   var STORE = { x: 1180, y: 1260, w: 340, h: 220, door: [1350, 1248] };
@@ -230,7 +230,9 @@
     c.fillRect(x + 6, y + 9, w, h);
   }
   function drawGrassBase(c) {
-    c.fillStyle = "#77a24b";
+    // Palette sampled from the references (TW-1238): deep lush
+    // greens, sunlit yellow-green, warm daylight throughout.
+    c.fillStyle = "#5f8a30";
     c.fillRect(0, 0, W, H);
     for (var y = 0; y < H; y += 120) {
       c.fillStyle = (y / 120) % 2 ? "rgba(255,255,255,0.045)" : "rgba(0,0,0,0.035)";
@@ -238,27 +240,47 @@
     }
     // Large soft patches, so the green reads as ground, not paper.
     for (var i = 0; i < 90; i++) {
-      c.fillStyle = pick(["rgba(95,138,56,0.13)", "rgba(143,182,104,0.12)", "rgba(107,148,64,0.13)", "rgba(160,180,90,0.08)"]);
+      c.fillStyle = pick(["rgba(81,120,33,0.15)", "rgba(134,180,92,0.12)", "rgba(95,138,40,0.14)", "rgba(163,151,84,0.07)"]);
       c.beginPath();
       c.ellipse(rnd() * W, rnd() * H, rr(90, 260), rr(60, 170), rr(0, 3), 0, Math.PI * 2);
       c.fill();
     }
-    speckle(c, 0, 0, W, H, 5200, ["#6b9440", "#84ad58", "#5f8a38", "#8fb668"], 1, 2.6);
+    speckle(c, 0, 0, W, H, 5200, ["#517821", "#6f9c3c", "#476e1f", "#86b45c"], 1, 2.6);
+    // Blade texture: short strokes, darker and sunlit, everywhere.
+    c.lineWidth = 1.4;
+    for (var b = 0; b < 1500; b++) {
+      var bx = rnd() * W, by = rnd() * H;
+      c.strokeStyle = rnd() < 0.5 ? "rgba(46,74,18,0.20)" : "rgba(190,214,120,0.16)";
+      c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + rr(-1, 1), by - rr(2.5, 4.5)); c.stroke();
+    }
   }
   function drawBrick(c, x, y, w, h) {
-    c.fillStyle = "#a5573d";
+    // Warm brick reds sampled from the references: mortar in a
+    // deep red-brown, bricks ranging #98553f to #dba074 sunlit.
+    c.fillStyle = "#8a4630";
     c.fillRect(x, y, w, h);
     var bh = 15, bw = 34;
     for (var row = 0; row * bh < h; row++) {
       var off = row % 2 ? bw / 2 : 0;
       for (var col = -1; col * bw < w + bw; col++) {
         var bx = x + col * bw + off, by = y + row * bh;
-        var l = rr(-9, 9);
-        c.fillStyle = "rgb(" + (165 + l * 1.6 | 0) + "," + (87 + l | 0) + "," + (61 + l * 0.7 | 0) + ")";
+        var l = rr(-11, 11), u = rnd();
+        if (u < 0.05) c.fillStyle = "rgb(140,62,38)";        // a burnt brick
+        else if (u > 0.95) c.fillStyle = "rgb(205,116,72)";  // a sunlit brick
+        else c.fillStyle = "rgb(" + (178 + l * 1.7 | 0) + "," + (88 + l | 0) + "," + (55 + l * 0.7 | 0) + ")";
         c.fillRect(bx + 1, by + 1, bw - 2, bh - 2);
+        c.fillStyle = "rgba(255,226,180,0.10)";
+        c.fillRect(bx + 1, by + 1, bw - 2, 2); // top edge catches the light
       }
     }
     speckle(c, x, y, w, h, Math.floor(w * h / 2600), ["rgba(0,0,0,0.10)", "rgba(255,235,200,0.08)"], 1, 2.2);
+    // Large tonal drift across the pavement, as painted light does.
+    for (var p = 0; p < Math.floor(w / 420); p++) {
+      c.fillStyle = rnd() < 0.5 ? "rgba(70,30,14,0.05)" : "rgba(255,214,160,0.05)";
+      c.beginPath();
+      c.ellipse(x + rnd() * w, y + rnd() * h, rr(150, 300), rr(40, 80), 0, 0, Math.PI * 2);
+      c.fill();
+    }
   }
   function drawAsphalt(c, x, y, w, h) {
     c.fillStyle = "#4d4b4e";
@@ -289,16 +311,43 @@
     }
   }
   function drawTree(c, x, y, s) {
-    c.fillStyle = "rgba(30,45,20,0.30)";
-    c.beginPath(); c.ellipse(x + 14 * s, y + 16 * s, 52 * s, 40 * s, 0, 0, Math.PI * 2); c.fill();
+    // Soft ground shadow: a radial falloff, not a flat ellipse.
+    var sh = c.createRadialGradient(x + 16 * s, y + 18 * s, 6, x + 16 * s, y + 18 * s, 58 * s);
+    sh.addColorStop(0, "rgba(24,38,14,0.42)");
+    sh.addColorStop(0.7, "rgba(24,38,14,0.22)");
+    sh.addColorStop(1, "rgba(24,38,14,0)");
+    c.fillStyle = sh;
+    c.beginPath(); c.ellipse(x + 16 * s, y + 18 * s, 58 * s, 44 * s, 0, 0, Math.PI * 2); c.fill();
+    // Dappled light: sun through leaves, flecking the shaded ground.
+    for (var d = 0; d < 30; d++) {
+      var da = rnd() * Math.PI * 2, dr = Math.sqrt(rnd()) * 46 * s;
+      c.fillStyle = "rgba(255,244,180," + rr(0.05, 0.16).toFixed(3) + ")";
+      c.beginPath();
+      c.ellipse(x + 14 * s + Math.cos(da) * dr, y + 16 * s + Math.sin(da) * dr * 0.76, rr(2, 5.5) * s, rr(1.4, 3.6) * s, da, 0, Math.PI * 2);
+      c.fill();
+    }
     c.fillStyle = "#5d4630";
     c.beginPath(); c.arc(x, y, 6 * s, 0, Math.PI * 2); c.fill();
-    var blobs = [[0, 0, 46], [-30, -14, 32], [30, -16, 34], [-14, 20, 30], [22, 18, 31], [0, -30, 30]];
-    blobs.forEach(function (b, i) {
-      c.fillStyle = ["#4d7d33", "#5c8f3e", "#689c46", "#527f36", "#619347", "#578a3a"][i % 6];
+    c.fillStyle = "rgba(30,20,10,0.30)";
+    c.beginPath(); c.arc(x + 2 * s, y + 2 * s, 4 * s, 0, Math.PI * 2); c.fill();
+    // Canopy in three depths, warm olive greens sampled from the
+    // references: deep shade below, sunlit yellow-green on top.
+    var deep = [[4, 6, 48], [-28, -8, 34], [32, -10, 36], [-12, 24, 32], [24, 22, 33], [2, -28, 32]];
+    deep.forEach(function (b) {
+      c.fillStyle = "#3f5c20";
       c.beginPath(); c.arc(x + b[0] * s, y + b[1] * s, b[2] * s, 0, Math.PI * 2); c.fill();
     });
-    speckle(c, x - 48 * s, y - 48 * s, 96 * s, 96 * s, 90, ["#6da34c", "#3f6d2a", "#7fb45e", "#4d7d33"], 1.6, 3.4);
+    var mid = [[-6, -4, 40], [-30, -16, 28], [26, -18, 30], [-16, 14, 27], [18, 12, 28], [-2, -30, 27]];
+    mid.forEach(function (b) {
+      c.fillStyle = "#5d742c";
+      c.beginPath(); c.arc(x + b[0] * s, y + b[1] * s, b[2] * s, 0, Math.PI * 2); c.fill();
+    });
+    var sun = [[-14, -16, 26], [10, -22, 24], [-24, 2, 20], [16, -2, 21], [-4, -34, 18]];
+    sun.forEach(function (b) {
+      c.fillStyle = "#7d8c34";
+      c.beginPath(); c.arc(x + b[0] * s, y + b[1] * s, b[2] * s, 0, Math.PI * 2); c.fill();
+    });
+    speckle(c, x - 48 * s, y - 48 * s, 96 * s, 96 * s, 130, ["#a39754", "#2f4c1a", "#8b8049", "#bb9d3f", "#4c6b24"], 1.4, 3.2);
     // Spanish moss: pale strands at the canopy edge, as the references hang it.
     c.strokeStyle = "rgba(178,186,150,0.55)";
     c.lineWidth = 2;
@@ -350,9 +399,16 @@
   }
   function drawChurch(c) {
     paperShadow(c, CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h);
-    c.fillStyle = "#ddd5c1";
+    // From overhead the church is its roof: warm tan shingles in
+    // the reference palette, courses running to a center ridge.
+    c.fillStyle = "#d3ba8f";
     c.fillRect(CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h);
-    speckle(c, CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h, 200, ["rgba(0,0,0,0.06)", "rgba(255,255,255,0.10)"], 1, 2.4);
+    c.fillStyle = "rgba(120,90,40,0.13)";
+    for (var csy = CHURCH.y + 13; csy < CHURCH.y + CHURCH.h - 6; csy += 14) {
+      if (Math.abs(csy - (CHURCH.y + CHURCH.h / 2)) < 10) continue;
+      c.fillRect(CHURCH.x + 3, csy, CHURCH.w - 6, 2.2);
+    }
+    speckle(c, CHURCH.x, CHURCH.y, CHURCH.w, CHURCH.h, 260, ["rgba(0,0,0,0.07)", "rgba(255,246,220,0.10)"], 1, 2.4);
     c.fillStyle = "rgba(0,0,0,0.14)";
     c.fillRect(CHURCH.x + CHURCH.w / 2 - 3, CHURCH.y, 6, CHURCH.h);
     c.strokeStyle = "rgba(60,50,35,0.4)"; c.lineWidth = 3;
@@ -377,12 +433,12 @@
   }
   function drawStore(c) {
     paperShadow(c, STORE.x, STORE.y, STORE.w, STORE.h);
-    c.fillStyle = "#9a938a";
+    c.fillStyle = "#b39d77";
     c.fillRect(STORE.x, STORE.y, STORE.w, STORE.h);
-    speckle(c, STORE.x, STORE.y, STORE.w, STORE.h, 200, ["rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)"], 1, 2.4);
+    speckle(c, STORE.x, STORE.y, STORE.w, STORE.h, 260, ["rgba(0,0,0,0.08)", "rgba(255,246,220,0.08)"], 1, 2.4);
     c.strokeStyle = "rgba(40,32,24,0.4)"; c.lineWidth = 4;
     c.strokeRect(STORE.x + 2, STORE.y + 2, STORE.w - 4, STORE.h - 4);
-    c.fillStyle = "#6e675f";
+    c.fillStyle = "#8a7a5c";
     c.fillRect(STORE.x + 26, STORE.y + 30, 60, 44);
     c.fillRect(STORE.x + STORE.w - 90, STORE.y + STORE.h - 70, 52, 40);
     // Sign band and striped awning along the street face (north).
@@ -428,14 +484,15 @@
     // Concourse ring.
     c.fillStyle = "#c9bda3";
     c.beginPath(); c.ellipse(S.cx, S.cy, S.rx * 0.72, S.ry * 0.72, 0, 0, Math.PI * 2); c.fill();
-    // Field.
+    // Field: deep lush green, mow bands running with the yards.
     var fx = S.cx - 230, fy = S.cy - 130, fw = 460, fh = 260;
-    c.fillStyle = "#4d8f3f";
+    c.fillStyle = "#517821";
     c.fillRect(fx, fy, fw, fh);
-    for (var s = 0; s < 8; s++) {
-      c.fillStyle = s % 2 ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
-      c.fillRect(fx + s * fw / 8, fy, fw / 8, fh);
+    for (var s = 0; s < 10; s++) {
+      c.fillStyle = s % 2 ? "rgba(255,255,255,0.055)" : "rgba(0,0,0,0.045)";
+      c.fillRect(fx + s * fw / 10, fy, fw / 10, fh);
     }
+    speckle(c, fx, fy, fw, fh, 700, ["#476e1f", "#5f8a30", "#86b45c"], 1, 2.2);
     c.strokeStyle = "rgba(255,255,255,0.85)"; c.lineWidth = 3;
     c.strokeRect(fx + 8, fy + 8, fw - 16, fh - 16);
     c.lineWidth = 2;
@@ -628,11 +685,11 @@
   miniC.width = 200; miniC.height = 150;
   (function renderMinimap() {
     var c = miniC.getContext("2d"), s = 200 / W;
-    c.fillStyle = "#5d8a3c"; c.fillRect(0, 0, 200, 150);
+    c.fillStyle = "#5f8a30"; c.fillRect(0, 0, 200, 150);
     c.fillStyle = "#55565a";
     c.fillRect(880 * s, 0, 120 * s, 150); c.fillRect(0, 1080 * s, 200, 120 * s);
-    c.fillStyle = "#b98a63"; c.fillRect(120 * s, 1560 * s, 2960 * s, 200 * s);
-    c.fillStyle = "#7fae56"; c.fillRect(1640 * s, 220 * s, 560 * s, 640 * s);
+    c.fillStyle = "#b5684f"; c.fillRect(120 * s, 1560 * s, 2960 * s, 200 * s);
+    c.fillStyle = "#6f9c3c"; c.fillRect(1640 * s, 220 * s, 560 * s, 640 * s);
     c.fillStyle = "#c9bda3";
     c.beginPath(); c.ellipse(STADIUM.cx * s, STADIUM.cy * s, STADIUM.rx * s, STADIUM.ry * s, 0, 0, Math.PI * 2); c.fill();
     c.fillStyle = "#4d8f3f";
