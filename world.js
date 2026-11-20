@@ -1642,13 +1642,25 @@
     var sx = e.clientX - r.left, sy = e.clientY - r.top;
     var wx = cam.x + (sx - view.w / 2) / zoom;
     var wy = cam.y + (sy - view.h / 2) / zoom;
-    // A tap on a relative opens their profile, as the street did.
+    // A tap on a relative opens THEIR OWN profile (TW-1241).
+    // The hit test picks the nearest active figure within
+    // reach, and the navigation carries that figure's id:
+    // person.html renders the card for the id it is given.
+    // Before this fix the handler navigated to a bare
+    // "person.html" and threw the hit away; person.html is
+    // the demo's one authored page, Emma Jean Jackson's, so
+    // every figure the founder tapped, moving or dwelling,
+    // resolved to her card.
+    var best = null, bestD = 42;
     for (var i = 0; i < npcs.length; i++) {
       var f = npcs[i];
-      if (f.active && Math.hypot(f.x - wx, f.y - wy) < 36) {
-        location.href = "person.html";
-        return;
-      }
+      if (!f.active) continue;
+      var d = Math.hypot(f.x - wx, f.y - wy);
+      if (d < bestD) { bestD = d; best = f; }
+    }
+    if (best) {
+      location.href = "person.html?id=" + encodeURIComponent(best.rec.id);
+      return;
     }
     var dest = nearestWalkable(wx, wy);
     player.path = findPath(player.x, player.y, dest.x, dest.y);
