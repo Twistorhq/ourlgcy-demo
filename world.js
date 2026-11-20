@@ -68,6 +68,18 @@
   // the rig rolls on.
   var STATION = { x: 580, y: 884, w: 252, h: 156, bldg: [596, 896, 104, 58], pumps: [728, 966, 52, 26], stop: [706, 982] };
   var STADIUM = { cx: 2540, cy: 470, rx: 450, ry: 340 };
+  // Terrain (TW-1242): the land has a horizon and a river.
+  // Mountains frame the north edge (and run down the west
+  // edge as foothills): layered ridges, backdrop only, never
+  // walkable ground. The river crosses the south, east to
+  // west, on a gentle meander; the one road it meets is the
+  // north-south road, and there it is crossed by a bridge.
+  // Everywhere else the water is a wall in the grid: you
+  // cross at the bridge, or you walk the bank.
+  var MTN_N = 118;              // north ridge band depth
+  var MTN_W = 64;               // west foothill strip width
+  function riverY(x) { return 2230 + 24 * Math.sin(x / 460 + 0.6); }
+  var BRIDGE = { x0: 846, x1: 1034 };
   var TENTS = [
     { x: 1830, y: 330, a: "#b3392e", b: "#f2ead8" },
     { x: 2050, y: 330, a: "#5b3a8e", b: "#e3a81c" },
@@ -78,8 +90,8 @@
     [620, 1470, 1.2], [1150, 1470, 1.0], [2050, 1470, 1.15], [2900, 1470, 1.0],
     [470, 800, 1.0], [1300, 700, 1.2], [700, 700, 1.0], [1760, 290, 0.9],
     [2160, 800, 0.9], [560, 2060, 1.1], [1450, 2070, 1.0], [1980, 2290, 1.15],
-    [2620, 2070, 1.2], [2950, 2210, 1.0], [150, 1300, 0.9], [3060, 900, 1.0],
-    [2540, 1330, 1.1], [620, 2290, 1.0], [900, 350, 1.05], [3160, 1330, 1.0],
+    [2860, 2060, 1.2], [2950, 2150, 1.0], [150, 1300, 0.9], [3060, 900, 1.0],
+    [2540, 1330, 1.1], [620, 2335, 1.0], [900, 350, 1.05], [3160, 1330, 1.0],
     [330, 1470, 1.05], [1750, 1470, 1.1], [2620, 1470, 0.95], [1080, 350, 1.0],
     [1620, 620, 1.15], [3050, 350, 0.9], [700, 1100, 0.9], [2400, 2290, 1.05],
     [120, 2050, 1.0], [3050, 1900, 1.1]
@@ -90,7 +102,10 @@
     plazaW: { x: 700, y: 1660 },
     plazaC: { x: 1600, y: 1660 },
     plazaE: { x: 2400, y: 1660 },
-    gate: { x: 2540, y: 856 }
+    gate: { x: 2540, y: 856 },
+    // The south bank of the river (TW-1242): a meadow you
+    // reach only over the bridge, and walk along the water.
+    bank: { x: 760, y: 2348 }
   };
   var TAILGATE_SPOTS = [[1940, 470], [1780, 490], [2130, 490], [1940, 770], [2060, 760], [1850, 770]];
   var GATE_SPOTS = [[2380, 884], [2700, 884], [2540, 928], [2300, 824], [2780, 824]];
@@ -120,6 +135,18 @@
     blockRect(STORE.x, STORE.y, STORE.w, STORE.h);
     blockRect(STATION.bldg[0], STATION.bldg[1], STATION.bldg[2], STATION.bldg[3]);
     blockRect(STATION.pumps[0], STATION.pumps[1], STATION.pumps[2], STATION.pumps[3]);
+    // Mountains are backdrop, not ground (TW-1242).
+    blockRect(0, 0, W, MTN_N);
+    blockRect(0, 0, MTN_W, 1040);
+    // The river is a wall except at the bridge (TW-1242):
+    // tiles whose center sits in the water band are blocked,
+    // sparing the bridge columns on the north-south road.
+    for (var ry2 = 0; ry2 < ROWS; ry2++) for (var rx2 = 0; rx2 < COLS; rx2++) {
+      var rcx = rx2 * TILE + TILE / 2, rcy = ry2 * TILE + TILE / 2;
+      if (Math.abs(rcy - riverY(rcx)) < 48 && !(rcx >= BRIDGE.x0 + 10 && rcx <= BRIDGE.x1 - 10)) {
+        grid[ry2 * COLS + rx2] = 1;
+      }
+    }
     blockRect(428, 990, 52, 30);   // the parked Model T by the church
     blockRect(1550, 1212, 60, 28); // the parked sedan at the store
     TENTS.forEach(function (t) { blockRect(t.x - 68, t.y - 50, 136, 100); });
@@ -1134,10 +1161,115 @@
       c.fillRect(p[0] - 10, p[1] - 4, 20, 8);
     });
   }
+  // Mountains (TW-1242): layered ridges on the horizon, in
+  // the reference palette's depth: a far blue-gray ridge with
+  // snow on its tallest peaks, a mid ridge, and green
+  // foothills rolling down to the land. Backdrop only.
+  function ridgePath(c, pts, base, vertical) {
+    c.beginPath();
+    if (vertical) {
+      c.moveTo(base, -20);
+      pts.forEach(function (p) { c.lineTo(p[1], p[0]); });
+      c.lineTo(base, 1060);
+    } else {
+      c.moveTo(-20, base);
+      pts.forEach(function (p) { c.lineTo(p[0], p[1]); });
+      c.lineTo(W + 20, base);
+    }
+    c.closePath();
+  }
+  function drawMountains(c) {
+    // North horizon: far ridge, snow where it reads.
+    var far = [[-40, 64], [120, 26], [300, 52], [470, 14], [640, 44], [820, 30], [990, 58], [1150, 20], [1330, 48], [1500, 24], [1680, 54], [1860, 16], [2040, 46], [2230, 28], [2410, 56], [2600, 18], [2790, 42], [2970, 24], [3140, 50], [3240, 36]];
+    ridgePath(c, far, MTN_N, false);
+    c.fillStyle = "#93a3c0"; c.fill();
+    c.fillStyle = "#f4f1e6";
+    far.forEach(function (p) {
+      if (p[1] > 30) return; // snow only on the tall peaks
+      c.beginPath();
+      c.moveTo(p[0] - 27, p[1] + 23);
+      c.lineTo(p[0] - 12, p[1] + 15); c.lineTo(p[0], p[1]);
+      c.lineTo(p[0] + 11, p[1] + 17); c.lineTo(p[0] + 27, p[1] + 23);
+      c.closePath(); c.fill();
+    });
+    var mid = [[-40, 84], [180, 58], [390, 80], [610, 54], [840, 78], [1080, 60], [1310, 82], [1560, 56], [1800, 80], [2050, 62], [2290, 84], [2540, 58], [2780, 78], [3010, 60], [3240, 80]];
+    ridgePath(c, mid, MTN_N, false);
+    c.fillStyle = "#6d7794"; c.fill();
+    var foot = [[-40, 104], [200, 88], [450, 102], [700, 86], [980, 100], [1250, 88], [1520, 103], [1790, 87], [2060, 101], [2330, 88], [2600, 102], [2870, 87], [3240, 100]];
+    ridgePath(c, foot, MTN_N, false);
+    c.fillStyle = "#5f7346"; c.fill();
+    speckle(c, 0, 60, W, 58, 700, ["rgba(40,54,26,0.20)", "rgba(140,160,105,0.16)"], 1, 2.4);
+    // West edge: the same country, lower: foothills running
+    // down to the east-west road, no snow at this height.
+    var wfar = [[-20, 12], [150, 27], [320, 15], [500, 31], [680, 19], [860, 29], [1060, 17]];
+    ridgePath(c, wfar, MTN_W, true);
+    c.fillStyle = "#7e8bab"; c.fill();
+    var wfoot = [[-20, 41], [180, 53], [360, 39], [540, 55], [720, 43], [900, 56], [1060, 45]];
+    ridgePath(c, wfoot, MTN_W, true);
+    c.fillStyle = "#5f7346"; c.fill();
+    speckle(c, 0, 0, 58, 1040, 260, ["rgba(40,54,26,0.20)", "rgba(140,160,105,0.16)"], 1, 2.2);
+  }
+  // The river (TW-1242): a band path along the meander, used
+  // for the sand banks, the water, and the flow clip.
+  function riverBandPath(c, half) {
+    c.beginPath();
+    for (var x = -20; x <= W + 20; x += 40) {
+      var y = riverY(x) - half;
+      if (x === -20) c.moveTo(x, y); else c.lineTo(x, y);
+    }
+    for (var x2 = W + 20; x2 >= -20; x2 -= 40) c.lineTo(x2, riverY(x2) + half);
+    c.closePath();
+  }
+  function drawRiver(c) {
+    // Sand banks, then the dirt paths walkers keep along
+    // both banks, then the water itself, deep at the center.
+    riverBandPath(c, 55);
+    c.fillStyle = "#cbb489"; c.fill();
+    [-66, 66].forEach(function (off) {
+      c.beginPath();
+      for (var x = -20; x <= W + 20; x += 40) {
+        var y = riverY(x) + off;
+        if (x === -20) c.moveTo(x, y); else c.lineTo(x, y);
+      }
+      c.strokeStyle = "rgba(194,171,132,0.8)"; c.lineWidth = 13;
+      c.lineJoin = "round"; c.stroke();
+    });
+    riverBandPath(c, 40);
+    c.fillStyle = "#38698a"; c.fill();
+    riverBandPath(c, 23);
+    c.fillStyle = "rgba(38,76,104,0.6)"; c.fill();
+    // Still-water glints under the moving flow.
+    c.strokeStyle = "rgba(225,240,250,0.13)"; c.lineWidth = 2.4;
+    for (var gx = 60; gx < W; gx += 130) {
+      var gy = riverY(gx) + rr(-20, 20);
+      c.beginPath(); c.moveTo(gx, gy); c.lineTo(gx + rr(24, 44), gy + rr(-2, 2)); c.stroke();
+    }
+  }
+  function drawBridge(c) {
+    // A wooden road bridge where the north-south road meets
+    // the river: plank deck, edge beams, posts and rails.
+    var bx0 = BRIDGE.x0, bx1 = BRIDGE.x1;
+    var by0 = riverY(940) - 86, by1 = riverY(940) + 86;
+    c.fillStyle = "rgba(20,16,10,0.25)";
+    c.fillRect(bx0 + 5, by0 + 7, bx1 - bx0, by1 - by0);
+    c.fillStyle = "#9c7a4e";
+    c.fillRect(bx0, by0, bx1 - bx0, by1 - by0);
+    c.fillStyle = "rgba(0,0,0,0.18)";
+    for (var py = by0 + 9; py < by1 - 4; py += 15) c.fillRect(bx0 + 3, py, bx1 - bx0 - 6, 2.4);
+    speckle(c, bx0, by0, bx1 - bx0, by1 - by0, 160, ["rgba(60,40,18,0.15)", "rgba(255,240,210,0.08)"], 1, 2);
+    c.fillStyle = "#7d5f3a";
+    c.fillRect(bx0, by0, 9, by1 - by0); c.fillRect(bx1 - 9, by0, 9, by1 - by0);
+    c.fillStyle = "#54391f";
+    for (var ry3 = by0 + 8; ry3 < by1; ry3 += 38) {
+      c.fillRect(bx0 + 1, ry3, 7, 13); c.fillRect(bx1 - 8, ry3, 7, 13);
+    }
+  }
   function renderStatic() {
     var c = staticC.getContext("2d");
     seed = 20261120;
     drawGrassBase(c);
+    drawMountains(c);
+    drawRiver(c);
     // Tailgate lawn: a lighter green, kept grass.
     c.fillStyle = "rgba(255,255,220,0.07)";
     c.fillRect(1640, 220, 560, 640);
@@ -1191,6 +1323,8 @@
     // Dirt path: church door to the road sidewalk.
     c.fillStyle = "#c2ab84";
     c.fillRect(CHURCH.door[0] - 10, CHURCH.y + CHURCH.h, 20, 440);
+    // The bridge carries the road over the river.
+    drawBridge(c);
     // Buildings.
     Object.keys(HOUSES).forEach(function (k) { drawHouse(c, HOUSES[k]); });
     drawChurch(c);
@@ -1310,6 +1444,18 @@
   (function renderMinimap() {
     var c = miniC.getContext("2d"), s = 200 / W;
     c.fillStyle = "#5f8a30"; c.fillRect(0, 0, 200, 150);
+    // The horizon and the river frame the map (TW-1242).
+    c.fillStyle = "#8b96ad";
+    c.fillRect(0, 0, 200, MTN_N * s); c.fillRect(0, 0, MTN_W * s, 1040 * s);
+    c.strokeStyle = "#3e6f8e"; c.lineWidth = 5; c.lineJoin = "round";
+    c.beginPath();
+    for (var mx = 0; mx <= W; mx += 80) {
+      var my = riverY(mx) * s;
+      if (mx === 0) c.moveTo(0, my); else c.lineTo(mx * s, my);
+    }
+    c.stroke();
+    c.fillStyle = "#55565a";
+    c.fillRect(BRIDGE.x0 * s, (riverY(940) - 52) * s, (BRIDGE.x1 - BRIDGE.x0) * s, 104 * s);
     c.fillStyle = "#55565a";
     c.fillRect(880 * s, 0, 120 * s, 150); c.fillRect(0, 1080 * s, 200, 120 * s);
     c.fillStyle = "#b5684f"; c.fillRect(120 * s, 1560 * s, 2960 * s, 200 * s);
@@ -1786,6 +1932,19 @@
       ctx.drawImage(staticC, ix, iy, iw, ih, ix, iy, iw, ih);
       if (saturday) ctx.drawImage(satC, ix, iy, iw, ih, ix, iy, iw, ih);
     }
+    // The river runs (TW-1242): light streaks drifting
+    // downstream, clipped to the water. Slow and steady,
+    // ambient motion like the grill smoke.
+    ctx.save();
+    riverBandPath(ctx, 40);
+    ctx.clip();
+    for (var wi = 0; wi < 30; wi++) {
+      var wx = ((wi * 211 + t * 42) % (W + 240)) - 120;
+      var wy = riverY(wx) + Math.sin(wi * 2.7) * 22;
+      ctx.fillStyle = "rgba(220,238,248," + (0.10 + (wi % 3) * 0.04).toFixed(3) + ")";
+      ctx.beginPath(); ctx.ellipse(wx, wy, 26, 3.2, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
     // The moving car, and the Model T on its loop (TW-1241).
     drawCarShape(ctx, car.x, car.y, car.heading, "#8a3324", 54, 27);
     drawEraCar(ctx, modelt.x, modelt.y, modelt.heading, "modelt");

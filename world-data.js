@@ -107,7 +107,7 @@ window.LGCY_WORLD_PEOPLE = [
   { id: "willie-bethsaida-anderson", name: "Willie Bethsaida Anderson", born: 1897, bornStatus: "probable", died: 1982, diedStatus: "probable",
     line: "Hammond line", gender: "f",
     present: { kit: "#77815f", kitDark: "#5a6349", hat: null, hatColor: null, hair: "braids", skin: "#54331d", hairColor: "#c9c2b4", hairTexture: "braided", build: "slim", glasses: false, photo: null, speed: 26, prop: null },
-    home: "h1", rounds: ["church", "plazaW", "home"],
+    home: "h1", rounds: ["church", "bank", "plazaW", "home"],
     lines: ["Well, look who it is.", "Hi Justynn! How's it going?", "Come walk with me a ways."],
     saturday: { role: "stands" } },
   { id: "dora-weathers", name: "Dora Weathers", born: 1895, bornStatus: "probable", died: 1976, diedStatus: "probable",
