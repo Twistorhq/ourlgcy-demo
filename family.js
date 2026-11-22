@@ -6,11 +6,12 @@
 // ticket) appends each submission to the private store only, with
 // contact fields hashed at ingestion per the medallion doctrine.
 //
-// THE ONE WIRING STEP LEFT FOR GO-LIVE: set ENDPOINT below to the
-// live Core intake URL (POST, JSON, expects a 2xx response). Until
-// then ENDPOINT stays empty and this page runs in honest preview
-// mode: it validates for real, then shows the preview receipt and
-// stores nothing, exactly like the Reference Center claim form.
+// GO-LIVE WIRING (TW-1154, done): the live intake URL is set in
+// family-config.js as window.LGCY_SIGNUP_ENDPOINT (POST, JSON,
+// expects a 2xx response) and read below. When the global is unset
+// or empty this page runs in honest preview mode: it validates for
+// real, then shows the preview receipt and stores nothing, exactly
+// like the Reference Center claim form.
 // A submit never pretends to save what it did not save: if the POST
 // fails, the visitor keeps their answers and gets an email fallback.
 (function () {
