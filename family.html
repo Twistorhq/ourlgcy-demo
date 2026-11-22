@@ -6,6 +6,27 @@
 <title>Stay in the Loop: Our LGCY</title>
 <meta name="description" content="The Our LGCY family sign up. Leave your email, phone, and state, and we will write when your branch grows. Demo preview with a fictional sample family.">
 <link rel="stylesheet" href="styles.css">
+<script>
+// TW-1282 signup gate, first script pass: identity on this site is
+// the completed signup, held in sessionStorage as "lgcy-signup-email"
+// (set by family.js on a successful signup). With no identity, the
+// records form below is locked before the body is parsed: the class
+// set here hides it from first paint (styles.css), so its fields are
+// never focusable or typable, and records.js routes the visitor to
+// the signup form instead. Fails closed: if storage cannot be read
+// there is no verifiable identity, and the gate stays locked. A
+// visitor who signs up on this page is unlocked in place by
+// family.js, which removes the class and sets unlockedBySignup.
+window.LGCY_GATE = { locked: true, unlockedBySignup: false };
+try {
+  if (window.sessionStorage.getItem("lgcy-signup-email")) {
+    window.LGCY_GATE.locked = false;
+  }
+} catch (e) {}
+if (window.LGCY_GATE.locked) {
+  document.documentElement.classList.add("lgcy-gate-locked");
+}
+</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
@@ -46,6 +67,7 @@
 
     <div class="two-col" style="margin-top:20px">
       <div>
+        <p class="gate-why" id="gate-why" role="status" hidden>Sign up first, then add your records.</p>
         <form class="claim" id="family-form" novalidate>
           <div class="field" data-field="email">
             <label for="f-email">Email</label>
@@ -159,6 +181,12 @@
         <p class="eyebrow">Start your tree</p>
         <h2>Your records make the tree living</h2>
         <p>This is the free friends and family beta. Add one person at a time, as you know them. Start with yourself, then your parents. Approximate years are fine, and everything but the name can wait. Your records are private: they build your tree and no one else's, and they appear only to you.</p>
+      </div>
+
+      <div class="form-note gate-note" id="gate-note" role="note">
+        <strong>Sign up first, then add your records.</strong>
+        <p style="margin:8px 0 12px">Your records key to the email you sign up with, so the sign up comes first. It takes a moment, and then this form opens right here.</p>
+        <p style="margin:0"><a class="btn btn-pine" href="#family-form" id="gate-to-signup">Go to the sign up form</a></p>
       </div>
 
       <form class="claim" id="record-form" novalidate>

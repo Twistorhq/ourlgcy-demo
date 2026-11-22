@@ -26,6 +26,38 @@
   var errorNote = document.getElementById("record-error-note");
   var added = 0;
 
+  // TW-1282 signup gate: no identity, no entry. Identity is the
+  // completed signup: the sessionStorage key family.js sets, or the
+  // in-page unlock family.js performs the moment a signup succeeds
+  // (which also covers a browser that refused the storage write).
+  // The form itself is already hidden from first paint by the
+  // lgcy-gate-locked class (family.html head script, styles.css);
+  // what lives here is the routing: send the visitor to the signup
+  // form, say why, and never let a submit post without identity.
+  var GATE_KEY = "lgcy-signup-email";
+  function sessionEmail() {
+    try {
+      return window.sessionStorage.getItem(GATE_KEY) || "";
+    } catch (e) {
+      return "";
+    }
+  }
+  function hasIdentity() {
+    if (sessionEmail()) return true;
+    return !!(window.LGCY_GATE && window.LGCY_GATE.unlockedBySignup);
+  }
+  function routeToSignup() {
+    var why = document.getElementById("gate-why");
+    if (why) why.hidden = false;
+    var emailField = document.getElementById("f-email");
+    if (emailField) {
+      emailField.focus();
+    } else {
+      var signupForm = document.getElementById("family-form");
+      if (signupForm) signupForm.scrollIntoView();
+    }
+  }
+
   function yearOk(v) {
     v = v.trim();
     if (v === "") return true;
@@ -112,8 +144,47 @@
     if (saved && !FIELDS.email.el.value) FIELDS.email.el.value = saved;
   } catch (e) {}
 
+  // TW-1282: arriving aimed at the records flow (the #start-tree
+  // anchor) with no identity routes to the signup form immediately.
+  if (!hasIdentity() && window.location.hash === "#start-tree") {
+    routeToSignup();
+    // The browser's own fragment jump can settle after this script
+    // runs and drop the focus it just took; re-assert the route when
+    // the load completes. The records form was never usable in the
+    // interval (display:none from first paint), so this only settles
+    // where the visitor lands, never what they could touch.
+    window.addEventListener("load", function () {
+      if (!hasIdentity()) routeToSignup();
+    });
+  }
+  // Any control that opens the records flow routes instead while
+  // locked, and the gate note's own button routes with the why line.
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t || typeof t.closest !== "function") return;
+    if (t.closest("#gate-to-signup")) {
+      e.preventDefault();
+      routeToSignup();
+      return;
+    }
+    if (!hasIdentity() && t.closest('a[href="#start-tree"]')) {
+      e.preventDefault();
+      routeToSignup();
+    }
+  });
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+    // TW-1282: a submit attempted without identity routes to the
+    // signup form instead of posting, whatever state the page is in.
+    if (!hasIdentity()) {
+      routeToSignup();
+      return;
+    }
+    // With identity, the record is entered under the session
+    // identity: the key on the wire is the signup email.
+    var identity = sessionEmail();
+    if (identity) FIELDS.email.el.value = identity;
     errorNote.classList.remove("show");
     previewNote.classList.remove("show");
     successNote.classList.remove("show");

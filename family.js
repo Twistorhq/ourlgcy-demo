@@ -113,6 +113,17 @@
         try {
           window.sessionStorage.setItem("lgcy-signup-email", payload.email);
         } catch (err) {}
+        // TW-1282: signing up unlocks the records form in place.
+        // This runs even if sessionStorage refused the key, so a
+        // visitor who just signed up is never bounced back here.
+        try {
+          document.documentElement.classList.remove("lgcy-gate-locked");
+          if (window.LGCY_GATE) {
+            window.LGCY_GATE.locked = false;
+            window.LGCY_GATE.unlockedBySignup = true;
+          }
+          window.dispatchEvent(new CustomEvent("lgcy-signed-in"));
+        } catch (err) {}
         var recEmail = document.getElementById("r-email");
         if (recEmail && !recEmail.value) recEmail.value = payload.email;
         form.hidden = true;

@@ -455,6 +455,22 @@ form.claim {
 }
 .form-note.show { display: block; }
 
+/* ---------- Signup gate (TW-1282) ----------
+   The locking class is set on <html> by the first script pass in
+   family.html, before the body parses, so a locked records form is
+   never painted, focused, or typed in. Signing up removes it. */
+html.lgcy-gate-locked #record-form { display: none; }
+.gate-note { margin-top: 0; margin-bottom: 20px; }
+html.lgcy-gate-locked .gate-note { display: block; }
+.gate-why {
+  border: 2px solid var(--pine-soft);
+  background: #e9f0e8;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+
 /* ---------- Family landing (TW-1153) ---------- */
 
 .family-hero {
