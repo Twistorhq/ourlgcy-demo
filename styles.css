@@ -484,6 +484,30 @@ form.claim {
   text-shadow: 0 1px 2px rgba(20, 14, 4, 0.55);
 }
 
+/* ---------- Your tree (TW-1276) ---------- */
+
+/* The lookup sits on the oak, in the demo note's own voice. */
+.yt .section-head h2, .yt .section-head p { color: #efe8d2; }
+.yt .section-head .eyebrow { color: #cdbf96; }
+.yt-form { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; max-width: 34em; }
+.yt-form .field { flex: 1 1 240px; margin-bottom: 0; }
+.yt-form label { color: #efe8d2; }
+.yt-status { color: #efe8d2; max-width: 40em; min-height: 1.4em; }
+.yt-status a { color: #efe8d2; }
+.yt-head { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 26px 0 6px; }
+.yt-head h3 { color: #efe8d2; margin: 0; }
+.yt-gen { margin-top: 26px; }
+.yt-gen-title { color: #cdbf96; margin: 0 0 12px; }
+.relatives-count { display: block; font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px; }
+
+/* Your-tree mode: the sample journey steps aside, demo note and
+   all, and only the visitor's own tree stands. */
+body.your-tree-on main.journey > section.gen,
+body.your-tree-on .buck-break,
+body.your-tree-on .demo-note,
+body.your-tree-on .era-rail,
+body.your-tree-on .follow-pill { display: none; }
+
 .site-footer {
   background: var(--pine-deep);
   color: #d9d2ba;
