@@ -29,12 +29,6 @@
   var mailto = document.getElementById("family-mailto");
 
   var FIELDS = {
-    name: {
-      el: document.getElementById("f-name"),
-      ok: function (v) {
-        return v.trim().length > 1;
-      },
-    },
     email: {
       el: document.getElementById("f-email"),
       ok: function (v) {
@@ -48,14 +42,8 @@
         return digits.length >= 7 && digits.length <= 15;
       },
     },
-    occupation: {
-      el: document.getElementById("f-occupation"),
-      ok: function (v) {
-        return v.trim().length > 1;
-      },
-    },
-    heard: {
-      el: document.getElementById("f-heard"),
+    state: {
+      el: document.getElementById("f-state"),
       ok: function (v) {
         return v !== "";
       },
@@ -132,9 +120,9 @@
       .catch(function () {
         // Nothing was saved. Say so, keep the answers, offer email.
         var body =
-          "Name: " + payload.name + "\nEmail: " + payload.email +
-          "\nPhone: " + payload.phone + "\nOccupation: " + payload.occupation +
-          "\nHow I heard: " + payload.heard;
+          "Email: " + payload.email +
+          "\nPhone: " + payload.phone +
+          "\nState: " + payload.state;
         mailto.href =
           "mailto:holla@twistor.co?subject=" +
           encodeURIComponent("Our LGCY family list") +
