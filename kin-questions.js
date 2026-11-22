@@ -25,13 +25,15 @@
 // relation is a yes, and a yes earns the payoff step: the
 // townsperson offers a meeting in Social, "Set it up" or
 // "Not now". The meeting interest rides in the SAME post as the
-// answer, POST /kin-answers:
-//   { question_id, answer, relation, meeting? }
-// answer is related / not_related / not_sure; relation is the
-// tapped relation or null; meeting (true / false) rides only on
-// a related answer. Nothing is sent until the step resolves, so
-// walking away mid-offer saves nothing, and a failed post says
-// so plainly and keeps the question open.
+// answer, POST /kin-answers, in the intake service's own shape
+// (Rosa's TW-1278 gate diffed the two lanes field by field; the
+// backend contract wins and this layer conforms to it):
+//   { email, question_id, answer, relation, meeting_interest? }
+// answer is yes / no / not-sure; relation is the tapped relation
+// on a yes and null otherwise; meeting_interest (true / false)
+// rides only on a yes. Nothing is sent until the step resolves,
+// so walking away mid-offer saves nothing, and a failed post
+// says so plainly and keeps the question open.
 //
 // Email context is the records flow's own: the ?email= parameter
 // or the signup email in session storage. No context, no
@@ -102,9 +104,17 @@
   }
 
   // The ancestor speaks first person from her documented relation
-  // to the subject; no frame, and the neutral phrase stands.
+  // to the subject; no frame, and the neutral phrase stands. The
+  // service's phrase() already speaks the full frame when one
+  // exists, connecting kin included ("I believe you are related
+  // to X. I was married to X, who is related to Y."), so a framed
+  // server phrase stands as served; the local composition is the
+  // fallback for a frame that arrives without one.
   function questionText(q) {
     if (q.ancestor && q.ancestor.relation && q.subject_name) {
+      if (q.phrase && /^I believe you are related to /.test(q.phrase)) {
+        return q.phrase;
+      }
       var rel = String(q.ancestor.relation).trim().replace(/\.$/, "");
       return (
         "I believe you are related to " + q.subject_name +
@@ -151,12 +161,12 @@
     });
     answersEl.appendChild(
       makeButton("Not related", false, function () {
-        submit({ answer: "not_related", relation: null });
+        submit({ answer: "no", relation: null });
       })
     );
     answersEl.appendChild(
       makeButton("Not sure", false, function () {
-        submit({ answer: "not_sure", relation: null });
+        submit({ answer: "not-sure", relation: null });
       })
     );
   }
@@ -174,12 +184,20 @@
     answersEl.innerHTML = "";
     answersEl.appendChild(
       makeButton("Set it up", false, function () {
-        submit({ answer: "related", relation: pendingRelation, meeting: true });
+        submit({
+          answer: "yes",
+          relation: pendingRelation,
+          meeting_interest: true,
+        });
       })
     );
     answersEl.appendChild(
       makeButton("Not now", false, function () {
-        submit({ answer: "related", relation: pendingRelation, meeting: false });
+        submit({
+          answer: "yes",
+          relation: pendingRelation,
+          meeting_interest: false,
+        });
       })
     );
     answersEl.appendChild(
@@ -194,7 +212,7 @@
     sending = true;
     setButtonsEnabled(false);
     showError("");
-    var body = { question_id: openQuestion.id };
+    var body = { email: email, question_id: openQuestion.id };
     Object.keys(payload).forEach(function (k) {
       body[k] = payload[k];
     });
