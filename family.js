@@ -120,6 +120,13 @@
     })
       .then(function (res) {
         if (!res.ok) throw new Error("intake " + res.status);
+        // TW-1276: hand the email to the records flow below, so
+        // starting a tree does not ask for it twice.
+        try {
+          window.sessionStorage.setItem("lgcy-signup-email", payload.email);
+        } catch (err) {}
+        var recEmail = document.getElementById("r-email");
+        if (recEmail && !recEmail.value) recEmail.value = payload.email;
         form.hidden = true;
         thanks.hidden = false;
         thanks.classList.add("show");

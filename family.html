@@ -29,8 +29,8 @@
 
 <div class="demo-banner" role="note">
   <div class="wrap">
-    <strong>Demo preview.</strong>
-    <span>This is the family sign up, shown with a sample family. In this preview the form sends nothing and stores nothing.</span>
+    <strong>Free beta.</strong>
+    <span>This is the friends and family beta, and it is live. Signing up joins the family's private list, and the records you add below grow your own tree. The sample family on the tree page is demo data.</span>
   </div>
 </div>
 
@@ -93,7 +93,9 @@
 
         <section class="form-note" id="family-thanks" role="status" hidden>
           <h2 style="margin-bottom:8px">You are on the list.</h2>
-          <p style="margin:0">Welcome home. We will write when your branch grows, and when it is your turn to add what you hold, you will hear from us first.</p>
+          <p>Welcome home. We will write when your branch grows, and when it is your turn to add what you hold, you will hear from us first.</p>
+          <p style="margin:0 0 12px">Your turn starts now, if you want it. The records you add are what make your tree living: your people, placed by the engine, visible only to you.</p>
+          <p style="margin:0"><a class="btn btn-pine" href="#start-tree">Start your tree</a></p>
         </section>
       </div>
 
@@ -115,6 +117,93 @@
         </ol>
       </div>
     </div>
+
+    <section class="section" id="start-tree" style="padding-bottom:56px">
+      <div class="section-head">
+        <p class="eyebrow">Start your tree</p>
+        <h2>Your records make the tree living</h2>
+        <p>This is the free friends and family beta. Add one person at a time, as you know them. Start with yourself, then your parents. Approximate years are fine, and everything but the name can wait. Your records are private: they build your tree and no one else's, and they appear only to you.</p>
+      </div>
+
+      <form class="claim" id="record-form" novalidate>
+        <div class="field" data-rfield="email">
+          <label for="r-email">Your signup email</label>
+          <p class="hint">The email you signed up with above. It keys your tree to you.</p>
+          <input id="r-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="e-r-email">
+          <p class="field-error" id="e-r-email">That email does not look complete. Your records key to it, so check it carefully.</p>
+        </div>
+        <div class="field" data-rfield="person_name">
+          <label for="r-name">Person's full name</label>
+          <p class="hint">Maiden names matter most of all: they are how the women's lines connect.</p>
+          <input id="r-name" name="person_name" type="text" autocomplete="off" placeholder="Full name, maiden name if you know it" aria-describedby="e-r-name">
+          <p class="field-error" id="e-r-name">A name is the one thing a record cannot grow without.</p>
+        </div>
+        <div class="field" data-rfield="relation">
+          <label for="r-relation">Relation to you</label>
+          <select id="r-relation" name="relation" aria-describedby="e-r-relation">
+            <option value="">Choose one</option>
+            <option value="self">Myself</option>
+            <option value="mother">Mother</option>
+            <option value="father">Father</option>
+            <option value="grandmother">Grandmother</option>
+            <option value="grandfather">Grandfather</option>
+            <option value="spouse">Spouse or partner</option>
+            <option value="sibling">Sibling</option>
+            <option value="child">Child</option>
+            <option value="aunt-uncle">Aunt or uncle</option>
+            <option value="cousin">Cousin</option>
+            <option value="other">Someone else in the family</option>
+          </select>
+          <p class="field-error" id="e-r-relation">Pick the closest one. It tells the engine where to place them.</p>
+        </div>
+        <div class="field" data-rfield="birth_year">
+          <label for="r-birth-year">Birth year</label>
+          <input id="r-birth-year" name="birth_year" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 1941" aria-describedby="e-r-birth-year">
+          <p class="field-error" id="e-r-birth-year">A four digit year, or leave it blank if you do not know.</p>
+        </div>
+        <div class="field">
+          <label for="r-birth-place">Birth place</label>
+          <input id="r-birth-place" name="birth_place" type="text" autocomplete="off" placeholder="Town, county, state">
+        </div>
+        <div class="field" data-rfield="death_year">
+          <label for="r-death-year">Death year</label>
+          <p class="hint">Leave both death fields blank for someone living. Living people's details stay private.</p>
+          <input id="r-death-year" name="death_year" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 1998" aria-describedby="e-r-death-year">
+          <p class="field-error" id="e-r-death-year">A four digit year after their birth year, or leave it blank.</p>
+        </div>
+        <div class="field">
+          <label for="r-death-place">Death place</label>
+          <input id="r-death-place" name="death_place" type="text" autocomplete="off" placeholder="Town, county, state">
+        </div>
+        <div class="field" data-rfield="source">
+          <label for="r-source">Where does this come from?</label>
+          <select id="r-source" name="source" aria-describedby="e-r-source">
+            <option value="">Choose one</option>
+            <option value="family-record">A family record (Bible, program, letter)</option>
+            <option value="document">A document I hold</option>
+            <option value="memory">Family memory, told to me</option>
+          </select>
+          <p class="field-error" id="e-r-source">Pick the closest one. Every fact on the tree carries where it came from.</p>
+        </div>
+        <div class="field">
+          <label for="r-notes">Notes</label>
+          <p class="hint">Anything that helps place them: a church, a town they lived in, a story in one line.</p>
+          <textarea id="r-notes" name="notes" placeholder="What you know, in your own words"></textarea>
+        </div>
+        <button class="btn btn-pine" type="submit" id="record-submit">Add this record</button>
+        <p class="privacy-line">Your records go to your private tree only. They never appear on the public site, and they are never sold.</p>
+        <div class="form-note" id="record-preview-note" role="status">
+          <strong>Preview receipt.</strong> In this preview nothing was sent and nothing was stored. On the live page, each record you add lands on your own tree the moment you send it.
+        </div>
+        <div class="form-note" id="record-success-note" role="status">
+          <strong id="record-success-title">Added.</strong> <span id="record-success-body"></span>
+          <p style="margin:8px 0 0"><a href="index.html#your-tree">See your tree</a> · <span id="record-count"></span></p>
+        </div>
+        <div class="form-note error" id="record-error-note" role="alert">
+          <strong>That record did not go through, and nothing was saved.</strong> Your answers are still in the form. Check your connection and send again.
+        </div>
+      </form>
+    </section>
   </div>
 </main>
 
@@ -139,5 +228,6 @@
 <script src="app.js"></script>
 <script src="family-config.js"></script>
 <script src="family.js"></script>
+<script src="records.js"></script>
 </body>
 </html>
