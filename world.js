@@ -18,6 +18,17 @@
 // on. One greeting at a time, and a line already on screen is
 // never repeated at the same moment (the TW-1227 guard).
 //
+// Kin questions (TW-1278) speak under the same law: a question
+// is never ambient either. When the kin layer (kin-questions.js)
+// has a question pending for this visitor, the designated
+// townsperson asks it only when the visitor comes near, pausing
+// and turning like a greeting, and the question bubble waits
+// for a tap answer. One speech act at a time across greetings,
+// quirks, and questions alike. The world holds no questions of
+// its own: kin-questions.js registers them on a bridge
+// (window.__lgcyKinBridge) and owns the words and the answers;
+// this layer owns the timing, the pause, and the place.
+//
 // The clock is the viewer's real clock: the hour sets the
 // light and how many relatives are out; the day sets Saturday
 // at the stadium. Overrides ride the URL for proof and review:
@@ -34,6 +45,7 @@
   var mini = document.getElementById("world-minimap");
   var mctx = mini.getContext("2d");
   var bubbleEl = document.getElementById("world-bubble");
+  var kinEl = document.getElementById("world-kin");
   var liveEl = document.getElementById("world-live");
   var clockEl = document.getElementById("world-clock");
 
@@ -1857,7 +1869,7 @@
     return pts;
   }
   function fireStationQuirk(f, now) {
-    if (greetActive || quirkActive) return;
+    if (greetActive || quirkActive || kinActive) return;
     var line = GAS_LINES[f.rig.lineI % GAS_LINES.length];
     if (activeTexts[line]) line = GAS_LINES[(f.rig.lineI + 1) % GAS_LINES.length];
     if (activeTexts[line]) return;
@@ -1933,7 +1945,7 @@
       x: home.door[0] + rr(-26, 26), y: home.door[1] + rr(-6, 22),
       heading: rr(0, Math.PI * 2), path: [], pathI: 0,
       state: "dwell", dwellT: rr(1, 7), roundI: Math.floor(rr(0, rec.rounds.length)),
-      greetCd: rr(2, 14), greetedOnce: false, lineI: 0,
+      greetCd: rr(2, 14), greetedOnce: false, lineI: 0, kinCd: rr(2, 6),
       waveT: 0, bob: rr(0, 6), satI: 0, active: true
     };
     // Era transport (TW-1241): a figure whose record carries
@@ -2045,7 +2057,7 @@
     return "Good night" + who + "!";
   }
   function tryGreet(f, now) {
-    if (greetActive || quirkActive || now - lastGreetEnd < 1.2 || f.greetCd > 0) return;
+    if (greetActive || quirkActive || kinActive || now - lastGreetEnd < 1.2 || f.greetCd > 0) return;
     var d = Math.hypot(f.x - player.x, f.y - player.y);
     if (d > 108 || d < 12) return;
     var line = !f.greetedOnce ? timeLine() : f.rec.lines[f.lineI % f.rec.lines.length];
@@ -2063,6 +2075,73 @@
     bubbleEl.setAttribute("data-speaker", f.rec.name);
     if (liveEl) liveEl.textContent = f.rec.name + ": " + line;
   }
+
+  /* ------------------------- kin questions ------------------------- */
+  // TW-1278: the kin layer (kin-questions.js) registers a bridge
+  // once it holds this visitor's questions:
+  //   window.__lgcyKinBridge = { current: fn -> {question, speakerId} | null }
+  // current() is read lazily, here in the loop, because the bridge
+  // arrives after this file runs and its queue advances as answers
+  // land. The exchange rides DOM events on the stage: the world
+  // sends "lgcy-kin-open" when the question bubble opens (the kin
+  // layer renders the words and the answer buttons into it) and
+  // "lgcy-kin-dismiss" when the visitor walks away or presses
+  // Escape (nothing was answered); the layer sends "lgcy-kin-done"
+  // when an answer has been saved. The asking figure pauses in
+  // the "ask" state, turned to the visitor, until one of those
+  // ends it: a question waits for its answer, it has no countdown.
+  var kinActive = null;
+  var kinCount = 0;
+  function kinBridge() {
+    var b = window.__lgcyKinBridge;
+    return b && typeof b.current === "function" ? b : null;
+  }
+  function tryKinAsk(f, now) {
+    if (!kinEl || kinActive || greetActive || quirkActive || f.kinCd > 0) return false;
+    var b = kinBridge();
+    if (!b) return false;
+    var cur = b.current();
+    if (!cur || !cur.question || cur.speakerId !== f.rec.id) return false;
+    var d = Math.hypot(f.x - player.x, f.y - player.y);
+    if (d > 108 || d < 12) return false;
+    f.prevState = f.state;
+    f.state = "ask";
+    kinActive = { fig: f, question: cur.question };
+    kinEl.hidden = false;
+    // A frame later, so the fade runs from the hidden state the
+    // way the greeting bubble fades in.
+    requestAnimationFrame(function () { kinEl.classList.add("show"); });
+    kinEl.setAttribute("data-speaker", f.rec.name);
+    if (liveEl) liveEl.textContent = f.rec.name + " has a question for you.";
+    stage.dispatchEvent(new CustomEvent("lgcy-kin-open", {
+      detail: { question: cur.question, speakerId: f.rec.id, speakerName: f.rec.name }
+    }));
+    return true;
+  }
+  function endKinAsk(answered) {
+    if (!kinActive) return;
+    var f = kinActive.fig;
+    kinActive = null;
+    kinEl.classList.remove("show");
+    setTimeout(function () { if (!kinEl.classList.contains("show")) kinEl.hidden = true; }, 200);
+    f.state = f.prevState === "ask" ? "dwell" : (f.prevState || "dwell");
+    if (f.state === "dwell" && f.pathI < f.path.length) f.state = "walk";
+    // A long quiet after a question, answered or not: the world
+    // never turns into a quiz machine at the visitor's elbow.
+    f.kinCd = 25;
+    f.greetCd = Math.max(f.greetCd, 3);
+    if (answered) kinCount++;
+    lastGreetEnd = elapsed;
+  }
+  function dismissKinAsk() {
+    if (!kinActive) return;
+    var q = kinActive.question;
+    endKinAsk(false);
+    stage.dispatchEvent(new CustomEvent("lgcy-kin-dismiss", {
+      detail: { question: q }
+    }));
+  }
+  stage.addEventListener("lgcy-kin-done", function () { endKinAsk(true); });
 
   /* ----------------------------- car ------------------------------- */
   var car = { x: 940, y: 120, heading: Math.PI / 2, wp: 0, speed: 105 };
@@ -2124,12 +2203,12 @@
     var sets = (saturday && f.satSprites) ? f.satSprites : f.sprites;
     var walking = f.state === "walk" || (isPlayer && player.moving);
     var cheer = saturday && f.state === "dwell" && f.rec.saturday && f.rec.saturday.role === "stands";
-    var front = f.state === "greet" || cheer;
+    var front = f.state === "greet" || f.state === "ask" || cheer;
     var back = !front && Math.sin(f.heading) < -0.35;
     var set = back ? sets.back : sets.front;
     var flip = !front && Math.cos(f.heading) < 0;
     var img, bobY = 0;
-    if (f.state === "greet") img = set.wave[Math.floor(t * 5) % 2];
+    if (f.state === "greet" || f.state === "ask") img = set.wave[Math.floor(t * 5) % 2];
     else if (cheer) img = set.cheer[Math.floor(t * 3.2 + f.idx) % 2];
     else if (walking) {
       img = set.walk[Math.floor(f.bob / 1.85) % 4];
@@ -2260,6 +2339,11 @@
       var bp = worldToScreen(bub.fig.x, bub.fig.y - 70);
       bubbleEl.style.transform = "translate(" + Math.round(bp[0]) + "px," + Math.round(bp[1]) + "px) translate(-50%,-100%)";
     }
+    // The kin bubble follows its speaker the same way (TW-1278).
+    if (kinActive) {
+      var kp = worldToScreen(kinActive.fig.x, kinActive.fig.y - 70);
+      kinEl.style.transform = "translate(" + Math.round(kp[0]) + "px," + Math.round(kp[1]) + "px) translate(-50%,-100%)";
+    }
     // Minimap.
     mctx.drawImage(miniC, 0, 0);
     var ms = 200 / W;
@@ -2314,6 +2398,19 @@
     npcs.forEach(function (f) {
       if (!f.active) return;
       f.greetCd -= dt;
+      f.kinCd -= dt;
+      if (f.state === "ask") {
+        // A kin question (TW-1278): she stays turned to the
+        // visitor until the answer lands, the visitor walks
+        // away, or Escape dismisses it. No countdown runs here:
+        // a question waits for its answer.
+        var wantA = Math.atan2(player.y - f.y, player.x - f.x);
+        var diffA = wantA - f.heading;
+        while (diffA > Math.PI) diffA -= Math.PI * 2;
+        while (diffA < -Math.PI) diffA += Math.PI * 2;
+        f.heading += diffA * Math.min(1, dt * 8);
+        return;
+      }
       if (f.state === "greet") {
         f.waveT -= dt;
         var want = Math.atan2(player.y - f.y, player.x - f.x);
@@ -2351,7 +2448,9 @@
       // or on a walking leg, never to a driver mid-ride or on
       // the way to their rig.
       if (f.state === "dwell" || f.state === "walk" || f.state === "walkFromRig") {
-        tryGreet(f, elapsed);
+        // A pending kin question outranks a greeting for its
+        // designated speaker; everyone else greets as ever.
+        if (!tryKinAsk(f, elapsed)) tryGreet(f, elapsed);
       }
     });
     if (greetActive && elapsed > greetActive.until) {
@@ -2364,6 +2463,13 @@
       delete activeTexts[quirkActive.line];
       quirkActive = null;
       if (!greetActive) bubbleEl.classList.remove("show");
+    }
+    // A kin question left behind is a question unanswered: the
+    // visitor walked off, so the bubble closes and the question
+    // returns to the kin layer's queue for another meeting.
+    if (kinActive) {
+      var kd = Math.hypot(kinActive.fig.x - player.x, kinActive.fig.y - player.y);
+      if (kd > 175) dismissKinAsk();
     }
 
     updateCar(dt);
@@ -2388,6 +2494,8 @@
   /* ========================== interaction ========================== */
   var keyState = { left: false, right: false, up: false, down: false };
   canvas.addEventListener("keydown", function (e) {
+    // Escape sets a kin question aside unanswered (TW-1278).
+    if (e.key === "Escape" && kinActive) { dismissKinAsk(); return; }
     var k = e.key.toLowerCase();
     if (k === "arrowleft" || k === "a") keyState.left = true;
     else if (k === "arrowright" || k === "d") keyState.right = true;
@@ -2488,6 +2596,8 @@
         cam: { x: Math.round(cam.x), y: Math.round(cam.y) },
         greetCount: greetCount,
         quirkCount: quirkCount,
+        kinCount: kinCount,
+        kinActive: kinActive ? { speakerId: kinActive.fig.rec.id, questionId: kinActive.question.id } : null,
         npcs: npcs.map(function (f) {
           return {
             id: f.rec.id, x: Math.round(f.x), y: Math.round(f.y), state: f.state, active: f.active,

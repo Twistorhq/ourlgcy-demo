@@ -1317,6 +1317,48 @@ body.home .demo-banner { position: relative; z-index: 2; }
   transform: translateX(-50%) rotate(45deg);
 }
 .world-bubble.show { opacity: 1; }
+/* The kin-question bubble (TW-1278): the speech bubble's paper and
+   ink, widened for clickable answers. It follows its speaker like
+   the greeting bubble does; unlike that bubble it takes pointer
+   events while shown, because the answers are real buttons. */
+.world-kin {
+  position: absolute; top: 0; left: 0;
+  width: max-content; max-width: 330px;
+  padding: 10px 13px 9px;
+  background: #fffdf6; color: #2b2012;
+  border: 2px solid #2b2012; border-radius: 12px;
+  box-shadow: 0 5px 0 rgba(43, 32, 18, 0.22);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.18s ease;
+  will-change: transform;
+  z-index: 5;
+}
+.world-kin::after {
+  content: ""; position: absolute; left: 50%; bottom: -8px;
+  width: 13px; height: 13px;
+  background: #fffdf6;
+  border-right: 2px solid #2b2012; border-bottom: 2px solid #2b2012;
+  transform: translateX(-50%) rotate(45deg);
+}
+.world-kin.show { opacity: 1; pointer-events: auto; }
+.world-kin-q { margin: 0 0 8px; font-weight: 600; font-size: 15px; line-height: 1.35; }
+.world-kin-answers { display: flex; flex-wrap: wrap; gap: 6px; }
+.world-kin-answers button {
+  border: 2px solid #2b2012; border-radius: 8px;
+  background: #fffdf6; color: #2b2012;
+  font: inherit; font-size: 13.5px; font-weight: 600; line-height: 1;
+  padding: 7px 10px; cursor: pointer;
+  box-shadow: 0 2px 0 rgba(43, 32, 18, 0.25);
+}
+.world-kin-answers button:hover { background: #f2ead8; }
+.world-kin-answers button:disabled { opacity: 0.55; cursor: wait; box-shadow: none; }
+.world-kin-answers button.kin-quiet {
+  border-color: transparent; box-shadow: none; background: transparent;
+  text-decoration: underline; font-weight: 500; padding: 7px 4px;
+}
+.world-kin-answers button.kin-quiet:hover { background: transparent; color: #5d4a26; }
+.world-kin-error { margin: 8px 0 0; font-size: 13px; line-height: 1.35; color: #8c2f1b; font-weight: 600; }
+.world-kin-note { margin: 8px 0 0; font-size: 12px; line-height: 1.35; color: #5d4a26; }
 .world-zoom {
   position: absolute; top: 12px; right: 12px;
   display: flex; flex-direction: column; gap: 6px;
@@ -1344,5 +1386,7 @@ body.home .demo-banner { position: relative; z-index: 2; }
   .world-stage { height: 64vh; }
   #world-minimap { width: 128px; height: 96px; }
   .world-bubble { font-size: 13.5px; max-width: 190px; }
+  .world-kin { max-width: 272px; }
+  .world-kin-q { font-size: 13.5px; }
   .world-caption { grid-template-columns: 1fr; }
 }
