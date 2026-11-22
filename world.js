@@ -1,15 +1,14 @@
 // Our LGCY Community, overhead world layer (TW-1232 slice 1).
 //
 // The Community page becomes a world: a tile world larger than
-// its box, seen from directly overhead in the founder's binding
-// reference direction (twistor-lab/projects/our-lgcy/references/
-// tw1232/). The signed-in person stands at the center with a
-// ground marker; the camera follows him as he walks (click to
-// move); the neighborhood keeps living while he stands still.
+// its box, seen from directly overhead in the binding reference
+// direction. The signed-in person stands at the center with a
+// ground marker; the camera follows them as they walk (click to
+// move); the neighborhood keeps living while they stand still.
 //
 // The people come from records, not from this file: the roster
 // is data-driven from world-data.js (window.LGCY_WORLD_PEOPLE,
-// drawn from the TW-1155 lineage pack), and this layer derives
+// drawn from the family's lineage pack), and this layer derives
 // era dress, frozen ages, rounds, and greetings from the
 // records by the status law stated in that file.
 //
@@ -75,9 +74,9 @@
   // The filling station (TW-1241): a small lot on the north
   // side of the east-west road, west of the crossroads: a
   // concrete pad, a small building, and a pump island a rig
-  // can pull up to. It is the station of the founder's speech
-  // law: a buggy stops at the pumps, the driver marvels, and
-  // the rig rolls on.
+  // can pull up to. It is the station of the speech law: a
+  // buggy stops at the pumps, the driver marvels, and the rig
+  // rolls on.
   var STATION = { x: 580, y: 884, w: 252, h: 156, bldg: [596, 896, 104, 58], pumps: [728, 966, 52, 26], stop: [706, 982] };
   var STADIUM = { cx: 2540, cy: 470, rx: 450, ry: 340 };
   // Terrain (TW-1242): the land has a horizon and a river.
@@ -1654,7 +1653,7 @@
     drawTruck(c, 1680, 770, Math.PI / 2, "#c8c2b4");
     // Buggies park outside the gates on Saturday too, but
     // they are not drawn here anymore (TW-1241): they are the
-    // working rigs of James J Hammond and Dora Weathers, drawn
+    // working rigs of the figures who travel by buggy, drawn
     // in the dynamic layer. They ride in from home, park at
     // these same two spots (2330, 905) and (2765, 905), and
     // wait while their people are inside: the same two rigs
@@ -1959,11 +1958,13 @@
   var buggyCount = 0;
   var npcs = window.LGCY_WORLD_PEOPLE.map(makeFigure);
   npcs.forEach(function (f, i) { f.active = i < outCount; });
-  // First-frame life: two relatives are already out on the plaza
-  // when the visitor arrives, the way both references open.
-  var SPAWN_OUT = { "melvin-andrew-gooden": [762, 1652], "emma-jean-jackson": [2352, 1672], "troy-wright": [1180, 1658] };
-  npcs.forEach(function (f) {
-    var s = SPAWN_OUT[f.rec.id];
+  // First-frame life: the first active relatives are already out
+  // on the plaza when the visitor arrives, the way both
+  // references open. The spots are staging, not records: they
+  // go to the roster's first figures, whoever the pack carries.
+  var SPAWN_OUT = [[762, 1652], [2352, 1672], [1180, 1658]];
+  npcs.forEach(function (f, i) {
+    var s = SPAWN_OUT[i];
     if (s && f.active) {
       f.x = s[0]; f.y = s[1];
       f.state = "dwell"; f.dwellT = rr(2, 5);
@@ -2035,10 +2036,13 @@
   var greetCount = 0;
   var lastGreetEnd = -10;
   function timeLine() {
-    if (hour < 12) return "Good morning, Justynn!";
-    if (hour < 17) return "Good afternoon, Justynn!";
-    if (hour < 22) return "Good evening, Justynn!";
-    return "Good night, Justynn!";
+    // The greeting names the visitor from their own record; an
+    // unnamed visitor (the public preview) is greeted without one.
+    var who = player.rec && player.rec.name ? ", " + player.rec.name : "";
+    if (hour < 12) return "Good morning" + who + "!";
+    if (hour < 17) return "Good afternoon" + who + "!";
+    if (hour < 22) return "Good evening" + who + "!";
+    return "Good night" + who + "!";
   }
   function tryGreet(f, now) {
     if (greetActive || quirkActive || now - lastGreetEnd < 1.2 || f.greetCd > 0) return;
@@ -2083,7 +2087,7 @@
 
   /* ============================ camera ============================= */
   var view = { w: 960, h: 540 };
-  // Zoom law (founder, TW-1238): the camera angle is the
+  // Zoom law (TW-1238): the camera angle is the
   // references' overhead angle at EVERY level; zoom changes
   // scale only, never angle. The closest clamp is the hard stop,
   // set so the framing matches reference-2 (figures large, plaza
@@ -2410,10 +2414,9 @@
     // reach, and the navigation carries that figure's id:
     // person.html renders the card for the id it is given.
     // Before this fix the handler navigated to a bare
-    // "person.html" and threw the hit away; person.html is
-    // the demo's one authored page, Emma Jean Jackson's, so
-    // every figure the founder tapped, moving or dwelling,
-    // resolved to her card.
+    // "person.html" and threw the hit away, so every figure
+    // the visitor tapped, moving or dwelling, resolved to
+    // the same default card instead of their own.
     var best = null, bestD = 42;
     for (var i = 0; i < npcs.length; i++) {
       var f = npcs[i];

@@ -1432,7 +1432,7 @@
       if (spoken) w.sayCool = now + 11 + Math.random() * 9;
     }
   }
-  // The founder's example, wired as data: the buggy's driver is
+  // The standing example, wired as data: the buggy's driver is
   // a person of the buggy's own era, and the filling station is
   // not. When the buggy passes the pumps, the driver marvels.
   function buggySpeechCheck(v) {
