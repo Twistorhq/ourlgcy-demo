@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""Generate the branch collection panel data for app.js (TW-1155).
+"""Generate the branch collection panel data for app.js.
 
-Reads data/lineage-phase1.json (the public layer of the verified
-lineage pack) and rewrites the BRANCHES object in app.js between the
-LINEAGE-PANEL markers. Every panel row is a pack fact with its status
-and source carried along, and every conflict in the pack rides as an
-open-question row with its decider named. Nothing is paraphrased into
-a stronger claim: values print as the pack states them, and person-id
-values resolve to names only.
+Reads data/lineage-phase1.json (a family's lineage pack) and
+rewrites the BRANCHES object in app.js between the LINEAGE-PANEL
+markers. Every panel row is a pack fact with its status and source
+carried along, and every conflict in the pack rides as an
+open-question row with its decider named. Nothing is paraphrased
+into a stronger claim: values print as the pack states them, and
+person-id values resolve to names only.
+
+The public preview pack is empty (TW-1275): the panel generates
+empty with it, and a family's own pack, built from their uploads
+after sign-in, fills it with no code change. Everything below is
+derived from the pack; no person, line, or branch is named here.
 """
 
 import json
@@ -17,13 +22,15 @@ ROOT = Path(__file__).resolve().parent.parent
 PACK = json.loads((ROOT / "data" / "lineage-phase1.json").read_text(encoding="utf-8"))
 PEOPLE = {p["id"]: p for p in PACK["people"]}
 
-PANEL_BRANCH = {
-    "justynn-hammond": "family",
-    "joseph-mathews-sr": "family",
-    "troy-wright": "jackson",
-}
+# A person's panel branch is the first word of their line, lowered;
+# the root person and anyone the pack marks as riding the whole-tree
+# panel can be assigned "family" by the pack's own panel_branch
+# field. Nothing is assigned here by name.
+PANEL_BRANCH = {}
 for _p in PACK["people"]:
-    PANEL_BRANCH.setdefault(_p["id"], _p["line"].split()[0].lower())
+    PANEL_BRANCH[_p["id"]] = _p.get("panel_branch") or _p["line"].split()[0].lower()
+if PACK.get("root_person"):
+    PANEL_BRANCH[PACK["root_person"]] = "family"
 
 FIELD_LABEL = {
     "name": "Name as carried",
@@ -62,39 +69,32 @@ FIELD_LABEL = {
 
 SOURCE_SHORT = {
     "seed-tree": "Family tree",
-    "tw-1148": "TW-1148 research",
-    "tw-1150": "TW-1150 research",
-    "tw-1151": "TW-1151 research",
 }
+# A pack may carry its own source labels in its source_labels map;
+# unlabeled sources print as the pack states them.
+SOURCE_SHORT.update(PACK.get("source_labels", {}))
 
-# Short decider labels for the open-question rows; the full decider
-# text lives in the pack's conflicts array and on person.html.
-DECIDER_SHORT = {
-    ("curtis-franklin-hammond", "birth_year"): "His SS-5 decides",
-    ("emma-jean-jackson", "father"): "Her SS-5 decides",
-    ("oddie-criner-gooden", "death_place"): "Washington Death Index decides",
-    ("andrew-jackson-gooden", "mother"): "His 1960 death certificate decides",
-    ("emma-jean-jackson", "birth_year"): "Her birth record decides",
-    ("dora-weathers", "birth_year"): "Earlier census pulls decide",
-}
+# Short decider labels for the open-question rows, keyed by
+# (person id, field). A pack may carry its own short labels in its
+# decider_short map; the full decider text always lives in the
+# pack's conflicts array and on person.html. Default, when no short
+# label is carried: "Decider named in the pack".
+DECIDER_SHORT = dict(PACK.get("decider_short", {}))
 
-TITLES = {
-    "family": "Justynn's direct lines, the whole tree",
-    "hammond": "Hammond line",
-    "jackson": "Jackson line",
-    "gooden": "Gooden line",
-    "criner": "Criner line",
-}
 
-# The family panel shows anchor facts, one per line plus the root
-# record, then every open question in the pack.
+def branch_title(branch, people):
+    """Panel title for a branch: the line as the pack states it."""
+    for p in people:
+        if PANEL_BRANCH[p["id"]] == branch:
+            return p["line"]
+    return branch
+
+
+# The family panel shows anchor facts, then every open question in
+# the pack. Anchors are derived: the first fact of each of the
+# first six people in the pack who carry facts.
 FAMILY_ANCHORS = [
-    ("frank-hammond", "documentation_status"),
-    ("james-j-hammond", "family_account"),
-    ("emma-jean-jackson", "residence_1940"),
-    ("melvin-andrew-gooden", "birth_date"),
-    ("oddie-criner-gooden", "birth_date"),
-    ("elouise-morris", "migration"),
+    (p["id"], p["facts"][0]["field"]) for p in PACK["people"][:6] if p.get("facts")
 ]
 
 
@@ -132,7 +132,7 @@ def build():
     for p in PACK["people"]:
         by_branch.setdefault(PANEL_BRANCH[p["id"]], []).append(p)
 
-    for branch in ("hammond", "jackson", "gooden", "criner"):
+    for branch in sorted(b for b in by_branch if b != "family"):
         rows = []
         count = 0
         for p in by_branch.get(branch, []):
@@ -143,7 +143,7 @@ def build():
             if PANEL_BRANCH[conf["person"]] == branch:
                 rows.append(conflict_row(conf))
         branches[branch] = {
-            "title": TITLES[branch],
+            "title": branch_title(branch, PACK["people"]),
             "count": count,
             "records": rows,
         }
@@ -157,14 +157,15 @@ def build():
         fam_rows.append(conflict_row(conf))
     total = sum(len(p["facts"]) for p in PACK["people"])
     branches["family"] = {
-        "title": TITLES["family"],
+        "title": "The whole tree",
         "count": total,
         "records": fam_rows,
     }
 
-    ordered = {
-        k: branches[k] for k in ("family", "hammond", "jackson", "gooden", "criner")
-    }
+    ordered = {"family": branches["family"]}
+    for k in sorted(branches):
+        if k != "family":
+            ordered[k] = branches[k]
     return ordered
 
 

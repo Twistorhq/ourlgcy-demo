@@ -1,27 +1,24 @@
 // Our LGCY profile cards (TW-1241).
 //
-// person.html is the demo's one hand-authored page: Emma Jean
-// Jackson's, "A Life, Told Fully". It stays exactly as authored
-// for her (and as the page's default). Every other figure in
-// the world links here with ?id=<their id>, and this script
-// renders THAT person's card from the same phase 1 research
-// pack the world is built from (data/lineage-phase1.json,
-// TW-1155): their cited facts with statuses, the questions
-// the record has not settled, and their family named at the
-// end of the page as links to their own cards, per the
-// founder's card direction (TW-1227).
+// person.html as authored is the story page's blank state:
+// "A Life, Told Fully", waiting for its first person. Every
+// figure in the world and every card on the tree links here
+// with ?id=<their id>, and this script renders THAT person's
+// card from the same lineage pack the tree is built from
+// (data/lineage-phase1.json): their cited facts with statuses,
+// the questions the record has not settled, and their family
+// named at the end of the page as links to their own cards,
+// per the card direction (TW-1227).
 //
-// Before TW-1241, nothing read the id: the world navigated to
-// a bare person.html for every figure, so every tap landed on
-// Emma Jean's page. If a card cannot be loaded, this script
-// says so plainly; it never shows the wrong person. Living
-// people are masked in the pack and get no card here either.
+// If a card cannot be loaded, this script says so plainly; it
+// never shows the wrong person. Living people are masked in
+// the pack and get no card here either.
 
 (function () {
   "use strict";
 
   var id = new URLSearchParams(window.location.search).get("id");
-  if (!id || id === "emma-jean-jackson") return; // authored page stands
+  if (!id) return; // the authored blank page stands
 
   var FIELD_LABELS = {
     birth_date: "Born", birth_year: "Born", birth_year_alt: "Born, the other reading",
@@ -44,8 +41,7 @@
   };
   var SOURCE_LABELS = {
     "seed-tree": "Family tree",
-    "tw-1148": "TW-1148 research",
-    "tw-1151": "TW-1151 research"
+    "demo": "Demo sample"
   };
   var CHIP_CLASS = { Documented: "record", Probable: "family", Lead: "lead" };
 
@@ -92,7 +88,7 @@
       var byId = {};
       people.forEach(function (p) { byId[p.id] = p; });
       var person = byId[id];
-      if (!person) { notice("Not in this preview", "That person is not part of the phase 1 lineage preview."); return; }
+      if (!person) { notice("Not in this tree yet", "That person is not in this tree yet. A story page appears here when a family adds their people."); return; }
       if (person.living || person.masked) {
         notice(person.name, "Living people are masked in this preview, under the family's own privacy rule: no dates and no card. Their place in the tree is held, and that is all this page says.");
         return;
@@ -107,7 +103,7 @@
     document.title = person.name + ": Our LGCY";
     var banner = document.querySelector(".demo-banner span");
     if (banner) {
-      banner.textContent = "This page tells " + person.name + "'s life from the phase 1 research pack. Every fact is cited with its status, and the questions the records have not answered yet are left open, on purpose.";
+      banner.textContent = "This page tells " + person.name + "'s life from the research pack. Every fact is cited with its status, and the questions the records have not answered yet are left open, on purpose.";
     }
 
     var birth = factOf(person, ["birth_date", "birth_year"]);
@@ -161,8 +157,8 @@
     });
 
     // Family named on this page, as links at the end (the
-    // founder's card law): parents, spouses, children, each
-    // opening their own card.
+    // card law): parents, spouses, children, each opening
+    // their own card.
     var kin = "";
     function kinLink(pid, role) {
       var p = byId[pid];
@@ -208,7 +204,7 @@
       "</div></div>" +
       '<p style="margin-top:22px"><strong>How to read this page:</strong> every fact carries its status. ' +
       '<span class="src record">Documented</span> means a captured record states it. ' +
-      '<span class="src family">Probable</span> means family reported or founder supplied, corroborated short of a primary record. ' +
+      '<span class="src family">Probable</span> means family reported, corroborated short of a primary record. ' +
       '<span class="src lead">Lead</span> means a candidate with evidence and a named decider, never presented as a connection. ' +
       "When the record is silent, the page says so, plainly.</p>" +
       '<div class="layout-rail" style="margin-top:26px"><div>' +
