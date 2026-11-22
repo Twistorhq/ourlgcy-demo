@@ -132,10 +132,10 @@
           <input id="r-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="e-r-email">
           <p class="field-error" id="e-r-email">That email does not look complete. Your records key to it, so check it carefully.</p>
         </div>
-        <div class="field" data-rfield="person_name">
+        <div class="field" data-rfield="full_name">
           <label for="r-name">Person's full name</label>
           <p class="hint">Maiden names matter most of all: they are how the women's lines connect.</p>
-          <input id="r-name" name="person_name" type="text" autocomplete="off" placeholder="Full name, maiden name if you know it" aria-describedby="e-r-name">
+          <input id="r-name" name="full_name" type="text" autocomplete="off" placeholder="Full name, maiden name if you know it" aria-describedby="e-r-name">
           <p class="field-error" id="e-r-name">A name is the one thing a record cannot grow without.</p>
         </div>
         <div class="field" data-rfield="relation">
@@ -143,15 +143,11 @@
           <select id="r-relation" name="relation" aria-describedby="e-r-relation">
             <option value="">Choose one</option>
             <option value="self">Myself</option>
-            <option value="mother">Mother</option>
-            <option value="father">Father</option>
-            <option value="grandmother">Grandmother</option>
-            <option value="grandfather">Grandfather</option>
+            <option value="parent">Parent</option>
+            <option value="grandparent">Grandparent</option>
             <option value="spouse">Spouse or partner</option>
             <option value="sibling">Sibling</option>
             <option value="child">Child</option>
-            <option value="aunt-uncle">Aunt or uncle</option>
-            <option value="cousin">Cousin</option>
             <option value="other">Someone else in the family</option>
           </select>
           <p class="field-error" id="e-r-relation">Pick the closest one. It tells the engine where to place them.</p>
@@ -175,9 +171,9 @@
           <label for="r-death-place">Death place</label>
           <input id="r-death-place" name="death_place" type="text" autocomplete="off" placeholder="Town, county, state">
         </div>
-        <div class="field" data-rfield="source">
+        <div class="field" data-rfield="source_label">
           <label for="r-source">Where does this come from?</label>
-          <select id="r-source" name="source" aria-describedby="e-r-source">
+          <select id="r-source" name="source_label" aria-describedby="e-r-source">
             <option value="">Choose one</option>
             <option value="family-record">A family record (Bible, program, letter)</option>
             <option value="document">A document I hold</option>

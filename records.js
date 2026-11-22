@@ -34,6 +34,13 @@
     return y >= 1000 && y <= new Date().getFullYear();
   }
 
+  // The intake contract takes years as integers or null, never as
+  // strings: a blank field goes over the wire as null.
+  function yearOrNull(v) {
+    v = v.trim();
+    return v === "" ? null : parseInt(v, 10);
+  }
+
   var FIELDS = {
     email: {
       el: document.getElementById("r-email"),
@@ -41,7 +48,7 @@
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
       },
     },
-    person_name: {
+    full_name: {
       el: document.getElementById("r-name"),
       ok: function (v) {
         return v.trim().length > 1;
@@ -70,7 +77,7 @@
         return true;
       },
     },
-    source: {
+    source_label: {
       el: document.getElementById("r-source"),
       ok: function (v) {
         return v !== "";
@@ -121,17 +128,18 @@
       return;
     }
 
+    // The payload is the intake README's /records contract exactly:
+    // full_name and source_label, years as integers or null.
     var payload = {
       email: FIELDS.email.el.value.trim(),
-      person_name: FIELDS.person_name.el.value.trim(),
+      full_name: FIELDS.full_name.el.value.trim(),
       relation: FIELDS.relation.el.value,
-      birth_year: FIELDS.birth_year.el.value.trim(),
-      birth_place: PLAIN.birth_place.value.trim(),
-      death_year: FIELDS.death_year.el.value.trim(),
-      death_place: PLAIN.death_place.value.trim(),
-      source: FIELDS.source.el.value,
+      birth_year: yearOrNull(FIELDS.birth_year.el.value),
+      birth_place: PLAIN.birth_place.value.trim() || null,
+      death_year: yearOrNull(FIELDS.death_year.el.value),
+      death_place: PLAIN.death_place.value.trim() || null,
+      source_label: FIELDS.source_label.el.value,
       notes: PLAIN.notes.value.trim(),
-      submitted_at: new Date().toISOString(),
     };
 
     // Preview mode: no endpoint wired. Validate, receipt, store nothing.
@@ -151,17 +159,27 @@
     })
       .then(function (res) {
         if (!res.ok) throw new Error("records " + res.status);
-        added += 1;
-        successTitle.textContent = "Added: " + payload.person_name + ".";
-        successBody.textContent =
-          "That record is on your tree now. Add the next person whenever you are ready.";
+        // The contract answers 201 when the record is stored and 200
+        // when that exact record was already on the tree; the receipt
+        // says which one happened.
+        if (res.status === 200) {
+          successTitle.textContent =
+            "Already on your tree: " + payload.full_name + ".";
+          successBody.textContent =
+            "That exact record was already there, so nothing changed. Add the next person whenever you are ready.";
+        } else {
+          added += 1;
+          successTitle.textContent = "Added: " + payload.full_name + ".";
+          successBody.textContent =
+            "That record is on your tree now. Add the next person whenever you are ready.";
+        }
         countLine.textContent =
           added === 1
             ? "1 record added in this visit."
             : added + " records added in this visit.";
         successNote.classList.add("show");
         // Keep the email and the rhythm; clear the person fields.
-        ["person_name", "relation", "birth_year", "death_year", "source"].forEach(
+        ["full_name", "relation", "birth_year", "death_year", "source_label"].forEach(
           function (key) {
             FIELDS[key].el.value = "";
             mark(key, true);
@@ -170,7 +188,7 @@
         PLAIN.birth_place.value = "";
         PLAIN.death_place.value = "";
         PLAIN.notes.value = "";
-        FIELDS.person_name.el.focus();
+        FIELDS.full_name.el.focus();
       })
       .catch(function () {
         errorNote.classList.add("show");
