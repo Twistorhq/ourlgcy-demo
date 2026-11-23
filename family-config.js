@@ -20,3 +20,9 @@ window.LGCY_PACK_ENDPOINT = "https://ourlgcy-intake.fly.dev/pack";
 // list. Same fallback rule as the others: unset means preview mode.
 window.LGCY_PROFILE_ENDPOINT = "https://ourlgcy-intake.fly.dev/profile";
 window.LGCY_UPLOADS_ENDPOINT = "https://ourlgcy-intake.fly.dev/uploads";
+// TW-1307: hints.js reads window.LGCY_KIN_QUESTIONS_ENDPOINT for
+// the member's pending kin questions (the TW-1278 contract), the
+// same global the kin layer reads on its own branch. Until the
+// intake deploy carries the route, the read answers 404 and the
+// hint layer stays inert: no badge, no count, no error.
+window.LGCY_KIN_QUESTIONS_ENDPOINT = "https://ourlgcy-intake.fly.dev/kin-questions";

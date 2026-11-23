@@ -1441,3 +1441,260 @@ body.home .demo-banner { position: relative; z-index: 2; }
   .world-bubble { font-size: 13.5px; max-width: 190px; }
   .world-caption { grid-template-columns: 1fr; }
 }
+
+/* ================================================================
+   TW-1307: CARDS THAT POP LIKE BUTTONS + THE MAPLE-LEAF HINTS.
+   Every card on the site gets the same raised treatment: a toned
+   face, a firmer edge, a sole (the offset shadow under the card's
+   bottom edge) and a soft lift shadow, so a card reads as a thing
+   you can press. The tones are muted and drawn from the oak:
+   collard, parchment, clay, slate-leaf, sorghum. They cycle by
+   position inside a card group, so neighbours are never one flat
+   repeated colour: the palette matches the theme without being
+   matchy. Text pairs were measured before they were chosen:
+   ink 12.6:1 or better, meta 5.8:1 or better, gold-deep 4.9:1
+   or better on every tone (WCAG ratios, TW-1307 gate note).
+   The photographic oak and the fauna are untouched: the journey
+   tones carry alpha and frost like the cards always have.
+   ================================================================ */
+:root {
+  --tone-collard: #e8efe3;   --edge-collard: #7d9270;   --sole-collard: #5f7a52;
+  --tone-parchment: #f4ecd7; --edge-parchment: #b39b5e; --sole-parchment: #96793c;
+  --tone-clay: #f1e2d3;      --edge-clay: #b08159;      --sole-clay: #96684a;
+  --tone-slate: #dfe7e4;     --edge-slate: #71857f;     --sole-slate: #587068;
+  --tone-sorghum: #f3e7c6;   --edge-sorghum: #b08d3e;   --sole-sorghum: #8f6f2a;
+  --maple: #b04a24;
+  --maple-deep: #8f3c10;
+  --card-lift: 0 10px 20px rgba(26, 18, 7, 0.16);
+  --card-lift-hover: 0 16px 28px rgba(26, 18, 7, 0.22);
+}
+
+/* --- Person cards on the tree (journey + your-tree) --- */
+.pcard {
+  --cbg: rgba(244, 236, 215, 0.93);
+  --cedge: var(--edge-parchment);
+  --csole: var(--sole-parchment);
+  background: var(--cbg);
+  border: 1.5px solid var(--cedge);
+  box-shadow: 0 3px 0 var(--csole), var(--card-lift);
+  transition: translate 0.18s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+a.pcard:focus-visible { translate: 0 -2px; }
+.cluster .pcard:not(.focus):nth-of-type(5n+1),
+.couple .pcard:not(.focus):nth-of-type(5n+1) {
+  --cbg: rgba(232, 239, 227, 0.93); --cedge: var(--edge-collard); --csole: var(--sole-collard);
+}
+.cluster .pcard:not(.focus):nth-of-type(5n+2),
+.couple .pcard:not(.focus):nth-of-type(5n+2) {
+  --cbg: rgba(241, 226, 211, 0.93); --cedge: var(--edge-clay); --csole: var(--sole-clay);
+}
+.cluster .pcard:not(.focus):nth-of-type(5n+3),
+.couple .pcard:not(.focus):nth-of-type(5n+3) {
+  --cbg: rgba(244, 236, 215, 0.93); --cedge: var(--edge-parchment); --csole: var(--sole-parchment);
+}
+.cluster .pcard:not(.focus):nth-of-type(5n+4),
+.couple .pcard:not(.focus):nth-of-type(5n+4) {
+  --cbg: rgba(223, 231, 228, 0.94); --cedge: var(--edge-slate); --csole: var(--sole-slate);
+}
+.cluster .pcard:not(.focus):nth-of-type(5n),
+.couple .pcard:not(.focus):nth-of-type(5n) {
+  --cbg: rgba(243, 231, 198, 0.93); --cedge: var(--edge-sorghum); --csole: var(--sole-sorghum);
+}
+.pcard:hover {
+  translate: 0 -2px;
+  box-shadow: 0 3px 0 var(--csole), var(--card-lift-hover);
+}
+.pcard:active {
+  translate: 0 1px;
+  box-shadow: 0 1px 0 var(--csole), 0 5px 12px rgba(26, 18, 7, 0.18);
+}
+/* The lift rides the standalone translate property, never
+   transform: the journey reveal owns transform (its entrance
+   easing would otherwise swallow or delay the press states),
+   and translate composes with it untouched, so a card can be
+   mid-reveal and still answer the pointer. */
+.pcard.focus {
+  background: rgba(255, 253, 247, 0.96);
+  box-shadow: 0 0 0 1px rgba(185, 135, 44, 0.55), 0 3px 0 var(--sole-parchment), var(--card-lift);
+}
+.pcard.in-line {
+  box-shadow: 0 0 0 2px rgba(185, 135, 44, 0.55), 0 3px 0 var(--csole), var(--card-lift);
+}
+
+/* --- Community roster cards --- */
+.roster-btn {
+  --cbg: var(--tone-parchment); --cedge: var(--edge-parchment); --csole: var(--sole-parchment);
+  position: relative;
+  background: var(--cbg);
+  border: 1.5px solid var(--cedge);
+  box-shadow: 0 3px 0 var(--csole), 0 6px 14px rgba(26, 18, 7, 0.12);
+  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.roster-list > li:nth-child(5n+1) .roster-btn { --cbg: var(--tone-collard); --cedge: var(--edge-collard); --csole: var(--sole-collard); }
+.roster-list > li:nth-child(5n+2) .roster-btn { --cbg: var(--tone-clay); --cedge: var(--edge-clay); --csole: var(--sole-clay); }
+.roster-list > li:nth-child(5n+3) .roster-btn { --cbg: var(--tone-parchment); --cedge: var(--edge-parchment); --csole: var(--sole-parchment); }
+.roster-list > li:nth-child(5n+4) .roster-btn { --cbg: var(--tone-slate); --cedge: var(--edge-slate); --csole: var(--sole-slate); }
+.roster-list > li:nth-child(5n) .roster-btn { --cbg: var(--tone-sorghum); --cedge: var(--edge-sorghum); --csole: var(--sole-sorghum); }
+.roster-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 0 var(--csole), var(--card-lift-hover);
+}
+.roster-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--csole), 0 4px 10px rgba(26, 18, 7, 0.14);
+}
+
+/* --- Case record cards: a pair, two tones, top accent kept --- */
+.record-card {
+  background: var(--tone-parchment);
+  border-color: var(--edge-parchment);
+  box-shadow: 0 3px 0 var(--sole-parchment), var(--card-lift);
+}
+.record-card.native {
+  background: var(--tone-slate);
+  border-color: var(--edge-slate);
+  box-shadow: 0 3px 0 var(--sole-slate), var(--card-lift);
+}
+
+/* --- Panels and form cards on the paper pages --- */
+.rail-box {
+  background: var(--tone-collard);
+  border-color: var(--edge-collard);
+  box-shadow: 0 3px 0 var(--sole-collard), 0 8px 18px rgba(26, 18, 7, 0.10);
+}
+form.claim, div.claim {
+  background: var(--tone-parchment);
+  border-color: var(--edge-parchment);
+  box-shadow: 0 3px 0 var(--sole-parchment), var(--card-lift);
+}
+/* reference.html's panel is a div.claim: it never matched the
+   form.claim base rule, so it stood unstyled. It is a card now,
+   with the form card's padding. */
+div.claim {
+  border: 1px solid var(--edge-parchment);
+  border-radius: var(--radius);
+  padding: 26px;
+}
+.collection-panel {
+  background: var(--tone-parchment);
+  box-shadow: 0 3px 0 var(--sole-parchment), 0 18px 38px rgba(26, 18, 7, 0.28);
+}
+.upload-box {
+  background: var(--tone-sorghum);
+  border-color: var(--edge-sorghum);
+  box-shadow: 0 3px 0 var(--sole-sorghum), 0 8px 18px rgba(26, 18, 7, 0.10);
+}
+.dropzone.home-drop {
+  background: rgba(244, 236, 215, 0.94);
+  box-shadow: 0 3px 0 var(--sole-parchment), var(--card-lift);
+}
+.yt-empty { box-shadow: 0 3px 0 rgba(233, 201, 121, 0.45); }
+
+/* --- Buttons carry the same sole, and press like the cards --- */
+.btn {
+  background: #fffdf7;
+  border-color: #a99e80;
+  box-shadow: 0 3px 0 rgba(125, 108, 72, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+}
+.btn:hover { background: var(--tone-parchment); transform: translateY(-1px); }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(125, 108, 72, 0.55); }
+.btn-pine { background: var(--pine); border-color: var(--pine-deep); box-shadow: 0 3px 0 #0d1f14; }
+.btn-pine:hover { background: var(--pine-soft); box-shadow: 0 3px 0 #0d1f14; }
+.btn-pine:active { box-shadow: 0 1px 0 #0d1f14; }
+
+/* --- The maple leaf: hint badge + the leaf-count indicator ---
+   A hint is a clue, never a fact. FIX ROUND (founder's eye,
+   Nov 23, 2026): the first leaf read as a sunburst and was
+   discarded; the leaf is now drawn to the classic maple
+   silhouette of the 🍁 emoji (five lobes, deep sinuses,
+   serrated teeth, stem) in a fall gradient, and the count
+   rides at the leaf's heart, not low on it. The profile mount
+   is seated inside its block, aligned with the heading, not
+   poking above it. NOTO SWAP (founder's word, Nov 23, 2026):
+   the drawing itself is now Google's Noto Emoji 🍁 artwork,
+   inlined in hints.js (license record in the README credits);
+   no rule below changed for the swap — the count's 800-weight
+   white numeral with its deep-ink shadow stays legible on the
+   illustrated leaf's heart, so no halo or disc covers it.
+   FOUNDER RULING + REFINEMENT (Nov 23, 2026):
+   hint notifications live ONLY on the tree: the badge sits at
+   the upper right corner of a tree card, and the aggregate
+   indicator is a MAPLE LEAF CARRYING THE COUNT AS A NUMBER ON
+   THE LEAF, mounted at the upper right of the tree view and
+   at the top right of the profile's tree. Never a plain
+   circle badge, and no header indicator anywhere.
+   FOUNDER UX REFINEMENT (Nov 23, 2026): the badge is the LEAF
+   ALONE — no visible word, no count on it — and it is a link
+   into the person's card, landing on the connection hint
+   inside (the .connection-hint block below). It keeps the
+   cards' button feel: a raised leaf button that lifts on
+   hover and presses on active. */
+.hint-badge {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; padding: 0;
+  background: #faf3e3; border: 1.5px solid var(--maple); border-radius: 999px;
+  box-shadow: 0 2px 0 rgba(125, 108, 72, 0.45);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.hint-badge svg { width: 21px; height: 21px; flex: 0 0 auto; }
+a.hint-badge:hover { transform: translateY(-1px); box-shadow: 0 3px 0 rgba(125, 108, 72, 0.45); }
+a.hint-badge:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(125, 108, 72, 0.45); }
+a.hint-badge:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.pcard.has-hint .pname { padding-right: 46px; }
+
+/* Inside the person's card, the hint is a CONNECTION hint:
+   relational language composed from the link evidence, the
+   engine's question quoted under it, and the honesty line.
+   It sits at the top of the card, under the person's head,
+   and carries the #hint anchor the tree's corner leaf lands
+   on, so it needs air above it under the sticky header. */
+.connection-hint {
+  margin-top: 26px; padding: 18px 20px 14px;
+  background: #f8efdb; border: 1.5px solid var(--maple); border-radius: 10px;
+  box-shadow: 0 3px 0 rgba(125, 108, 72, 0.35);
+  scroll-margin-top: 96px;
+}
+.connection-title {
+  display: flex; align-items: center; gap: 9px;
+  margin: 0 0 6px; font-size: 1.3rem; line-height: 1.2;
+}
+.connection-title svg { width: 24px; height: 24px; flex: 0 0 auto; }
+.connection-item { margin-top: 10px; }
+.connection-line { margin: 0 0 4px; font-size: 1.05rem; }
+.connection-question { margin: 0; font-style: italic; }
+.connection-question a { font-style: normal; }
+.connection-note { margin: 12px 0 4px; font-size: 0.92rem; color: #6e3418; }
+
+.leaf-count {
+  position: absolute; top: 16px; z-index: 3;
+  right: max(24px, calc((100vw - var(--maxw)) / 2 + 24px));
+  width: 48px; height: 48px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--maple); text-decoration: none;
+  filter: drop-shadow(0 2px 2px rgba(26, 18, 7, 0.35));
+  transition: transform 0.16s ease;
+}
+.leaf-count svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.leaf-count .leaf-num {
+  position: relative; margin-top: -5px;
+  color: #fff; font-size: 1.02rem; font-weight: 800; line-height: 1;
+  text-shadow: 0 1px 2px rgba(60, 20, 5, 0.6);
+}
+.leaf-count:hover { transform: translateY(-2px) rotate(-4deg); color: var(--maple); }
+.leaf-count:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 50%; }
+/* The profile mount: the leaf anchors to the tree block there,
+   at its top right, not to the page. It seats INSIDE the
+   block, its top aligned with the block's heading line, flush
+   to the block's right edge, so it reads as part of the tree
+   block rather than a sticker floated over it. */
+.leaf-anchor { position: relative; }
+.leaf-count.in-profile { top: 2px; right: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pcard, .roster-btn, .btn, .leaf-count, .hint-badge { transition: none; }
+  .roster-btn:hover, .btn:hover, .leaf-count:hover, a.hint-badge:hover { transform: none; }
+  .roster-btn:active, .btn:active { transform: none; }
+  .pcard:hover, .pcard:active, a.pcard:focus-visible { translate: none; }
+}
