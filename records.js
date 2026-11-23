@@ -14,6 +14,8 @@
 
   var ENDPOINT =
     (typeof window !== "undefined" && window.LGCY_RECORDS_ENDPOINT) || "";
+  var PACK_ENDPOINT =
+    (typeof window !== "undefined" && window.LGCY_PACK_ENDPOINT) || "";
 
   var form = document.getElementById("record-form");
   if (!form) return;
@@ -24,8 +26,42 @@
   var successBody = document.getElementById("record-success-body");
   var countLine = document.getElementById("record-count");
   var errorNote = document.getElementById("record-error-note");
+  var treeNote = document.getElementById("record-tree-note");
+  var treeList = document.getElementById("record-tree-list");
   var errorDetail = document.getElementById("record-error-detail");
   var added = 0;
+
+  // TW-1284: after a record lands, read the tree back and show who
+  // stands on it. The receipt alone asked the visitor to trust the
+  // push; the read-back proves it, on the same page, no reload.
+  function showTreeSoFar(email) {
+    if (!PACK_ENDPOINT || !treeNote || !treeList) return;
+    fetch(PACK_ENDPOINT + "?email=" + encodeURIComponent(email), {
+      headers: { Accept: "application/json" },
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("pack " + res.status);
+        return res.json();
+      })
+      .then(function (pack) {
+        var people = (pack && pack.people) || [];
+        if (!people.length) return;
+        treeList.innerHTML = people
+          .map(function (p) {
+            var name = String(p.name == null ? "" : p.name)
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+            return "<li>" + name + "</li>";
+          })
+          .join("");
+        treeNote.classList.add("show");
+      })
+      .catch(function () {
+        // The record itself saved; a failed read-back never
+        // rewrites that. The tree page will show it.
+      });
+  }
 
   // A refusal from the archive carries its reason, field by field.
   // The visitor hears THAT reason in plain words, never a generic
@@ -196,7 +232,7 @@
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Adding...";
+    submitBtn.textContent = "Saving to your tree...";
     fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -242,6 +278,16 @@
             ? "1 record added in this visit."
             : added + " records added in this visit.";
         successNote.classList.add("show");
+        // The record keys to this email; the session takes it, so
+        // the tree page opens in their own mode from here on.
+        if (window.LGCYSession) {
+          window.LGCYSession.setEmail(payload.email);
+        } else {
+          try {
+            window.sessionStorage.setItem("lgcy-signup-email", payload.email);
+          } catch (err) {}
+        }
+        showTreeSoFar(payload.email);
         // Keep the email and the rhythm; clear the person fields.
         ["full_name", "relation", "birth_year", "death_year", "source_label"].forEach(
           function (key) {
@@ -263,7 +309,7 @@
       })
       .then(function () {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Add this record";
+        submitBtn.textContent = "Add to my tree";
       });
   });
 })();

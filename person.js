@@ -215,3 +215,55 @@
       "</div></div></div>";
   }
 })();
+
+// TW-1284: the stories page in own mode. A signed-in visitor never
+// meets the demo here: the "Your people" block (data-own-only in
+// person.html, so it only exists on screen for them) fills from
+// their own pack, and stands as an honest empty state until their
+// first record lands.
+(function () {
+  "use strict";
+
+  var list = document.getElementById("your-people-list");
+  var empty = document.getElementById("your-people-empty");
+  if (!list) return;
+  var S = window.LGCYSession;
+  var PACK_EP =
+    (typeof window !== "undefined" && window.LGCY_PACK_ENDPOINT) || "";
+  if (!S || !S.isSignedIn() || !PACK_EP) return;
+
+  function esc(s) {
+    return S.esc(s);
+  }
+
+  fetch(PACK_EP + "?email=" + encodeURIComponent(S.getEmail()), {
+    headers: { Accept: "application/json" },
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error("pack " + res.status);
+      return res.json();
+    })
+    .then(function (pack) {
+      var people = (pack && pack.people) || [];
+      if (!people.length) return; // the empty state already stands
+      if (empty) empty.style.display = "none";
+      list.innerHTML = people
+        .map(function (p) {
+          var meta =
+            p.living || p.masked
+              ? "Living, held private"
+              : p.born
+                ? "b. " + p.born
+                : "Dates not yet on file";
+          return (
+            '<li><span class="pp-name">' + esc(p.name) + "</span>" +
+            '<span class="pp-meta">' + esc(meta) + "</span></li>"
+          );
+        })
+        .join("");
+    })
+    .catch(function () {
+      // The empty state wording covers a quiet failure too: it
+      // invites the first record rather than inventing a list.
+    });
+})();

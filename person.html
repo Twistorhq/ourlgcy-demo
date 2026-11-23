@@ -22,12 +22,13 @@
         <li><a href="upload.html">Add Your Records</a></li>
         <li><a href="reference.html">Reference Center</a></li>
         <li><a href="family.html">Start Your Tree</a></li>
+        <li><a href="profile.html">Your Profile</a></li>
       </ul>
     </nav>
   </div>
 </header>
 
-<div class="demo-banner" role="note">
+<div class="demo-banner" role="note" data-demo-only>
   <div class="wrap">
     <strong>Demo preview.</strong>
     <span>This is a story page, waiting for its first person. When a family adds their tree, each person gets a page like this one, built from their own records: every fact cited with its status, and the questions the records have not answered yet left open, on purpose.</span>
@@ -49,6 +50,13 @@
         <p style="margin-top:18px"><a class="btn btn-pine" href="family.html">Begin your tree</a> <a class="btn" href="upload.html">Add your records</a></p>
       </div>
     </div>
+
+    <section data-own-only style="margin-top:26px" id="your-people">
+      <h2>Your people</h2>
+      <p>You are signed in, so the demo is off here. Story pages are built from your records, one person at a time. These are the people on your tree so far:</p>
+      <ul class="profile-people" id="your-people-list"></ul>
+      <p id="your-people-empty">Nothing here yet: this fills with your family's stories as your tree grows. <a href="family.html#start-tree">Add your first record</a></p>
+    </section>
 
     <p style="margin-top:22px"><strong>How to read this page:</strong> every fact carries its status. <span class="src record">Documented</span> means a captured record states it. <span class="src family">Probable</span> means family reported, corroborated short of a primary record. <span class="src lead">Lead</span> means a candidate with evidence and a named decider, never presented as a connection. When the record is silent, the page says so, plainly.</p>
 
@@ -108,6 +116,8 @@
 </footer>
 
 <script src="app.js"></script>
+<script src="family-config.js"></script>
+<script src="session.js"></script>
 <script src="person.js"></script>
 </body>
 </html>

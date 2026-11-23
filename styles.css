@@ -476,17 +476,29 @@ form.claim {
 /* ---------- Footer ---------- */
 
 /* The tree's one demo-data note (TW-1275): sits at the bottom of
-   the tree, under the base section, in the footer's own voice. */
+   the tree, under the base section, in the footer's own voice.
+   TW-1284: the note rides the same calmed band as the your-tree
+   section, so the words at the bottom of the page never sit raw
+   on the oak photograph where bright foliage swallows them. */
 .demo-note {
   position: relative; z-index: 2;
-  max-width: 44em; margin: 0 auto; padding: 10px 24px 54px;
+  margin: 0; padding: 18px 24px 30px;
   text-align: center; font-size: 0.88rem; color: #e8e0c8;
-  text-shadow: 0 1px 2px rgba(20, 14, 4, 0.55);
+  background: rgba(14, 24, 17, 0.88);
 }
+.demo-note > span { display: block; max-width: 44em; margin: 0 auto; }
 
 /* ---------- Your tree (TW-1276) ---------- */
 
-/* The lookup sits on the oak, in the demo note's own voice. */
+/* The lookup sits at the bottom of the page. TW-1284: the whole
+   section rides a calmed deep band over the oak, so its words and
+   the tree it renders are always readable, never fighting the
+   photograph or the era rail for the same patch of screen. */
+.section.yt {
+  position: relative; z-index: 2;
+  background: rgba(14, 24, 17, 0.88);
+  border-top: 1px solid rgba(233, 201, 121, 0.35);
+}
 .yt .section-head h2, .yt .section-head p { color: #efe8d2; }
 .yt .section-head .eyebrow { color: #cdbf96; }
 .yt-form { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; max-width: 34em; }
@@ -507,6 +519,89 @@ body.your-tree-on .buck-break,
 body.your-tree-on .demo-note,
 body.your-tree-on .era-rail,
 body.your-tree-on .follow-pill { display: none; }
+
+/* ---------- Session modes (TW-1284) ----------
+   session.js stamps the body lgcy-demo or lgcy-own. The founder
+   rule: signed in means the demo flag is OFF everywhere, so demo
+   furniture stands down and own-mode furniture stands up, on
+   every page, from the one helper. */
+body.lgcy-own [data-demo-only] { display: none !important; }
+[data-own-only] { display: none !important; }
+body.lgcy-own [data-own-only] { display: block !important; }
+body.lgcy-own .yt-form { display: none; }
+.yt-signedin { color: #efe8d2; max-width: 40em; }
+.yt-signedin a { color: #e9c979; }
+.yt-empty {
+  color: #efe8d2; max-width: 40em; margin-top: 18px;
+  border: 1px solid rgba(233, 201, 121, 0.4); border-radius: 12px;
+  padding: 18px 20px; background: rgba(255, 250, 240, 0.06);
+}
+.yt-empty p { margin: 0 0 12px; }
+.yt-empty p:last-child { margin-bottom: 0; }
+
+/* Past the journey (TW-1284): once the bottom zone arrives, the
+   fixed era rail and the follow pill step aside entirely, so no
+   year label or control ever sits on top of the words at the
+   bottom of the page. app.js toggles the class in its scroll
+   engine; your-tree mode already removes both outright. */
+.era-rail, .follow-pill { transition: opacity 0.35s ease, visibility 0.35s ease; }
+body.past-journey .era-rail,
+body.past-journey .follow-pill { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* The profile corner is a real door now (TW-1284). */
+a.member-medal { text-decoration: none; cursor: pointer; }
+a.member-medal:hover { border-color: #7c5c1e; background: #e6d3a3; }
+a.member-medal:focus-visible { outline: 3px solid var(--gold-deep); outline-offset: 2px; }
+
+/* ---------- Profile (TW-1284) ---------- */
+/* The three states (loading, sign-in, profile) swap inside one
+   reserved zone, so the footer never gets pushed down the page
+   when the real panel lands. */
+.profile-zone { min-height: 540px; }
+@media (max-width: 720px) {
+  .profile-zone { min-height: 640px; }
+}
+.profile-facts { margin: 0 0 8px; }
+.profile-facts .fact {
+  display: flex; gap: 14px; padding: 9px 0;
+  border-bottom: 1px solid rgba(70, 54, 28, 0.16);
+}
+.profile-facts .fact:last-child { border-bottom: none; }
+.profile-facts dt { flex: 0 0 9.5em; font-weight: 700; color: var(--pine-deep); }
+.profile-facts dd { margin: 0; }
+.profile-people { list-style: none; padding: 0; margin: 0 0 8px; }
+.profile-people li {
+  padding: 9px 0; border-bottom: 1px solid rgba(70, 54, 28, 0.16);
+  display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
+}
+.profile-people li:last-child { border-bottom: none; }
+.profile-people .pp-name { font-weight: 700; }
+.profile-people .pp-meta { color: var(--ink-soft); font-size: 0.95rem; }
+.upload-box {
+  border: 1.5px dashed rgba(70, 54, 28, 0.45); border-radius: 12px;
+  padding: 20px; background: #fbf7ec;
+}
+.upload-pick { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.upload-file-line { margin: 12px 0 0; font-size: 0.97rem; }
+.upload-progress {
+  height: 10px; border-radius: 5px; margin-top: 14px;
+  background: rgba(70, 54, 28, 0.16); overflow: hidden;
+}
+.upload-progress > span {
+  display: block; height: 100%; width: 0;
+  background: var(--pine); transition: width 0.2s ease;
+}
+.uploads-list { list-style: none; padding: 0; margin: 14px 0 0; }
+.uploads-list li {
+  padding: 9px 0; border-bottom: 1px solid rgba(70, 54, 28, 0.16);
+  display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
+}
+.uploads-list li:last-child { border-bottom: none; }
+.uploads-list .up-meta { color: var(--ink-soft); font-size: 0.92rem; }
+
+/* The records the visitor just saved, read back from their tree
+   on the spot (TW-1284): the proof the push landed. */
+#record-tree-note ul { margin: 8px 0 0; padding-left: 1.2em; }
 
 .site-footer {
   background: var(--pine-deep);

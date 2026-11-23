@@ -22,15 +22,23 @@
         <li><a href="upload.html">Add Your Records</a></li>
         <li><a href="reference.html">Reference Center</a></li>
         <li><a href="family.html" aria-current="page">Start Your Tree</a></li>
+        <li><a href="profile.html">Your Profile</a></li>
       </ul>
     </nav>
   </div>
 </header>
 
-<div class="demo-banner" role="note">
+<div class="demo-banner" role="note" data-demo-only>
   <div class="wrap">
     <strong>Free beta.</strong>
     <span>This is the friends and family beta, and it is live. Signing up joins the family's private list, and the records you add below grow your own tree. The sample family on the tree page is demo data.</span>
+  </div>
+</div>
+
+<div class="demo-banner" role="note" data-own-only>
+  <div class="wrap">
+    <strong>Signed in.</strong>
+    <span>The demo is off for you: your tree, your stories, and your community now show your family's own. <a href="profile.html">Your profile</a></span>
   </div>
 </div>
 
@@ -224,7 +232,7 @@
           <p class="hint">Anything that helps place them: a church, a town they lived in, a story in one line.</p>
           <textarea id="r-notes" name="notes" placeholder="What you know, in your own words"></textarea>
         </div>
-        <button class="btn btn-pine" type="submit" id="record-submit">Add this record</button>
+        <button class="btn btn-pine" type="submit" id="record-submit">Add to my tree</button>
         <p class="privacy-line">Your records go to your private tree only. They never appear on the public site, and they are never sold.</p>
         <div class="form-note" id="record-preview-note" role="status">
           <strong>Preview receipt.</strong> In this preview nothing was sent and nothing was stored. On the live page, each record you add lands on your own tree the moment you send it.
@@ -232,6 +240,10 @@
         <div class="form-note" id="record-success-note" role="status">
           <strong id="record-success-title">Added.</strong> <span id="record-success-body"></span>
           <p style="margin:8px 0 0"><a href="index.html#your-tree">See your tree</a> · <span id="record-count"></span></p>
+        </div>
+        <div class="form-note" id="record-tree-note" role="status">
+          <strong>On your tree now</strong>, read back from the tree itself:
+          <ul id="record-tree-list"></ul>
         </div>
         <div class="form-note error" id="record-error-note" role="alert">
           <strong>That record did not go through, and nothing was saved.</strong> <span id="record-error-detail">Your answers are still in the form. Check your connection and send again.</span>
@@ -261,6 +273,7 @@
 
 <script src="app.js"></script>
 <script src="family-config.js"></script>
+<script src="session.js"></script>
 <script src="family.js"></script>
 <script src="records.js"></script>
 </body>

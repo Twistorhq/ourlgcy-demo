@@ -49,7 +49,7 @@
       <button class="icon-btn" type="button" aria-label="Search (not wired in this preview)">
         <svg aria-hidden="true"><use href="#icon-search"/></svg>
       </button>
-      <span class="member-medal" role="img" aria-label="Your member medallion (demo)">M</span>
+      <a class="member-medal" href="profile.html" aria-label="Your profile: sign in or see your tree, records, and uploads">M</a>
     </div>
   </div>
 </header>
@@ -118,8 +118,9 @@
       <div class="section-head">
         <p class="eyebrow">Your tree</p>
         <h2>The tree that is yours</h2>
-        <p>Signed up and added records? Enter the email you signed up with, and your tree appears here, grown from your records alone. The sample tree above is demo data, here to show how a tree grows. Yours begins blank and fills only with what your family sends.</p>
+        <p id="yt-intro">Signed up and added records? Enter the email you signed up with, and your tree appears here, grown from your records alone. The sample tree above is demo data, here to show how a tree grows. Yours begins blank and fills only with what your family sends.</p>
       </div>
+      <p class="yt-signedin" data-own-only id="yt-signedin"></p>
       <form class="yt-form" id="yt-form" novalidate>
         <div class="field">
           <label for="yt-email">Your signup email</label>
@@ -131,14 +132,14 @@
       <div id="yt-results" hidden>
         <div class="yt-head">
           <h3 id="yt-title">Your tree</h3>
-          <button class="btn" type="button" id="yt-back">Back to the sample tree</button>
+          <button class="btn" type="button" id="yt-back" data-demo-only>Back to the sample tree</button>
         </div>
         <div id="yt-groups"></div>
       </div>
     </div>
   </section>
 
-  <p class="demo-note" id="demo-note">Demo data: the people on this tree are a small invented sample family, here to show how a tree grows. Your own tree begins blank, and fills only with your family's records.</p>
+  <p class="demo-note" id="demo-note"><span>Demo data: the people on this tree are a small invented sample family, here to show how a tree grows. Your own tree begins blank, and fills only with your family's records.</span></p>
 </main>
 
 <div class="follow-pill">
@@ -180,6 +181,7 @@
 
 <script src="app.js"></script>
 <script src="family-config.js"></script>
+<script src="session.js"></script>
 <script src="your-tree.js"></script>
 <script type="importmap">
 {
