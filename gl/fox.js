@@ -19,7 +19,10 @@
 //     shadow of the outcrop, buck.js), plus a deep shade
 //     tint on his coat, so he sits IN shadow, not on a
 //     black box. He is not trying to be seen, but a viewer
-//     who looks knows he is there.
+//     who looks knows he is there. The shade runs deeper
+//     at the narrow stance, where the same treatment read
+//     brighter on phones (final pass, the founder's
+//     ruling; see the shade-depth table below).
 //   - The scurry. His signature behavior: after a long
 //     still spell in the shade he darts out of the frame
 //     along the ground, low and quick, the authored Walk
@@ -100,6 +103,24 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
   var SPOT_WIDE = { x: 2.30, z: 0.62, exit: 3.4 };
   var SPOT_NARROW = { x: 0.90, z: 0.35, exit: 1.6 };
 
+  // Shade depth per stance (final pass, the founder's
+  // ruling on Rosa's re-gate note N2: "Deepen the mobile
+  // shade first, then merge"). The wide values are the
+  // approved desktop read and do not move. At the narrow
+  // stance the same treatment read brighter: the veil's
+  // core lands off the animal there and the phone framing
+  // puts him against a brighter reach of the photograph,
+  // so the narrow stance runs the same construction
+  // deeper (a deeper coat tint, the veil scaled up and
+  // centered on the animal, the pool spread wider) until
+  // the phone read matches the desktop's level of hidden.
+  var TINT_WIDE = [0.34, 0.325, 0.31];
+  var TINT_NARROW = [0.231, 0.221, 0.211];
+  var POOL_SCALE_WIDE = [0.92, 1.38];
+  var POOL_SCALE_NARROW = [1.12, 1.6];
+  var VEIL_WIDE = { off: [0.35, 0.72, -0.55], scale: [1, 1] };
+  var VEIL_NARROW = { off: [0.0, 0.5, -0.5], scale: [1.35, 1.3] };
+
   // The scurry path: local direction (1, 0, 0.55), which
   // the group's mirror and turn carry to screen-left and
   // slightly away, into the picture. Measured exit travel
@@ -124,6 +145,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
   var pool = null;
   var veil = null;
   var animal = null;
+  var animalMats = [];
   var idleAction = null;
   var walkAction = null;
 
@@ -152,6 +174,13 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     var buck = window.__lgcyBuck;
     return (buck && buck.camera && buck.camera.aspect < 1.1)
       ? SPOT_NARROW : SPOT_WIDE;
+  }
+
+  // The buck layer's own narrow test, shared by every
+  // per-stance choice above so they all flip together.
+  function isNarrow() {
+    var buck = window.__lgcyBuck;
+    return !!(buck && buck.camera && buck.camera.aspect < 1.1);
   }
 
   function shadowTexture() {
@@ -212,6 +241,13 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     if (!pool) return;
     var s = spot();
     pool.position.set(s.x, apronY(s.z) + 0.004, s.z);
+    // The pool's spread is per stance (see the shade-depth
+    // table): wider on phones, where his hollow must hold
+    // more of the frame's ground to read as shade. This
+    // supersedes the creation-time scale on every stance
+    // application, the first one included.
+    var ps = isNarrow() ? POOL_SCALE_NARROW : POOL_SCALE_WIDE;
+    pool.scale.set(ps[0], ps[1], 1);
   }
 
   // The shade veil: the same radial shade construction
@@ -263,7 +299,14 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     var s = spot();
     // Behind the fox from the camera's side of the group:
     // deeper into the picture and a step toward the trees.
-    veil.position.set(s.x + 0.35, apronY(s.z) + 0.72, s.z - 0.55);
+    // Placement and size are per stance (see the shade-
+    // depth table): at the narrow stance the veil runs
+    // larger and centered on the animal, because the wide
+    // placement's core lands off him on phones and his
+    // corner of the photograph stays lit (Rosa's N2).
+    var v = isNarrow() ? VEIL_NARROW : VEIL_WIDE;
+    veil.position.set(s.x + v.off[0], apronY(s.z) + v.off[1], s.z + v.off[2]);
+    veil.scale.set(v.scale[0], v.scale[1], 1);
   }
 
   // Seat the holder prog units along the path from the
@@ -278,10 +321,24 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
     holder.rotation.set(PITCH, machine.yaw, 0);
   }
 
+  // The coat tint, per stance (see the shade-depth table):
+  // the wide values are the approved grade; the narrow
+  // values are the same warm family at two-thirds of the
+  // light, so the phone fox sits as deep in his shade as
+  // the desktop fox sits in his. Runs at load and again on
+  // every stance flip, so a rotation or resize re-grades
+  // him with the rest of the spot's shade.
+  function applyTint() {
+    if (!animalMats.length) return;
+    var t = isNarrow() ? TINT_NARROW : TINT_WIDE;
+    animalMats.forEach(function (m) { m.color.setRGB(t[0], t[1], t[2]); });
+  }
+
   function applyStance() {
     placePool();
     placeVeil();
     placeFox();
+    applyTint();
   }
 
   function easeYaw(target, rate, dt) {
@@ -478,12 +535,15 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
         // and not as a lit animal pasted into a dark corner.
         // (First revision captures at half light still read
         // sunlit against the bright photograph; a third sits
-        // in the shade's own value range.)
+        // in the shade's own value range.) The grade itself
+        // is per stance: applyTint holds the values.
         gltf.scene.traverse(function (o) {
-          if (o.isMesh && o.material && o.material.color) {
-            o.material.color.setRGB(0.34, 0.325, 0.31);
+          if (o.isMesh && o.material && o.material.color
+              && animalMats.indexOf(o.material) === -1) {
+            animalMats.push(o.material);
           }
         });
+        applyTint();
         animal = gltf.scene;
         holder.add(animal);
         mixer = new THREE.AnimationMixer(animal);
