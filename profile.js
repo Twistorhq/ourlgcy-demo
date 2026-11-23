@@ -500,10 +500,25 @@
   if (identity) {
     confirmIdentity(identity)
       .then(function (r) {
-        if (r.ok) openProfile(identity, r.profile, r.pack);
-        else openProfile(identity, null, null);
+        if (r.ok) {
+          openProfile(identity, r.profile, r.pack);
+          return;
+        }
+        // Both witnesses rejected the stored email: there is no
+        // signup behind it, so it opens nothing. Drop the stored
+        // identity and land on the sign-in panel with the same
+        // plain refusal the sign-in form gives. (TW-1284, Rosa
+        // Finding 1.)
+        S.clearEmail();
+        showSignin(
+          "We do not have a signup under that email yet. Check the spelling, or sign up first and come back with the same email.",
+          true
+        );
       })
       .catch(function () {
+        // A network failure is not a rejection: neither witness
+        // answered, so the profile opens on the stored identity
+        // exactly as before.
         openProfile(identity, null, null);
       });
   } else {
