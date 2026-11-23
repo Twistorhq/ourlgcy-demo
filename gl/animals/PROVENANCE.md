@@ -327,3 +327,45 @@ Owl_Scan). Shipped numbers are recorded in
 `qa/tw1076-owl/EVIDENCE.md`.
 
 Prepared by Twistor Holdings LLC
+
+# Provenance: red fox (threshold, TW-1298)
+
+## Source asset
+
+- **What:** "Fox" model, rig, and animation clips by Mesh2Motion
+  (Scott Petrovic): a skinned red fox (1,654 triangles, 53 deform
+  bones) with authored Idle and Walk clips. Unlike the Grab3D
+  residents, this animal arrived already rigged and animated;
+  nothing was modeled or rigged for Our LGCY.
+- **Publisher / source:** Mesh2Motion assets repository,
+  https://github.com/Mesh2Motion/mesh2motion-assets, pinned
+  commit 4752820c88f998cd93e9fb8aeea2860fe137df11.
+- **Retrieved:** November 23, 2026, under TW-1292 (per-file raw
+  fetch, byte-verified against the pull manifest after two
+  Rosa-adjudicated corrections; full history in the shelf
+  sidecar at `twistor-lab/projects/our-lgcy/assets-mesh2motion/fox/PROVENANCE.md`).
+- **License:** CC0 1.0 Universal (Public Domain Dedication).
+- **License evidence, saved in this folder:**
+  - `LICENSE-mesh2motion-fox.txt`, SHA-256
+    a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499
+
+## Shipped file
+
+| File | Bytes | Triangles | SHA-256 |
+| --- | --- | --- | --- |
+| fox-rigged.glb | 213,696 | 1,654 | 7eeb42615e64e04f115acb5aa03fd878d6d25c268412930ac24c66762ea37b85 |
+
+## Modifications log
+
+Assembled in the Blender lane (TW-1298 step 1, Imani Carter):
+the rig file's own skinned fox, its authored Idle and Walk
+actions appended, rig widget objects removed, uniform scale
+0.378 applied so the fox stands knee-to-hip on the buck
+(back-top 0.58 against the deer's 1.84), grounded at bind
+min z +0.0015. No decimation, no re-rigging, no clip edits.
+Build record: `FOX-SCENE-LOG.md` beside the shelf sources.
+Placement (TW-1298 step 2): a guest of the buck's threshold
+scene (gl/fox.js), standing on the outcrop's left shoulder,
+Idle looping as its resident behavior.
+
+Prepared by Twistor Holdings LLC
