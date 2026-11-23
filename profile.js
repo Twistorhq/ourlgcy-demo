@@ -276,6 +276,18 @@
           ? item.rendition
           : item.rendition.url || "";
     }
+    // The backend serves a rendition only to the owning email:
+    // GET /uploads/{id}?email=&view=rendition. The payload's
+    // rendition_url carries the view but not the email, so the
+    // caller's own email rides along here, the same way
+    // uploadUrl builds the original's link. Without it the
+    // download answers 422 and the viewable copy never opens
+    // (Rosa Finding F1, TW-1284 formats gate).
+    if (raw && currentEmail && raw.indexOf("email=") === -1) {
+      raw +=
+        (raw.indexOf("?") === -1 ? "?" : "&") +
+        "email=" + encodeURIComponent(currentEmail);
+    }
     return resolveUrl(raw);
   }
 
