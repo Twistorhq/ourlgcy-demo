@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stay in the Loop: Our LGCY</title>
+<title>Start Your Tree: Our LGCY</title>
 <meta name="description" content="The Our LGCY family sign up. Leave your email, phone, and state, and we will write when your branch grows. Demo preview with a fictional sample family.">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -21,7 +21,7 @@
         <li><a href="case.html">The Bridge</a></li>
         <li><a href="upload.html">Add Your Records</a></li>
         <li><a href="reference.html">Reference Center</a></li>
-        <li><a href="family.html" aria-current="page">Stay in the Loop</a></li>
+        <li><a href="family.html" aria-current="page">Start Your Tree</a></li>
       </ul>
     </nav>
   </div>
@@ -176,6 +176,7 @@
         </div>
         <div class="field" data-rfield="relation">
           <label for="r-relation">Relation to you</label>
+          <p class="hint">Add your parents first. Grandparents are placed in pairs, in the order you add them: the first two go with the first parent you added, the next two with the second parent.</p>
           <select id="r-relation" name="relation" aria-describedby="e-r-relation">
             <option value="">Choose one</option>
             <option value="self">Myself</option>
@@ -190,8 +191,9 @@
         </div>
         <div class="field" data-rfield="birth_year">
           <label for="r-birth-year">Birth year</label>
-          <input id="r-birth-year" name="birth_year" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 1941" aria-describedby="e-r-birth-year">
-          <p class="field-error" id="e-r-birth-year">A four digit year, or leave it blank if you do not know.</p>
+          <p class="hint">Approximate is fine: "about 1941" works, and it is stored as family-reported, never as proven.</p>
+          <input id="r-birth-year" name="birth_year" type="text" autocomplete="off" placeholder="e.g. 1941, or about 1941" aria-describedby="e-r-birth-year">
+          <p class="field-error" id="e-r-birth-year">A year like 1941, or "about 1941", or leave it blank if you do not know.</p>
         </div>
         <div class="field">
           <label for="r-birth-place">Birth place</label>
@@ -200,8 +202,8 @@
         <div class="field" data-rfield="death_year">
           <label for="r-death-year">Death year</label>
           <p class="hint">Leave both death fields blank for someone living. Living people's details stay private.</p>
-          <input id="r-death-year" name="death_year" type="text" inputmode="numeric" autocomplete="off" placeholder="e.g. 1998" aria-describedby="e-r-death-year">
-          <p class="field-error" id="e-r-death-year">A four digit year after their birth year, or leave it blank.</p>
+          <input id="r-death-year" name="death_year" type="text" autocomplete="off" placeholder="e.g. 1998, or about 1998" aria-describedby="e-r-death-year">
+          <p class="field-error" id="e-r-death-year">A year like 1998, or "about 1998", after their birth year, or leave it blank.</p>
         </div>
         <div class="field">
           <label for="r-death-place">Death place</label>
@@ -232,7 +234,7 @@
           <p style="margin:8px 0 0"><a href="index.html#your-tree">See your tree</a> · <span id="record-count"></span></p>
         </div>
         <div class="form-note error" id="record-error-note" role="alert">
-          <strong>That record did not go through, and nothing was saved.</strong> Your answers are still in the form. Check your connection and send again.
+          <strong>That record did not go through, and nothing was saved.</strong> <span id="record-error-detail">Your answers are still in the form. Check your connection and send again.</span>
         </div>
       </form>
     </section>
@@ -248,7 +250,7 @@
         <li><a href="case.html">The Bridge</a></li>
         <li><a href="upload.html">Add Your Records</a></li>
         <li><a href="reference.html">Reference Center</a></li>
-        <li><a href="family.html">Stay in the Loop</a></li>
+        <li><a href="family.html">Start Your Tree</a></li>
       </ul>
     </nav>
     <p>Our LGCY is a private family project. This public preview shows the experience with a fictional sample family only.</p>
