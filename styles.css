@@ -1604,27 +1604,62 @@ div.claim {
 .btn-pine:active { box-shadow: 0 1px 0 #0d1f14; }
 
 /* --- The maple leaf: hint badge + the leaf-count indicator ---
-   A hint is a clue, never a fact: the badge says the word Hint
-   beside the leaf, and the leaf is drawn in the site's own line
-   style, filled flat in maple rust. Not an emoji, not a copy of
-   anyone else's leaf. FOUNDER RULING + REFINEMENT (Nov 23,
-   2026): hint notifications live ONLY on the tree: the badge
-   sits at the upper right corner of a tree card, and the
-   aggregate indicator is a MAPLE LEAF CARRYING THE COUNT AS A
-   NUMBER ON THE LEAF, mounted at the upper right of the tree
-   view and at the top right of the profile's tree. Never a
-   plain circle badge, and no header indicator anywhere; these
-   are the only hint styles that exist. */
+   A hint is a clue, never a fact. FIX ROUND (founder's eye,
+   Nov 23, 2026): the first leaf read as a sunburst and was
+   discarded; the leaf is now drawn to the classic maple
+   silhouette of the 🍁 emoji (five lobes, deep sinuses,
+   serrated teeth, stem) in a fall gradient, and the count
+   rides at the leaf's heart, not low on it. The profile mount
+   is seated inside its block, aligned with the heading, not
+   poking above it. FOUNDER RULING + REFINEMENT (Nov 23, 2026):
+   hint notifications live ONLY on the tree: the badge sits at
+   the upper right corner of a tree card, and the aggregate
+   indicator is a MAPLE LEAF CARRYING THE COUNT AS A NUMBER ON
+   THE LEAF, mounted at the upper right of the tree view and
+   at the top right of the profile's tree. Never a plain
+   circle badge, and no header indicator anywhere.
+   FOUNDER UX REFINEMENT (Nov 23, 2026): the badge is the LEAF
+   ALONE — no visible word, no count on it — and it is a link
+   into the person's card, landing on the connection hint
+   inside (the .connection-hint block below). It keeps the
+   cards' button feel: a raised leaf button that lifts on
+   hover and presses on active. */
 .hint-badge {
-  position: absolute; top: 10px; right: 10px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 5px;
-  background: #f6e8df; border: 1.5px solid var(--maple); border-radius: 6px;
-  color: #6e3418; padding: 2px 8px 2px 6px;
-  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1.5;
-  pointer-events: none;
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; padding: 0;
+  background: #faf3e3; border: 1.5px solid var(--maple); border-radius: 999px;
+  box-shadow: 0 2px 0 rgba(125, 108, 72, 0.45);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
-.hint-badge svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--maple); }
-.pcard.has-hint .pname { padding-right: 62px; }
+.hint-badge svg { width: 21px; height: 21px; flex: 0 0 auto; }
+a.hint-badge:hover { transform: translateY(-1px); box-shadow: 0 3px 0 rgba(125, 108, 72, 0.45); }
+a.hint-badge:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(125, 108, 72, 0.45); }
+a.hint-badge:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.pcard.has-hint .pname { padding-right: 46px; }
+
+/* Inside the person's card, the hint is a CONNECTION hint:
+   relational language composed from the link evidence, the
+   engine's question quoted under it, and the honesty line.
+   It sits at the top of the card, under the person's head,
+   and carries the #hint anchor the tree's corner leaf lands
+   on, so it needs air above it under the sticky header. */
+.connection-hint {
+  margin-top: 26px; padding: 18px 20px 14px;
+  background: #f8efdb; border: 1.5px solid var(--maple); border-radius: 10px;
+  box-shadow: 0 3px 0 rgba(125, 108, 72, 0.35);
+  scroll-margin-top: 96px;
+}
+.connection-title {
+  display: flex; align-items: center; gap: 9px;
+  margin: 0 0 6px; font-size: 1.3rem; line-height: 1.2;
+}
+.connection-title svg { width: 24px; height: 24px; flex: 0 0 auto; }
+.connection-item { margin-top: 10px; }
+.connection-line { margin: 0 0 4px; font-size: 1.05rem; }
+.connection-question { margin: 0; font-style: italic; }
+.connection-question a { font-style: normal; }
+.connection-note { margin: 12px 0 4px; font-size: 0.92rem; color: #6e3418; }
 
 .leaf-count {
   position: absolute; top: 16px; z-index: 3;
@@ -1637,20 +1672,23 @@ div.claim {
 }
 .leaf-count svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .leaf-count .leaf-num {
-  position: relative; margin-top: 3px;
+  position: relative; margin-top: -5px;
   color: #fff; font-size: 1.02rem; font-weight: 800; line-height: 1;
   text-shadow: 0 1px 2px rgba(60, 20, 5, 0.6);
 }
 .leaf-count:hover { transform: translateY(-2px) rotate(-4deg); color: var(--maple); }
 .leaf-count:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 50%; }
 /* The profile mount: the leaf anchors to the tree block there,
-   at its top right, not to the page. */
+   at its top right, not to the page. It seats INSIDE the
+   block, its top aligned with the block's heading line, flush
+   to the block's right edge, so it reads as part of the tree
+   block rather than a sticker floated over it. */
 .leaf-anchor { position: relative; }
-.leaf-count.in-profile { top: -6px; right: 0; }
+.leaf-count.in-profile { top: 2px; right: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pcard, .roster-btn, .btn, .leaf-count { transition: none; }
-  .roster-btn:hover, .btn:hover, .leaf-count:hover { transform: none; }
+  .pcard, .roster-btn, .btn, .leaf-count, .hint-badge { transition: none; }
+  .roster-btn:hover, .btn:hover, .leaf-count:hover, a.hint-badge:hover { transform: none; }
   .roster-btn:active, .btn:active { transform: none; }
   .pcard:hover, .pcard:active, a.pcard:focus-visible { translate: none; }
 }

@@ -1,10 +1,23 @@
 // Our LGCY hints (TW-1307): the maple-leaf hint language.
 //
-// A hint is a CLUE, never a fact. Wherever a hint renders it is
-// labeled as one: a maple-leaf badge on the card or tree person
-// it belongs to, carrying the word "Hint". The leaf is drawn
-// inline, in the site's own flat line style, filled in maple
-// rust. It is not an emoji and not anyone else's leaf.
+// A hint is a CLUE, never a fact. On the tree it renders as a
+// maple leaf alone at the upper right corner of the card of
+// the person it belongs to: FOUNDER UX REFINEMENT (Nov 23,
+// 2026) — no visible word "Hint" and no count on the badge;
+// the leaf alone marks the card, its accessible name still
+// says what it is, and the leaf is a LINK into that person's
+// card (person.html?id=…#hint), landing on the hint inside.
+// Inside the card the hint renders as a CONNECTION hint, in
+// relational language composed from the link evidence itself
+// (see connectionLine): a possible connection, never a proven
+// one. The leaf is drawn inline. FIX ROUND (founder's eye,
+// Nov 23, 2026): the first drawing read as a sunburst and was
+// discarded; the leaf is now drawn to the classic maple
+// silhouette of the 🍁 emoji — five pointed lobes, deep
+// sinuses, serrated teeth, a clean stem — in a fall gradient,
+// deep red at the crown to gold at the base, so it reads as
+// THE maple leaf at a glance at badge size and at indicator
+// size alike.
 //
 // FOUNDER RULING (Nov 23, 2026): notifications live ONLY on the
 // tree. There is no site-chrome indicator: the header stays
@@ -24,21 +37,27 @@
 //
 // THE SEAM. Hints arrive from SOURCES. A source is a function
 // load(email) returning a promise of hint objects:
-//   { id, kind, subjectName, text, source }
+//   { id, kind, subjectName, text, source, relation?, ancestor? }
 // subjectName names the tree person the hint belongs to (badges
 // match cards by the person's name); text is the clue itself, in
 // the producing engine's own words. Rendering never edits a
-// clue's words and never upgrades one into a claim.
+// clue's words and never upgrades one into a claim. A source may
+// also carry the link evidence as fields — relation (the
+// candidate relation the engine proposes) and ancestor
+// ({ name, relation }, a documented speaker linked to the
+// subject) — and the in-card presentation composes its
+// relational line from exactly those fields, never from a
+// relation the data does not carry.
 //
 // Source one, today: the member's pending kin questions
-// (TW-1278), read from window.LGCY_KIN_QUESTIONS_ENDPOINT in the
-// same contract shape kin-questions.js consumes: the response is
-// an array, or { questions: [...] }, each question
-// { id, phrase, subject_name, candidate_relation, ancestor? }.
-// The kin layer owns answering; this layer only points at the
-// waiting question, from the person's card and the tree's own
-// corner flag, and its links land where the questions live, the
-// Community.
+// (TW-1278), read from window.LGCY_KIN_QUESTIONS_ENDPOINT: the
+// response is an array, or { questions: [...] }, each question
+// { id, phrase, subject_name, candidate_relation, ancestor? },
+// where candidate_relation is the relation the subject is
+// proposed to be TO THE MEMBER ("Is June Park your cousin?")
+// and ancestor is { id, name, relation } or null. The kin layer
+// owns answering, in the Community; this layer marks the card,
+// links into it, and presents the connection inside it.
 //
 // Source two, next: survey-seeded hints (TW-1307 part 3). When
 // Dre's endpoint lands, that lane registers its loader through
@@ -66,14 +85,29 @@
     return String(s == null ? "" : s).trim().replace(/\s+/g, " ").toLowerCase();
   }
 
-  // The maple leaf, drawn once and reused: a stylized eleven-
-  // point leaf with its stem, symmetric around its centre line.
+  // The maple leaf, drawn once and reused: the classic maple
+  // silhouette (the 🍁 shape) on a 100-unit grid, symmetric
+  // around its centre line — a broad centre lobe with one tooth
+  // a side, upper lobes angled up and out, lower lobes spread
+  // wide, small basal lobes, deep sinuses between them, and a
+  // clean stem. The fill is a fall gradient (deep red crown to
+  // gold base) with a flat fall-orange fallback. Every instance
+  // carries its own identical gradient defs, so the paint
+  // resolves the same wherever instances come and go.
   var LEAF =
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-    '<path d="M12 0.6l1.6 3.6 4-2-1.2 3.2 5.4 1-3 2.4 1.8 3.8-3.4-.4.4 5.2 ' +
-    '-3.7-2v6.2h-2.2v-6.2l-3.7 2 .4-5.2-3.4.4 1.8-3.8-3-2.4 5.4-1-1.2-3.2 ' +
-    '4 2z" fill="currentColor" ' +
-    'stroke="currentColor" stroke-width="0.7" stroke-linejoin="round"/></svg>';
+    '<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+    '<defs><linearGradient id="lgcy-leaf-grad" x1="0" y1="0" x2="0.2" y2="1">' +
+    '<stop offset="0" stop-color="#b8261a"/>' +
+    '<stop offset="0.45" stop-color="#d84a15"/>' +
+    '<stop offset="0.75" stop-color="#e87a1c"/>' +
+    '<stop offset="1" stop-color="#f2a41f"/>' +
+    "</linearGradient></defs>" +
+    '<path d="M50 2 L55.5 11 L61 18 L56.5 24 L56 27 L58 31 ' +
+    'L71 27 L81 16 L76 26 L64 42 L79 39 L95 46 L81 55 L66 56 ' +
+    'L74 62 L74 70 L60 68 L53 74 L51.5 85 L51 95 L47 95.5 ' +
+    'L47.5 85 L47 74 L40 68 L26 70 L26 62 L34 56 L19 55 L5 46 ' +
+    'L21 39 L36 42 L24 26 L19 16 L29 27 L42 31 L44 27 L43.5 24 ' +
+    'L39 18 L44.5 11 Z" fill="url(#lgcy-leaf-grad) #d95d16"/></svg>';
 
   var sources = [];
   var hints = [];
@@ -103,6 +137,14 @@
                 q.phrase ||
                 "A question is waiting about " + q.subject_name + ".",
               source: "kin-question",
+              relation: q.candidate_relation || null,
+              ancestor:
+                q.ancestor && q.ancestor.name
+                  ? {
+                      name: q.ancestor.name,
+                      relation: q.ancestor.relation || "",
+                    }
+                  : null,
             };
           });
       })
@@ -177,25 +219,51 @@
     }
   }
 
-  // --- The badge: a leaf and the word Hint at the UPPER RIGHT
-  // corner of the tree card of the person a hint belongs to.
-  // Cards are matched by the person's name, the one identifier
-  // every tree card already carries (the sample tree's cards and
-  // your-tree's cards alike). ---
-  function badgeFor(list) {
-    var first = list[0];
-    var span = document.createElement("span");
-    span.className = "hint-badge";
-    span.setAttribute("role", "note");
-    span.setAttribute(
-      "aria-label",
-      "Hint, not a fact: " + first.text
-    );
-    span.title = "Hint: " + first.text;
-    span.innerHTML =
-      LEAF +
-      "<span>Hint" + (list.length > 1 ? " ×" + list.length : "") + "</span>";
-    return span;
+  // --- The badge: the maple leaf ALONE at the UPPER RIGHT
+  // corner of the tree card of the person a hint belongs to
+  // (founder UX refinement, Nov 23, 2026: no visible word, no
+  // count; stacked hints on one card are counted inside the
+  // card, not on the badge). The leaf is a link into that
+  // person's card, landing on the hint inside (#hint); the
+  // person's id comes from the card itself, whose element id
+  // is "p-<person id>" on every tree (the sample journey's
+  // cards and your-tree's cards alike). Cards are matched by
+  // the person's name, the one identifier every tree card
+  // already carries. The accessible name stays descriptive:
+  // it says this is a hint, names the person, and keeps the
+  // honesty line, a clue, not a fact. ---
+  function badgeFor(list, card) {
+    var name = list[0].subjectName;
+    var label =
+      (list.length > 1 ? list.length + " hints" : "Hint") +
+      " for " +
+      name +
+      ". A hint is a clue, not a fact.";
+    var pid =
+      card && card.id && card.id.indexOf("p-") === 0
+        ? card.id.slice(2)
+        : "";
+    var el;
+    if (pid) {
+      el = document.createElement("a");
+      el.href = "person.html?id=" + encodeURIComponent(pid) + "#hint";
+      el.setAttribute(
+        "aria-label",
+        label +
+          " Open " +
+          name +
+          "'s card to see the possible connection" +
+          (list.length > 1 ? "s" : "") +
+          "."
+      );
+    } else {
+      el = document.createElement("span");
+      el.setAttribute("role", "note");
+      el.setAttribute("aria-label", label);
+    }
+    el.className = "hint-badge";
+    el.innerHTML = LEAF;
+    return el;
   }
 
   function decorate(root) {
@@ -221,7 +289,7 @@
       if (old && old.getAttribute("data-hint-ids") ===
           list.map(function (h) { return h.id; }).join(",")) return;
       if (old) old.remove();
-      var badge = badgeFor(list);
+      var badge = badgeFor(list, card);
       badge.setAttribute(
         "data-hint-ids",
         list.map(function (h) { return h.id; }).join(",")
@@ -231,11 +299,146 @@
     });
   }
 
+  // --- Inside the card: the CONNECTION hint (founder UX
+  // refinement, Nov 23, 2026). On a person's card (person.html),
+  // the hints that belong to that person render as a connection
+  // block at the top of the card, anchored #hint so the tree's
+  // corner leaf lands the visitor on it. Each hint's line is
+  // composed from its own link evidence and nothing else:
+  //   - a documented ancestor linked to the subject: the line
+  //     names the ancestor and the link in the ancestor's own
+  //     relation words, then the hedge, may be your family also;
+  //   - a candidate relation: the subject may be your <relation>,
+  //     in the engine's own relation vocabulary;
+  //   - neither: the records link the subject to your family,
+  //     and the subject may be your family also.
+  // A relation the data does not carry is never composed. The
+  // engine's question is quoted verbatim under its line, with
+  // the path to answer it, and the block carries the honesty
+  // line once: a possible connection, not a proven one. A
+  // source with no evidence fields (the survey lane, when it
+  // registers) presents its clue in its engine's own words
+  // under the same heading, through this same block. ---
+  var RELATION_WORD = {
+    parent: "parent",
+    grandparent: "grandparent",
+    sibling: "brother or sister",
+    cousin: "cousin",
+  };
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function connectionLine(h) {
+    var name = h.subjectName;
+    if (h.ancestor && h.ancestor.name) {
+      var link = h.ancestor.relation
+        ? h.ancestor.name + " was " + h.ancestor.relation + " " + name
+        : h.ancestor.name + " is linked to " + name;
+      return (
+        link +
+        ", in your family's records — so " +
+        name +
+        " may be your family also."
+      );
+    }
+    var word = h.relation ? RELATION_WORD[h.relation] : null;
+    if (word) {
+      return (
+        "The records link " +
+        name +
+        " to your family — " +
+        name +
+        " may be your " +
+        word +
+        "."
+      );
+    }
+    if (h.relation || h.kind === "kin-question") {
+      return (
+        "The records link " +
+        name +
+        " to your family — " +
+        name +
+        " may be your family also."
+      );
+    }
+    return h.text;
+  }
+
+  function renderPersonHints() {
+    var main = document.getElementById("main");
+    if (!main) return true; // not a page with a person's card
+    var head = main.querySelector(".person-head");
+    var meta = main.querySelector(".person-meta");
+    var h1 = head ? head.querySelector("h1") : null;
+    if (!head || !meta || !h1) return false; // the card has not rendered yet
+    var key = normName(h1.textContent);
+    var list = hints.filter(function (h) {
+      return normName(h.subjectName) === key;
+    });
+    var old = main.querySelector(".connection-hint");
+    var ids = list
+      .map(function (h) {
+        return h.id;
+      })
+      .join(",");
+    if (old && old.getAttribute("data-hint-ids") === ids) return true;
+    if (old) old.remove();
+    if (!list.length) return true;
+    var items = list
+      .map(function (h) {
+        var html =
+          '<div class="connection-item"><p class="connection-line">' +
+          esc(connectionLine(h)) +
+          "</p>";
+        if (h.kind === "kin-question") {
+          html +=
+            '<p class="connection-question">A question is waiting: ' +
+            esc(h.text) +
+            ' <a href="community.html">Answer it in the Community</a></p>';
+        }
+        return html + "</div>";
+      })
+      .join("");
+    var block = document.createElement("section");
+    block.className = "connection-hint";
+    block.id = "hint";
+    block.setAttribute("data-hint-ids", ids);
+    block.setAttribute(
+      "aria-label",
+      "Possible connection" +
+        (list.length > 1 ? "s" : "") +
+        " for " +
+        h1.textContent.trim() +
+        ". A hint is a clue, not a fact."
+    );
+    block.innerHTML =
+      '<h2 class="connection-title">' +
+      LEAF +
+      "<span>A possible connection" +
+      (list.length > 1 ? "s" : "") +
+      "</span></h2>" +
+      items +
+      '<p class="connection-note">A hint is a clue, not a fact: ' +
+      "nothing here joins your tree until the question is answered.</p>";
+    head.parentNode.insertBefore(block, head.nextSibling);
+    if (window.location.hash === "#hint") {
+      block.scrollIntoView();
+    }
+    return true;
+  }
+
   function refresh() {
     return loadAll().then(function (list) {
       hints = list;
       renderLeafCounts();
       decorate(document);
+      renderPersonHints();
     });
   }
 
@@ -293,6 +496,22 @@
       attributes: true,
       attributeFilter: ["class"],
     });
+
+    // A person's card renders after its pack lands, which can
+    // be after the hints do. Watch the card's mount until the
+    // connection block settles (rendered, or the rendered card
+    // is not a hinted person's), then stop; a card that never
+    // renders settles nothing and the watch simply expires.
+    var mainEl = document.getElementById("main");
+    if (mainEl) {
+      var personMo = new MutationObserver(function () {
+        if (renderPersonHints()) personMo.disconnect();
+      });
+      personMo.observe(mainEl, { childList: true, subtree: true });
+      window.setTimeout(function () {
+        personMo.disconnect();
+      }, 20000);
+    }
   }
 
   refresh();
