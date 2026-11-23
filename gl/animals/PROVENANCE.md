@@ -369,3 +369,55 @@ scene (gl/fox.js), standing on the outcrop's left shoulder,
 Idle looping as its resident behavior.
 
 Prepared by Twistor Holdings LLC
+
+# Provenance: the two fawns (threshold, TW-1302)
+
+## Source asset
+
+- **What:** two whitetail fawns derived from the same Grab3D
+  "Deer" model the buck came from (see the deer entry at the
+  head of this file), carried through the house Route B rig
+  (22,000-tri decimation, 25-bone house rig). Unlike the
+  fox, these animals were modeled as juveniles, rigged, and
+  animated for Our LGCY from the CC0 source.
+- **Publisher / source:** Grab3D, via grab3d.com; house rig
+  file `assets-mesh2motion/fitting-run/route-b/route-b-rigged.blend`
+  on the lab shelf.
+- **License:** CC0 1.0 Universal (Public Domain Dedication).
+- **License evidence, saved in this folder:**
+  - `LICENSE-grab3d-deer.txt`, SHA-256
+    a15412842aa03ed7746551767e80808a9303edbbca02a06cfbcf354dfbd0ad27
+    (the same evidence file as the buck's; one source, one
+    dedication).
+
+## Shipped files
+
+| File | Bytes | Bind height | Spots | SHA-256 |
+| --- | --- | --- | --- | --- |
+| fawn-a.glb | 1,491,476 | 0.884 | 115 (seed 7) | d0144dcc5e597bdeda3397710be09de924e9f1219c2bc8a17b7cbd332fff2308 |
+| fawn-b.glb | 1,490,312 | 0.990 | 88 (seed 21) | acd1185cd42761abac587c0f96f91ff558779222c07fc5251c29ced3ec5d1953 |
+
+## Modifications log
+
+Built in the Blender lane (TW-1302 step 1, Imani Carter):
+antlers removed per-fragment with a pedicle squash finish,
+juvenile proportions (muzzle pulled back, gentle eye bulge,
+torso and legs slimmed), a neck weight repaint so the deep
+graze fold does not tear, procedural spotted coats drawn
+into the base-color texture only, uniform scales 0.58 (A)
+and 0.65 (B) against the buck's 1.84, grounded at bind min
+z +0.002. Four baked clips each, all loopable: Graze (head
+down the entire time), GrazeLook (down, up with a look
+around, down, varied beats), Walk (in place), Idle. No
+decimation or re-encode at placement: the files ship at
+their built size, in the buck's own shipped class; the
+weight call and its reasoning are recorded on TW-1302.
+Build record: `FAWN-BUILD-LOG.md` beside the shelf sources
+at `twistor-lab/projects/our-lgcy/assets-fawns/`.
+Placement (TW-1302 step 2): guests of the buck's threshold
+scene (gl/fawns.js), standing with the deer on the apron
+ground at his front-left, walking in and out of the scene
+on their own hours; A grazes head-down, B alternates
+eating and looking up.
+
+Prepared by Twistor Holdings LLC
