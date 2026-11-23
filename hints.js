@@ -18,6 +18,17 @@
 // deep red at the crown to gold at the base, so it reads as
 // THE maple leaf at a glance at badge size and at indicator
 // size alike.
+// NOTO SWAP (founder's word, Nov 23, 2026): the hand-drawn
+// leaf is replaced by the 🍁 artwork itself, from Google's
+// Noto Emoji library (googlefonts/noto-emoji,
+// 2D/svg/emoji_u1f341.svg), inlined below — self-hosted, no
+// external request. License as verified in the repo: its
+// README describes the image resources as Apache License 2.0;
+// the repo LICENSE file (replaced 2024-07-29, commit 254596e5)
+// is the SIL Open Font License 1.1. Full record in the README
+// credits and the TW-1307 gate note. The artwork is optimized
+// in-house (SVGO: Illustrator metadata stripped, coordinates
+// at 3 decimals); its geometry and paint are Google's.
 //
 // FOUNDER RULING (Nov 23, 2026): notifications live ONLY on the
 // tree. There is no site-chrome indicator: the header stays
@@ -85,29 +96,27 @@
     return String(s == null ? "" : s).trim().replace(/\s+/g, " ").toLowerCase();
   }
 
-  // The maple leaf, drawn once and reused: the classic maple
-  // silhouette (the 🍁 shape) on a 100-unit grid, symmetric
-  // around its centre line — a broad centre lobe with one tooth
-  // a side, upper lobes angled up and out, lower lobes spread
-  // wide, small basal lobes, deep sinuses between them, and a
-  // clean stem. The fill is a fall gradient (deep red crown to
-  // gold base) with a flat fall-orange fallback. Every instance
-  // carries its own identical gradient defs, so the paint
-  // resolves the same wherever instances come and go.
+  // The maple leaf, drawn once and reused: Google's Noto
+  // Emoji 🍁 (U+1F341), the artwork itself, inlined.
+  // Copyright Google LLC; source googlefonts/noto-emoji,
+  // 2D/svg/emoji_u1f341.svg; license record in the header
+  // comment above and in the README credits. Optimized
+  // in-house with SVGO through the pocket-design gate
+  // (Illustrator metadata and its private PGF blob stripped,
+  // coordinates rounded to 3 decimals, gradient ids renamed
+  // into this file's namespace): 55,280 source bytes to a
+  // 3,482-byte inline string. Every instance carries its own
+  // identical gradient defs, so the paint resolves the same
+  // wherever instances come and go.
   var LEAF =
-    '<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
-    '<defs><linearGradient id="lgcy-leaf-grad" x1="0" y1="0" x2="0.2" y2="1">' +
-    '<stop offset="0" stop-color="#b8261a"/>' +
-    '<stop offset="0.45" stop-color="#d84a15"/>' +
-    '<stop offset="0.75" stop-color="#e87a1c"/>' +
-    '<stop offset="1" stop-color="#f2a41f"/>' +
-    "</linearGradient></defs>" +
-    '<path d="M50 2 L55.5 11 L61 18 L56.5 24 L56 27 L58 31 ' +
-    'L71 27 L81 16 L76 26 L64 42 L79 39 L95 46 L81 55 L66 56 ' +
-    'L74 62 L74 70 L60 68 L53 74 L51.5 85 L51 95 L47 95.5 ' +
-    'L47.5 85 L47 74 L40 68 L26 70 L26 62 L34 56 L19 55 L5 46 ' +
-    'L21 39 L36 42 L24 26 L19 16 L29 27 L42 31 L44 27 L43.5 24 ' +
-    'L39 18 L44.5 11 Z" fill="url(#lgcy-leaf-grad) #d95d16"/></svg>';
+    '<svg viewBox="0 0 128 128" aria-hidden="true" focusable="false">' +
+    '<linearGradient id="lgcy-noto-a" x1="64.466" x2="64.466" y1="91.429" y2="112.358" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:#df7c1a"/><stop offset=".348" style="stop-color:#cf721b"/><stop offset="1" style="stop-color:#a6581c"/></linearGradient>' +
+    '<path fill="url(#lgcy-noto-a)" d="M59.686 122.154c.2.99 1.31 1.87 4.39 2.07s5.15-.3 5.23-1.95c.09-1.65-1.14-3.49-1.34-4.88s-.99-10.74-1.19-15.61-.36-14.16-.36-14.16l-4.07.43s.06 9.65-.14 14.52-1.01 12.01-1.11 13.89c-.09 1.71-1.83 3.61-1.41 5.69"/>' +
+    '<radialGradient id="lgcy-noto-b" cx="65.836" cy="38.176" r="62.079" gradientTransform="rotate(180.773 .01 71.3)scale(-1 1.2816)" gradientUnits="userSpaceOnUse"><stop offset=".002" style="stop-color:#ffbe06"/><stop offset=".12" style="stop-color:#ffb907"/><stop offset=".26" style="stop-color:#ffaa09"/><stop offset=".412" style="stop-color:#ff920d"/><stop offset=".571" style="stop-color:#ff7113"/><stop offset=".679" style="stop-color:#ff5617"/><stop offset="1" style="stop-color:#df1024"/></radialGradient>' +
+    '<path fill="url(#lgcy-noto-b)" d="M64.396 89.454s-5.57 6.36-9.55 8.75-9.55 5.27-10.54 4.57 1.39-5.57 1.39-5.57-8.32 1.88-17.53-.79c-8.82-2.55-14.09-6.37-13.69-7.47s4.57-1.69 8.65-3.28 9.55-4.18 9.55-4.18-7.83-2.84-12.3-5.62-7.29-5.41-7.39-6.31c-.1-.89 6.26-2.49 6.26-2.49s-3.48-2.39-6.07-10.14-3.27-13.63-2.78-14.21c1.18-1.37 11.73 2.28 14.72 3.85 2.88 1.51 7.55 4.5 7.55 4.5s-.3-5.97.7-5.97c.99 0 3.58 2.39 5.87 5.37s9.05 13.32 10.74 12.53c1.69-.8.09-5.78-2.28-10.67-1.49-3.08-3.59-8.23-4.78-14.29-1.18-6-.5-10.94.2-11.53.7-.6 7.46 4.67 7.46 4.67s-.54-5.79.55-10.76 2.03-6.46 2.62-6.56c.6-.1 2.99 3.4 2.99 3.4s.92-4.95 2.91-8.43 3.75-5.09 4.64-5.09 3.52 3.49 4.71 7.17 1.88 6.73 1.88 6.73 1.51-3.09 2.18-3.2c.57-.09 2.58 2.16 3.57 7.43s.99 8.91.99 8.91 4.28-4.47 5.07-4.57c.8-.1 2.79 5.07 1.3 12.13s-5.37 13.88-6.27 17.56c-.89 3.68-1.69 7.29-.2 7.69s3-4.1 6.18-9.08 7.54-10.21 8.14-9.82c.6.4 1.49 2.29 1.69 3.28s.3 2.88.3 2.88 4.57-3.08 8.55-4.57 12.93-4.77 14.82-3.18-1.49 10.14-3.48 14.52-6.36 10.93-6.36 10.93 5.95 1.14 5.85 2.03-4.95 4.89-9.33 7.18-9.96 4.13-9.96 4.13 2.49 1.69 8.35 3.58c5.87 1.89 10.74 2.49 11.14 3.48s-2.29 4.47-11.24 6.86-18.93 1.06-19.43 1.55c-.5.5 2.43 4.41 1.63 5.51s-6.17-.42-10.34-3.98c-5.35-4.56-9.63-9.43-9.63-9.43"/>' +
+    '<radialGradient id="lgcy-noto-c" cx="65.7" cy="86.334" r="42.364" gradientTransform="matrix(1 0 0 1.54133 0 -46.736)" gradientUnits="userSpaceOnUse"><stop offset=".42" style="stop-color:#df7c1a"/><stop offset=".717" style="stop-color:#c0681b"/><stop offset="1" style="stop-color:#a6581c"/></radialGradient>' +
+    '<path fill="url(#lgcy-noto-c)" d="M64.486 91.914s1.82-1.4 5.59-2.16c2.07-.42 4.88-.47 7.95-.4 8.24.17 17.03 1.71 21.65 1.87 4.62.15 8.86 0 8.78-1s-7.16-.54-12.55-1.54-13.17-2.08-16.41-2.23c-8.37-.41-10.09.77-10.09.77s10.78-9.55 14.79-12.63 10.47-8.12 16.41-13.4c5.17-4.6 14.63-14.33 14.02-15.17-.62-.85-12.25 10.24-16.48 13.63-4.24 3.39-9.85 7.6-18.55 14.46s-13.34 11.35-13.34 11.35-.69-25.8-.92-31.89c-.23-6.08-.23-28.87-.39-31.64s.39-14.26-1-14.19c-1.39.08-1.62 9.4-1.77 14.1s-.15 24.49-.31 30.58.23 32.73.23 32.73-16.56-12.46-22.72-17.39-16.47-14.18-17.86-15.34-6.71-6.11-7.33-5.49 7.17 8.88 10.1 11.5 16.15 14.09 21.85 18.78 12.88 9.92 12.88 9.92-6.78-.77-15.92.05c-6.93.62-13.43 1.42-16.28 1.65s-7.24.31-7.39.92c-.15.62 3.54 1.54 10.94 1.08 7.39-.46 11.26-.79 16.64-1.05 7.32-.35 12.02-.1 13.86.36 1.85.46 3.62 1.77 3.62 1.77"/>' +
+    '</svg>';
 
   var sources = [];
   var hints = [];

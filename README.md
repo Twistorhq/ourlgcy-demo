@@ -95,6 +95,23 @@ design; the circles never carry fake faces.
 Animal photographs are toned and feather-masked in CSS to blend into
 the oak; the animals are Easter eggs and carry no labels in the UI.
 
+- Maple leaf (`hints.js`, inline SVG): the 🍁 emoji artwork (U+1F341)
+  from Google's Noto Emoji library, © Google LLC.
+  Source: https://github.com/googlefonts/noto-emoji
+  (`2D/svg/emoji_u1f341.svg`, fetched 2026-11-23). Inlined in the
+  hints layer; no external request. Optimized in-house with SVGO
+  (Illustrator metadata stripped, coordinates rounded to 3 decimals,
+  gradient ids renamed); geometry and paint are Google's, unchanged
+  in shape. License, as verified in the repo on 2026-11-23: the repo
+  README's License section states "Tools and most image resources
+  are under the Apache license, version 2.0"; the repo's LICENSE
+  file itself was replaced on 2024-07-29 (commit 254596e5, "Update
+  LICENSE to OFL") and is the SIL Open Font License 1.1, which is
+  also the license GitHub reports for the repo. The two statements
+  stand side by side in the repo; both are open licenses that
+  permit this use, and this credit is the artwork's license notice
+  under either reading. The leaf is never sold by itself.
+
 ## WebGL deer and library credits (v4 slice 1)
 
 The deer at the base of the tree is a real animated 3D model on
