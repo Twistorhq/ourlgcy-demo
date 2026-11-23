@@ -28,6 +28,7 @@
   var errorNote = document.getElementById("record-error-note");
   var treeNote = document.getElementById("record-tree-note");
   var treeList = document.getElementById("record-tree-list");
+  var errorDetail = document.getElementById("record-error-detail");
   var added = 0;
 
   // TW-1284: after a record lands, read the tree back and show who
@@ -62,19 +63,62 @@
       });
   }
 
-  function yearOk(v) {
+  // A refusal from the archive carries its reason, field by field.
+  // The visitor hears THAT reason in plain words, never a generic
+  // "check your connection" for a record the archive read and
+  // refused: a wrong diagnosis sends her retrying forever.
+  function refusalText(errors) {
+    if (!errors || typeof errors !== "object") return null;
+    if (errors.relation === "self already recorded") {
+      return "You already have a record for yourself on your tree, and there is one record for you. Add the next person instead.";
+    }
+    if (errors.email === "not signed up") {
+      return "We do not have a signup under the email in this form yet. Sign up above with that same email first, or check the spelling here.";
+    }
+    if (errors.death_year === "before birth year") {
+      return "The death year is before the birth year. Check those two years and send again. Your answers are still in the form.";
+    }
+    var parts = [];
+    Object.keys(errors).forEach(function (field) {
+      parts.push(field.replace("_", " ") + ": " + errors[field]);
+    });
+    if (!parts.length) return null;
+    return "The archive could not take it (" + parts.join("; ") + "). Your answers are still in the form; fix that part and send again.";
+  }
+
+  function showError(detail) {
+    if (errorDetail && detail) errorDetail.textContent = detail;
+    errorNote.classList.add("show");
+    errorNote.setAttribute("tabindex", "-1");
+    errorNote.focus();
+  }
+
+  // Years arrive the way family memory holds them: "1941", but also
+  // "about 1941", "c. 1941", "1941?", "around 1941". Any of those is
+  // a year the family reports, and the pack already carries record
+  // facts as family-reported ("Probable"), so the honest move is to
+  // take the year out of the words and send the integer. A value
+  // with no four-digit year in it is not a year at all.
+  function yearParse(v) {
     v = v.trim();
-    if (v === "") return true;
-    if (!/^\d{4}$/.test(v)) return false;
-    var y = parseInt(v, 10);
-    return y >= 1000 && y <= new Date().getFullYear();
+    if (v === "") return null;
+    var m = v.match(/(1\d{3}|20\d{2})/);
+    if (!m) return NaN;
+    var y = parseInt(m[1], 10);
+    if (y < 1000 || y > new Date().getFullYear()) return NaN;
+    return y;
+  }
+
+  function yearOk(v) {
+    if (v.trim() === "") return true;
+    return !isNaN(yearParse(v));
   }
 
   // The intake contract takes years as integers or null, never as
   // strings: a blank field goes over the wire as null.
   function yearOrNull(v) {
-    v = v.trim();
-    return v === "" ? null : parseInt(v, 10);
+    var y = yearParse(v);
+    return y === null || isNaN(y) ? null : y;
   }
 
   var FIELDS = {
@@ -106,9 +150,10 @@
       el: document.getElementById("r-death-year"),
       ok: function (v) {
         if (!yearOk(v)) return false;
-        var b = document.getElementById("r-birth-year").value.trim();
-        if (v.trim() !== "" && /^\d{4}$/.test(b)) {
-          return parseInt(v, 10) >= parseInt(b, 10);
+        var d = yearParse(v);
+        var b = yearParse(document.getElementById("r-birth-year").value);
+        if (d !== null && b !== null && !isNaN(d) && !isNaN(b)) {
+          return d >= b;
         }
         return true;
       },
@@ -194,7 +239,26 @@
       body: JSON.stringify(payload),
     })
       .then(function (res) {
-        if (!res.ok) throw new Error("records " + res.status);
+        if (!res.ok) {
+          // Read the refusal's reasons before showing anything: the
+          // body is the archive saying exactly what it refused.
+          return res
+            .json()
+            .catch(function () {
+              return {};
+            })
+            .then(function (body) {
+              showError(
+                refusalText(body && body.errors) ||
+                  "Your answers are still in the form. Check your connection and send again."
+              );
+              return null;
+            });
+        }
+        return res;
+      })
+      .then(function (res) {
+        if (!res) return;
         // The contract answers 201 when the record is stored and 200
         // when that exact record was already on the tree; the receipt
         // says which one happened.
@@ -237,9 +301,11 @@
         FIELDS.full_name.el.focus();
       })
       .catch(function () {
-        errorNote.classList.add("show");
-        errorNote.setAttribute("tabindex", "-1");
-        errorNote.focus();
+        // The fetch itself failed: no answer came back at all. Only
+        // here is "check your connection" the true sentence.
+        showError(
+          "Your answers are still in the form. Check your connection and send again."
+        );
       })
       .then(function () {
         submitBtn.disabled = false;
