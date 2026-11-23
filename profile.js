@@ -60,13 +60,24 @@
   var uploadsEmpty = document.getElementById("uploads-empty");
 
   var MAX_BYTES = 10 * 1024 * 1024;
-  // The same extension table the backend enforces (TW-1284,
-  // Dre's UPLOAD_TYPES): the client guard and the server can
-  // never disagree about what is welcome.
+  // The welcome table (TW-1284; founder word Nov 23: any photo
+  // format, from any device). Every image format a phone or a
+  // computer hands over, the TW-1279 video formats, and the
+  // papers. The original file is the record; the backend keeps
+  // it untouched and makes a viewable copy of anything a
+  // browser cannot open on its own. What is refused here is
+  // only what is genuinely not a photo, a video, or a paper:
+  // programs, archives, and kinds nobody can name.
   var OK_EXT = [
-    "jpg", "jpeg", "png", "gif", "webp",
+    "jpg", "jpeg", "png", "gif", "webp", "heic", "heif",
+    "avif", "tif", "tiff", "bmp", "svg",
+    "mp4", "mov", "webm", "m4v",
     "pdf", "txt", "md", "docx",
   ];
+  // Photos a browser cannot show as saved: for these, the
+  // list opens the backend's viewable copy (rendition_url)
+  // when one rides along, and keeps the original one tap away.
+  var NO_DISPLAY_EXT = ["heic", "heif", "tif", "tiff"];
   var picked = null;
   var currentEmail = "";
 
@@ -243,15 +254,34 @@
       .join("");
   }
 
+  function resolveUrl(raw) {
+    if (!raw) return "";
+    try {
+      return new URL(raw, UPLOADS_EP || window.location.href).href;
+    } catch (e) {
+      return raw;
+    }
+  }
+
+  function renditionUrl(item) {
+    // Dre's rendition field (TW-1284, founder word Nov 23): for
+    // a photo the browser cannot open as saved (an iPhone HEIC,
+    // a TIFF scan), the backend makes a viewable copy at upload
+    // and its link rides the profile payload as rendition_url.
+    // Optional by design: absent means the original opens as is.
+    var raw = item.rendition_url || "";
+    if (!raw && item.rendition) {
+      raw =
+        typeof item.rendition === "string"
+          ? item.rendition
+          : item.rendition.url || "";
+    }
+    return resolveUrl(raw);
+  }
+
   function uploadUrl(item) {
     var raw = item.url || item.download_url || "";
-    if (raw) {
-      try {
-        return new URL(raw, UPLOADS_EP || window.location.href).href;
-      } catch (e) {
-        return raw;
-      }
-    }
+    if (raw) return resolveUrl(raw);
     // Dre's recall route: GET /uploads/{id}?email= serves the
     // bytes back to the owning email alone, so the link is built
     // from the id and this visitor's own email.
@@ -266,16 +296,31 @@
 
   function uploadItem(item) {
     var name = item.filename || item.name || "Untitled file";
-    var meta = [fmtSize(item.size), fmtDate(item.uploaded_at || item.created_at)]
-      .filter(Boolean)
-      .join(" · ");
+    var ext = (String(name).split(".").pop() || "").toLowerCase();
     var url = uploadUrl(item);
-    var head = url
-      ? '<a href="' + esc(url) + '" target="_blank" rel="noopener">' +
+    var rend = renditionUrl(item);
+    // A photo the browser cannot open as saved leads with its
+    // viewable copy when the backend sent one; the original
+    // stays one tap away, named plainly, because the original
+    // is the record. Anything the browser opens on its own, and
+    // any item with no rendition yet, links the original.
+    var leadRend = !!rend && NO_DISPLAY_EXT.indexOf(ext) !== -1;
+    var main = leadRend ? rend : url;
+    var head = main
+      ? '<a href="' + esc(main) + '" target="_blank" rel="noopener">' +
         esc(name) + "</a>"
       : "<span>" + esc(name) + "</span>";
+    var orig = "";
+    if (leadRend && url) {
+      orig =
+        ' <a href="' + esc(url) + '" target="_blank" rel="noopener">' +
+        "Original file</a>";
+    }
+    var parts = [fmtSize(item.size), fmtDate(item.uploaded_at || item.created_at)];
+    if (leadRend) parts.push("viewable copy");
+    var meta = parts.filter(Boolean).join(" · ");
     return (
-      "<li>" + head +
+      "<li>" + head + orig +
       (meta ? '<span class="up-meta">' + esc(meta) + "</span>" : "") +
       "</li>"
     );
@@ -352,8 +397,9 @@
     var ext = (file.name.split(".").pop() || "").toLowerCase();
     if (OK_EXT.indexOf(ext) === -1) {
       return (
-        "That kind of file cannot go on the tree yet. Pictures (JPG, PNG, " +
-        "GIF, WebP), PDFs, and documents (TXT, MD, DOCX) are welcome."
+        "That kind of file cannot go on the tree. Photos and videos " +
+        "from any phone or computer are welcome, plus PDFs and " +
+        "documents (TXT, MD, DOCX)."
       );
     }
     if (file.size > MAX_BYTES) {
@@ -475,8 +521,9 @@
             "Sign in above, then upload again.";
         } else if (errs && errs.filename) {
           msg =
-            "The tree could not take that file. Pictures (JPG, PNG, GIF, " +
-            "WebP), PDFs, and documents (TXT, MD, DOCX) are welcome.";
+            "The tree could not take that file. Photos and videos from " +
+            "any phone or computer are welcome, plus PDFs and " +
+            "documents (TXT, MD, DOCX).";
         }
         note(upNote, msg, true);
       }
