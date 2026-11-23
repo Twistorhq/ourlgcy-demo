@@ -21,15 +21,23 @@
         <li><a href="case.html">The Bridge</a></li>
         <li><a href="upload.html" aria-current="page">Add Your Records</a></li>
         <li><a href="reference.html">Reference Center</a></li>
+        <li><a href="profile.html">Your Profile</a></li>
       </ul>
     </nav>
   </div>
 </header>
 
-<div class="demo-banner" role="note">
+<div class="demo-banner" role="note" data-demo-only>
   <div class="wrap">
     <strong>Demo preview.</strong>
     <span>This upload screen is a mock. Files you drop here never leave your device, and nothing is stored.</span>
+  </div>
+</div>
+
+<div class="demo-banner" role="note" data-own-only>
+  <div class="wrap">
+    <strong>You are signed in.</strong>
+    <span>This page is the tour. Your real upload lives on <a href="profile.html">your profile</a>, where files are stored with your tree and you can open them again any time.</span>
   </div>
 </div>
 
@@ -107,5 +115,6 @@
 </footer>
 
 <script src="app.js"></script>
+<script src="session.js"></script>
 </body>
 </html>

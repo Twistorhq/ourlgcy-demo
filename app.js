@@ -506,6 +506,19 @@
     railMarks.forEach(function (m) {
       m.classList.toggle("active", m.getAttribute("data-target") === current.id);
     });
+
+    // TW-1284: the journey's furniture (era rail, follow pill)
+    // belongs to the journey. Once the bottom zone (the your-tree
+    // section, and the footer below it) reaches the middle of the
+    // screen, both step aside so no year label or control ever
+    // sits on top of the words at the bottom of the page.
+    var ytZone = document.getElementById("your-tree");
+    var pastJourney = false;
+    if (ytZone) {
+      pastJourney =
+        ytZone.getBoundingClientRect().top < window.innerHeight * 0.55;
+    }
+    document.body.classList.toggle("past-journey", pastJourney);
     ticking = false;
   }
   window.addEventListener(

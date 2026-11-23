@@ -113,6 +113,9 @@
         try {
           window.sessionStorage.setItem("lgcy-signup-email", payload.email);
         } catch (err) {}
+        // TW-1284: the session helper owns the demo/own mode; the
+        // page flips to own mode the moment the signup lands.
+        if (window.LGCYSession) window.LGCYSession.applyMode();
         var recEmail = document.getElementById("r-email");
         if (recEmail && !recEmail.value) recEmail.value = payload.email;
         form.hidden = true;

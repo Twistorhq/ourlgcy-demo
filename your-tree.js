@@ -1,14 +1,24 @@
-// Our LGCY your-tree state (TW-1276): on index.html, a visitor who
-// signed up can enter their signup email and see THEIR tree, grown
-// from the records they added, rendered with the same card markup
-// the build tools generate for the sample tree (tools/build_journey.py).
-// The pack comes from the intake API (window.LGCY_PACK_ENDPOINT, set
-// in family-config.js) in the data/lineage-phase1.json schema.
+// Our LGCY your-tree state (TW-1276, TW-1284): on index.html, a
+// visitor who signed up sees THEIR tree, grown from the records
+// they added, rendered with the same card markup the build tools
+// generate for the sample tree (tools/build_journey.py). The pack
+// comes from the intake API (window.LGCY_PACK_ENDPOINT, set in
+// family-config.js) in the data/lineage-phase1.json schema.
 //
-// The sample tree stays the anonymous default. The demo note at the
-// bottom belongs to the demo view only: it hides in your-tree mode.
-// An email with no records gets a plain answer and a path to add
-// some, never a sample tree wearing their name.
+// TW-1284 (founder feedback): the session decides. session.js is
+// the one helper that knows the identity; when it is present at
+// page load, this section loads their pack on its own, the sample
+// journey steps aside, and the tree stands full strength, never
+// grayed, never the demo wearing their name. A signed-in visitor
+// with no records yet gets an honest empty state in the same
+// place, still in own mode. The email form remains for a visitor
+// who has not signed in on this device: a successful lookup there
+// IS their sign-in, and the session takes the email from it.
+//
+// The sample tree stays the anonymous default. The demo note at
+// the bottom belongs to the demo view only: it hides in your-tree
+// mode. An email with no records gets a plain answer and a path
+// to add some, never a sample tree wearing their name.
 (function () {
   "use strict";
 
@@ -24,22 +34,33 @@
   var groupsEl = document.getElementById("yt-groups");
   var titleEl = document.getElementById("yt-title");
   var backBtn = document.getElementById("yt-back");
+  var introEl = document.getElementById("yt-intro");
+  var signedinEl = document.getElementById("yt-signedin");
 
-  try {
-    var saved = window.sessionStorage.getItem("lgcy-signup-email");
-    if (saved && !emailEl.value) emailEl.value = saved;
-  } catch (e) {}
-  var fromHash = window.location.hash === "#your-tree";
-  var params = new URLSearchParams(window.location.search);
-  if (params.get("email")) emailEl.value = params.get("email");
-  if (fromHash && emailEl.value) form.requestSubmit();
-
+  var S = window.LGCYSession || null;
+  function sessionEmail() {
+    if (S) return S.getEmail();
+    try {
+      return window.sessionStorage.getItem("lgcy-signup-email") || "";
+    } catch (e) {
+      return "";
+    }
+  }
   function esc(s) {
+    if (S) return S.esc(s);
     return String(s == null ? "" : s)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
+
+  try {
+    var saved = sessionEmail();
+    if (saved && !emailEl.value) emailEl.value = saved;
+  } catch (e) {}
+  var fromHash = window.location.hash === "#your-tree";
+  var params = new URLSearchParams(window.location.search);
+  if (params.get("email")) emailEl.value = params.get("email");
 
   function metaFor(p, rootId) {
     if (p.id === rootId) return "Root of this family tree";
@@ -124,6 +145,21 @@
     return html + "</span></article>";
   }
 
+  function ownChrome(email) {
+    // The section speaks as the visitor's own place now: the demo
+    // framing in the intro steps aside and the signed-in line
+    // names whose tree this is.
+    if (introEl) {
+      introEl.textContent =
+        "This is your tree, grown from your records alone. Nobody else sees it, and it grows every time you add a record.";
+    }
+    if (signedinEl) {
+      signedinEl.innerHTML =
+        "Signed in as " + esc(email) + ". " +
+        '<a href="profile.html">Your profile, records, and uploads</a>';
+    }
+  }
+
   function render(pack) {
     var built = generations(pack);
     var keys = Object.keys(built.groups)
@@ -176,7 +212,20 @@
     document.body.classList.add("your-tree-on");
     status.textContent =
       "Your tree, grown from your records alone. Nobody else sees it.";
-    results.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function renderEmpty(email) {
+    // Signed in, nothing added yet: own mode all the same, with an
+    // honest empty state where their tree will stand.
+    titleEl.textContent = "Your tree";
+    groupsEl.innerHTML =
+      '<div class="yt-empty"><p>Nothing here yet. Your tree grows from ' +
+      "your records, and it begins with the first person you add.</p>" +
+      '<p><a class="btn btn-pine" href="family.html#start-tree">' +
+      "Add your first record</a></p></div>";
+    results.hidden = false;
+    document.body.classList.add("your-tree-on");
+    status.textContent = "Your tree is waiting for its first record.";
   }
 
   function leave() {
@@ -188,6 +237,78 @@
 
   backBtn.addEventListener("click", leave);
 
+  // One loader for every path in: the auto-load at page open for a
+  // signed-in visitor, the form for everyone else, and the retry
+  // after a failed load. mode "auto" keeps the visitor in own mode
+  // through an empty pack; mode "form" keeps the TW-1276 answers.
+  function load(email, mode) {
+    if (!ENDPOINT) {
+      status.textContent =
+        "Preview mode: no tree lookup is wired here, so nothing was fetched and nothing was stored.";
+      return Promise.resolve();
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Looking...";
+    status.textContent = "";
+    return fetch(ENDPOINT + "?email=" + encodeURIComponent(email), {
+      headers: { Accept: "application/json" },
+    })
+      .then(function (res) {
+        if (res.status === 404) {
+          if (mode === "auto") {
+            renderEmpty(email);
+          } else {
+            leave();
+            status.innerHTML =
+              "No records yet for that email. Your tree begins with the first one: " +
+              '<a href="family.html#start-tree">add your first record</a>.';
+          }
+          return null;
+        }
+        if (!res.ok) throw new Error("pack " + res.status);
+        return res.json();
+      })
+      .then(function (pack) {
+        if (pack) {
+          if (S) S.setEmail(email);
+          ownChrome(email);
+          render(pack);
+          if (mode === "form") {
+            results.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      })
+      .catch(function () {
+        if (mode === "auto") {
+          // Stay in own mode: the demo never comes back for a
+          // signed-in visitor, even when the load fails.
+          titleEl.textContent = "Your tree";
+          groupsEl.innerHTML =
+            '<div class="yt-empty"><p>Your tree could not be loaded ' +
+            "just now. Check your connection, then try again.</p>" +
+            '<p><button class="btn btn-pine" type="button" id="yt-retry">' +
+            "Try again</button></p></div>";
+          results.hidden = false;
+          document.body.classList.add("your-tree-on");
+          status.textContent = "";
+          var retry = document.getElementById("yt-retry");
+          if (retry) {
+            retry.addEventListener("click", function () {
+              load(email, "auto");
+            });
+          }
+        } else {
+          leave();
+          status.textContent =
+            "That lookup did not go through. Check your connection and try again.";
+        }
+      })
+      .then(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Show my tree";
+      });
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var email = emailEl.value.trim();
@@ -196,39 +317,20 @@
       emailEl.focus();
       return;
     }
-    if (!ENDPOINT) {
-      status.textContent =
-        "Preview mode: no tree lookup is wired here, so nothing was fetched and nothing was stored.";
-      return;
-    }
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Looking...";
-    status.textContent = "";
-    fetch(ENDPOINT + "?email=" + encodeURIComponent(email), {
-      headers: { Accept: "application/json" },
-    })
-      .then(function (res) {
-        if (res.status === 404) {
-          leave();
-          status.innerHTML =
-            "No records yet for that email. Your tree begins with the first one: " +
-            '<a href="family.html#start-tree">add your first record</a>.';
-          return null;
-        }
-        if (!res.ok) throw new Error("pack " + res.status);
-        return res.json();
-      })
-      .then(function (pack) {
-        if (pack) render(pack);
-      })
-      .catch(function () {
-        leave();
-        status.textContent =
-          "That lookup did not go through. Check your connection and try again.";
-      })
-      .then(function () {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Show my tree";
-      });
+    load(email, "form");
   });
+
+  // The session path: signed in on this device means their tree
+  // loads itself, no form, no second ask for the email.
+  var identity = sessionEmail();
+  if (identity) {
+    ownChrome(identity);
+    document.body.classList.add("your-tree-on");
+    status.textContent = "Loading your tree...";
+    load(identity, "auto");
+  } else if (fromHash && emailEl.value) {
+    form.requestSubmit();
+  }
+
+  window.LGCYYourTree = { load: load };
 })();

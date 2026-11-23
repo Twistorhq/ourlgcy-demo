@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Profile: Our LGCY</title>
+<meta name="description" content="Your Our LGCY profile: your signup details, your tree, your records, and your uploads, all in one place. Sign in with the email you signed up with.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="index.html">Our <span>LGCY</span></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" data-nav-toggle>Menu</button>
+    <nav class="main-nav" id="main-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+        <li><a href="profile.html" aria-current="page">Your Profile</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Our LGCY · Your profile</p>
+      <h1>Your corner of the tree</h1>
+      <p class="lede">Everything you have given the tree lives here: your details, your people, and the photos and papers you have uploaded. Only you see this page.</p>
+    </div>
+
+    <div class="profile-zone">
+    <section id="profile-signin" hidden>
+      <form class="claim" id="signin-form" novalidate style="max-width:34em">
+        <div class="field" data-field="email">
+          <label for="s-email">Your signup email</label>
+          <p class="hint">The email you signed up with. That alone signs you in here: your profile and your tree are keyed to it.</p>
+          <input id="s-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="e-s-email">
+          <p class="field-error" id="e-s-email">That email does not look complete. Check it and try again.</p>
+        </div>
+        <button class="btn btn-pine" type="submit" id="signin-submit">Sign in</button>
+        <p class="privacy-line">New here? <a href="family.html">Sign up first</a>, then come back and sign in with the same email.</p>
+        <div class="form-note" id="signin-note" role="status"></div>
+      </form>
+    </section>
+
+    <div id="profile-main" hidden>
+      <div class="two-col" style="margin-top:20px">
+        <div>
+          <h2 style="margin-bottom:14px">Your details</h2>
+          <dl class="profile-facts" id="profile-facts"></dl>
+          <p style="margin-top:14px">
+            <button class="btn" type="button" id="signout-btn">Sign out on this device</button>
+          </p>
+
+          <h2 style="margin:34px 0 14px">Your uploads</h2>
+          <p>Photos and papers you have given the tree. They are stored as you sent them, and you can open any of them here, any time.</p>
+          <div class="upload-box">
+            <div class="upload-pick">
+              <label class="btn btn-pine" for="up-file">Choose a photo or document</label>
+              <input type="file" id="up-file" hidden accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.md,.docx">
+              <button class="btn" type="button" id="up-send" disabled>Upload</button>
+            </div>
+            <p class="upload-file-line" id="up-file-line">No file chosen yet. Pictures (JPG, PNG, GIF, WebP), PDFs, and documents (TXT, MD, DOCX), up to 10 MB.</p>
+            <div class="upload-progress" id="up-progress" hidden><span id="up-progress-bar"></span></div>
+            <div class="form-note" id="up-note" role="status"></div>
+          </div>
+          <ul class="uploads-list" id="uploads-list"></ul>
+          <p class="up-meta" id="uploads-empty">Nothing uploaded yet. Your first photo or paper will stand here.</p>
+        </div>
+
+        <div>
+          <h2 style="margin-bottom:14px">Your tree</h2>
+          <p id="profile-tree-line">Loading your tree...</p>
+          <ul class="profile-people" id="profile-people"></ul>
+          <p style="margin-top:14px">
+            <a class="btn btn-pine" href="index.html#your-tree">See your tree</a>
+            <a class="btn" href="family.html#start-tree">Add a record</a>
+          </p>
+          <div class="rail-box" style="margin-top:26px">
+            <h3>How this page works</h3>
+            <p>Your tree grows only from what you add: records on the family page, and the photos and papers you upload here. Nothing you see on this page is shown to anyone else.</p>
+            <p style="margin-bottom:0"><a href="community.html">Visit the community</a> · <a href="person.html">Read the stories</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="form-note show" id="profile-loading" role="status">Loading your profile...</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="person.html">A Life, Told Fully</a></li>
+        <li><a href="case.html">The Bridge</a></li>
+        <li><a href="upload.html">Add Your Records</a></li>
+        <li><a href="reference.html">Reference Center</a></li>
+        <li><a href="family.html">Stay in the Loop</a></li>
+      </ul>
+    </nav>
+    <p>Our LGCY is a private family project. Your profile, your tree, and your uploads are yours alone.</p>
+    <p class="fine">Prepared by Twistor Holdings LLC<br>
+    Living people are masked: no dates for the living appear here.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script src="family-config.js"></script>
+<script src="session.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>
